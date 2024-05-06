@@ -108,25 +108,26 @@
         function loadUserNotebooks() {
             const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
             userNotebooksRef.once('value', function(snapshot) {
-                const notebooks = snapshot.val() || {};
-                document.getElementById('notebookTabs').innerHTML = '';
-                
-                // Populate tabs for existing notebooks
-                Object.keys(notebooks).forEach((notebookId, index) => {
-                    createTab(notebookId, index === 0); // Set the first tab as active by default if no activeTabUID is set
-                });
+                const notebooks = snapshot.val();
+                const notebooksContainer = document.getElementById('notebookTabs');
+                notebooksContainer.innerHTML = ''; // Clear previous tabs
         
-                // If no notebooks exist, create one
-                if (Object.keys(notebooks).length === 0) {
-                    createNotebook();
-                } else {
-                    // If notebooks exist, ensure the previously active tab is selected, or default to the first one
+                if (notebooks) {
+                    Object.keys(notebooks).forEach((notebookId, index) => {
+                        createTab(notebookId, index === 0); // Set the first tab as active by default if no activeTabUID is set
+                    });
+        
+                    // Set the active tab based on localStorage or default to the first notebook
                     const activeTabUID = getActiveTabUID();
                     if (activeTabUID) {
                         setActiveTab(activeTabUID);
                     } else {
-                        setActiveTab(Object.keys(notebooks)[0]); // Default to the first notebook if no active tab is stored
+                        const firstNotebookId = Object.keys(notebooks)[0];
+                        setActiveTab(firstNotebookId); // Default to the first notebook if no active tab is stored
                     }
+                } else {
+                    // Only create a new notebook if no notebooks are found
+                    createNotebook();
                 }
             });
         }
@@ -135,31 +136,33 @@
             const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks`).push();
             newNotebookRef.set({ createdAt: Date.now() }, function(error) {
                 if (!error) {
-                    createTab(newNotebookRef.key, true);
+                    createTab(newNotebookRef.key, true); // Also set this new notebook as active
                 }
             });
         }
-        function createTab(notebookId, setActive = false) {
-            var tab = document.createElement('li');
-            tab.className = 'nav-item';
-            var link = document.createElement('a');
-            link.className = 'nav-link';
-            link.href = '#';
-            link.textContent = `Notebook ${notebookId}`;
-            link.dataset.notebookId = notebookId;
-            link.onclick = function() {
-                document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                loadNotes(notebookId);
-                saveActiveTabUID(notebookId); // Save the active tab UID whenever a tab is clicked
-                return false;
-            };
-            tab.appendChild(link);
-            document.getElementById('notebookTabs').appendChild(tab);
-            if (setActive) {
-                link.click(); // Automatically click the link to set it as active if specified
-            }
-        }
+       
+
+function createTab(notebookId, setActive = false) {
+    var tab = document.createElement('li');
+    tab.className = 'nav-item';
+    var link = document.createElement('a');
+    link.className = 'nav-link';
+    link.href = '#';
+    link.textContent = `Notebook ${notebookId}`;
+    link.dataset.notebookId = notebookId;
+    link.onclick = function() {
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        loadNotes(notebookId);
+        saveActiveTabUID(notebookId); // Save the active tab UID whenever a tab is clicked
+        return false;
+    };
+    tab.appendChild(link);
+    document.getElementById('notebookTabs').appendChild(tab);
+    if (setActive) {
+        link.click(); // Automatically click the link to set it as active if specified
+    }
+}
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function(snapshot) {
