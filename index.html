@@ -170,6 +170,14 @@ function createTab(notebookId, setActive = false) {
                 }
             });
         }
+        function updateRecordingIndicator(starting) {
+            const indicator = document.getElementById('recordingIndicator');
+            if (starting) {
+                indicator.style.display = 'inline';  // Show the indicator
+            } else {
+                indicator.style.display = 'none';  // Hide the indicator
+            }
+        }
         function setupVoiceRecognition() {
             if (annyang) {
                 document.getElementById('startVoiceNoteButton').classList.add("border");
