@@ -132,6 +132,7 @@
 
         function startVoiceNote() {
             if (annyang) {
+                console.log("Je tady");
                 annyang.addCommands({
                     'save note *note': function(note) {
                         const notebookId = document.querySelector('.active')?.dataset.notebookId;
