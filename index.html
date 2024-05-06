@@ -144,6 +144,7 @@
 
                 annyang.addCallback('resultNoMatch', function() {
                     const notebookId = document.querySelector('.active')?.dataset.notebookId;
+                    console.log(lastRecognizedPhrase);
                     if (notebookId && lastRecognizedPhrase) {
                         addNote(lastRecognizedPhrase, notebookId);
                         lastRecognizedPhrase = '';
