@@ -129,21 +129,30 @@
             var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
             newNoteRef.set({ content: content, createdAt: Date.now() });
         }
-
         function startVoiceNote() {
             if (annyang) {
-                console.log("Je tady");
+                console.log("Annyang is ready to go!");
+
+                let lastRecognizedPhrase = '';
+
                 annyang.addCommands({
                     'save note *note': function(note) {
-                        const notebookId = document.querySelector('.active')?.dataset.notebookId;
-                        if (notebookId) {
-                            addNote(note, notebookId);
-                        } else {
-                            console.log('No active notebook selected.');
-                        }
+                        lastRecognizedPhrase = note;
+                        console.log('Heard the note:', note);
                     }
                 });
-                annyang.start();
+
+                annyang.addCallback('resultNoMatch', function() {
+                    const notebookId = document.querySelector('.active')?.dataset.notebookId;
+                    if (notebookId && lastRecognizedPhrase) {
+                        addNote(lastRecognizedPhrase, notebookId);
+                        lastRecognizedPhrase = '';
+                    } else {
+                        console.log('No active notebook selected or no note recognized.');
+                    }
+                });
+
+                annyang.start({ continuous: false });
             }
         }
     </script> 
