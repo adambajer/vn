@@ -128,47 +128,44 @@
         function addNote(content, notebookId) {
             var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
             newNoteRef.set({ content: content, createdAt: Date.now() });
-        }function startVoiceNote() {
+        }
+        function startVoiceNote() {
             if (annyang) {
                 console.log("Annyang is ready to go!");
         
-                let lastRecognizedPhrase = '';
-        
-                // Setup the command and capture the note
+                // Add commands
                 annyang.addCommands({
                     'save note *note': function(note) {
-                        lastRecognizedPhrase = note;
-                        console.log('Captured note:', note);
+                        const notebookId = document.querySelector('.active')?.dataset.notebookId;
+                        if (notebookId) {
+                            console.log('Adding note from voice...', note);
+                            addNote(note, notebookId);
+                        } else {
+                            console.log('No active notebook selected.');
+                        }
                     }
                 });
         
-                // When no match is found, or user stops speaking
-                annyang.addCallback('resultNoMatch', function() {
-                    console.log('No command matched, checking for recognized note...');
-                    saveRecognizedNote();
+                // Debugging result matching
+                annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
+                    console.log(`Command matched! User said: ${userSaid}; Command text: ${commandText}; Other possible phrases: ${phrases.join(', ')}`);
                 });
         
-                // When a match is found
-                annyang.addCallback('result', function() {
-                    console.log('Command matched, checking for recognized note...');
-                    saveRecognizedNote();
+                // Debugging no matches
+                annyang.addCallback('resultNoMatch', function(phrases) {
+                    console.log(`No command matched. Closest phrases were: ${phrases.join(', ')}`);
                 });
         
-                function saveRecognizedNote() {
-                    const notebookId = document.querySelector('.active')?.dataset.notebookId;
-                    if (notebookId && lastRecognizedPhrase) {
-                        addNote(lastRecognizedPhrase, notebookId);
-                        lastRecognizedPhrase = '';
-                    } else {
-                        console.log('No active notebook selected or no note recognized.');
-                    }
-                }
+                // When Annyang ends listening (after result or no match)
+                annyang.addCallback('end', function() {
+                    console.log('Annyang has stopped listening.');
+                });
         
+                // Start listening
                 annyang.start({ continuous: false });
-            } else {
-                console.log("Annyang is not supported or failed to load.");
             }
         }
+        
         
     </script> 
 </body>
