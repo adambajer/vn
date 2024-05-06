@@ -33,7 +33,7 @@
         <input type="text" id="noteInput" class="form-control" placeholder="Enter a note">
         <button id="addNoteButton" class="btn btn-secondary">Add Note</button>
     </div>
-    <button id="startVoiceNoteButton" class="btn btn-danger mt-3">Start Voice Note</button>
+    <button id="startVoiceNoteButton" class="btn btn-info mt-3">Start Voice Note <span id="recordingIndicator" style="display:none;">🔴</span></button>
     <div id="notesContainer" class=""></div>
     <script>
         function saveActiveTabUID(uid) {
@@ -172,7 +172,7 @@ function createTab(notebookId, setActive = false) {
         }
         function setupVoiceRecognition() {
             if (annyang) {
-                document.getElementById('startVoiceNoteButton'.classList.add("border"));
+                document.getElementById('startVoiceNoteButton').classList.add("border");
                 annyang.setLanguage('cs');
                 console.log("Setting up Annyang!");
         
@@ -188,7 +188,17 @@ function createTab(notebookId, setActive = false) {
                         console.log('No active notebook selected or no note to save.');
                     }
                 }
-        
+          // Start listening
+          annyang.addCallback('start', function() {
+            console.log("Voice recognition started.");
+            updateRecordingIndicator(true);
+        });
+
+        // Handle end of listening
+        annyang.addCallback('end', function() {
+            console.log("Voice recognition ended.");
+            updateRecordingIndicator(false);
+        });
                 // Setup to listen and capture any speech
                 annyang.addCommands({
                     '*text': function(text) {
