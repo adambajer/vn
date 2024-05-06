@@ -94,7 +94,7 @@
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
-            link.className = 'nav-link';
+            link.className = 'nav-link' + (setActive ? ' active' : '');
             link.href = '#';
             link.textContent = `Notebook ${notebookId}`;
             link.dataset.notebookId = notebookId;
@@ -104,13 +104,9 @@
                 loadNotes(notebookId);
                 return false;
             };
-            tab.appendChild(link);
             document.getElementById('notebookTabs').appendChild(tab);
-            if (setActive) {
-                link.click();
-            }
         }
-
+        
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function(snapshot) {
