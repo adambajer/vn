@@ -73,9 +73,12 @@
             sessionStorage.setItem('userId', newId);
             return newId;
         }
-        
+ 
         document.addEventListener('DOMContentLoaded', function() {
             loadUserNotebooks();
+            document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+            document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+            document.getElementById('startVoiceNoteButton').addEventListener('click', startVoiceNote);
         });
         
 
