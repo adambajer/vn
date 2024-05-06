@@ -81,9 +81,10 @@
 
         function addNoteFromInput() {
             const noteContent = document.getElementById('noteInput').value;
-            const notebookId = document.querySelector('.active')?.dataset.notebookId;
+            const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
             if (noteContent && notebookId) {
                 addNote(noteContent, notebookId);
+                document.getElementById('noteInput').value = ''; // Clear the input after adding a note
             }
         }
         function loadUserNotebooks() {
@@ -158,9 +159,17 @@ function createTab(notebookId, setActive = false) {
         }
 
         function addNote(content, notebookId) {
+            console.log(`Attempting to add note to notebook ${notebookId}: ${content}`); // Debug output
             var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
-            newNoteRef.set({ content: content, createdAt: Date.now() });
+            newNoteRef.set({ content: content, createdAt: Date.now() }, error => {
+                if (error) {
+                    console.error('Failed to add note:', error);
+                } else {
+                    console.log('Note added successfully');
+                }
+            });
         }
+        
         function startVoiceNote() {
             if (annyang) {
                 annyang.setLanguage('cs');
