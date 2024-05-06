@@ -133,38 +133,46 @@
             if (annyang) {
                 console.log("Annyang is ready to go!");
         
-                // Add commands
-                annyang.addCommands({
-                    'save note *note': function(note) {
-                        const notebookId = document.querySelector('.active')?.dataset.notebookId;
-                        if (notebookId) {
-                            console.log('Adding note from voice...', note);
-                            addNote(note, notebookId);
-                        } else {
-                            console.log('No active notebook selected.');
-                        }
+                let silenceTimer;
+                let lastPhrase = '';
+        
+                // Function to handle saving the note
+                function saveNoteIfAny() {
+                    const notebookId = document.querySelector('.active')?.dataset.notebookId;
+                    if (notebookId && lastPhrase) {
+                        console.log('Adding note from voice:', lastPhrase);
+                        addNote(lastPhrase, notebookId);
+                        lastPhrase = ''; // Reset last phrase after saving
+                    } else {
+                        console.log('No active notebook selected or no note to save.');
                     }
+                }
+        
+                // Setup to listen and capture any speech
+                annyang.addCallback('result', function(phrases) {
+                    clearTimeout(silenceTimer); // Clear previous timer
+                    lastPhrase = phrases[0]; // Assume the first phrase is what the user said
+                    console.log(`Heard: ${lastPhrase}`);
+                    silenceTimer = setTimeout(saveNoteIfAny, 2000); // Set new timer
                 });
         
-                // Debugging result matching
-                annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
-                    console.log(`Command matched! User said: ${userSaid}; Command text: ${commandText}; Other possible phrases: ${phrases.join(', ')}`);
-                });
-        
-                // Debugging no matches
                 annyang.addCallback('resultNoMatch', function(phrases) {
-                    console.log(`No command matched. Closest phrases were: ${phrases.join(', ')}`);
+                    console.log(`No match for: ${phrases.join(', ')}`);
+                    clearTimeout(silenceTimer); // Clear previous timer
+                    silenceTimer = setTimeout(saveNoteIfAny, 2000); // Reset timer after no match
                 });
         
-                // When Annyang ends listening (after result or no match)
                 annyang.addCallback('end', function() {
                     console.log('Annyang has stopped listening.');
+                    clearTimeout(silenceTimer); // Ensure no pending save operations
+                    saveNoteIfAny(); // Save any last noted phrase when Annyang stops
                 });
         
                 // Start listening
-                annyang.start({ continuous: false });
+                annyang.start({ continuous: true }); // Set to continuous if you want it to keep listening
             }
         }
+        
         
         
     </script> 
