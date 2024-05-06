@@ -38,6 +38,9 @@
     <button id="startVoiceNoteButton" class="btn btn-info mt-3">Start Voice Note</button>
     <div id="notesContainer" class="p-3"></div>
     <script>
+        function saveActiveTabUID(uid) {
+            localStorage.setItem('activeTabUID', uid);
+        }
         function setActiveTab(notebookId) {
             const notebookTabs = document.querySelectorAll('.nav-link');
             notebookTabs.forEach(link => {
@@ -52,7 +55,8 @@
                 saveActiveTabUID(notebookId); // Ensure this is called whenever the active tab is set
             }
         }
-    
+      
+        
         // Function to retrieve the active tab's UID from local storage
         function getActiveTabUID() {
             return localStorage.getItem('activeTabUID');
@@ -159,6 +163,8 @@ function createTab(notebookId, setActive = false) {
         }
         function startVoiceNote() {
             if (annyang) {
+                annyang.setLanguage('cs');
+
                 console.log("Annyang is ready to go!");
         
                 let silenceTimer;
