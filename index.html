@@ -65,6 +65,16 @@
         if (activeTabUID) {
             setActiveTab(activeTabUID);
         }
+   // Function to set the active tab
+   function setActiveTab(notebookId) {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.notebookId === notebookId) {
+            link.classList.add('active');
+        }
+    });
+    loadNotes(notebookId);
+}
 
         // Add event listeners for tab clicks
         document.querySelectorAll('.nav-link').forEach(link => {
