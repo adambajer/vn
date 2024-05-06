@@ -38,8 +38,19 @@
     <button id="startVoiceNoteButton" class="btn btn-info mt-3">Start Voice Note</button>
     <div id="notesContainer" class="p-3"></div>
     <script>
-        function saveActiveTabUID(uid) {
-            localStorage.setItem('activeTabUID', uid);
+        function setActiveTab(notebookId) {
+            const notebookTabs = document.querySelectorAll('.nav-link');
+            notebookTabs.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.notebookId === notebookId) {
+                    link.classList.add('active');
+                }
+            });
+        
+            if (notebookId) {
+                loadNotes(notebookId);
+                saveActiveTabUID(notebookId); // Ensure this is called whenever the active tab is set
+            }
         }
     
         // Function to retrieve the active tab's UID from local storage
@@ -60,22 +71,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-               // Load the active tab when the DOM is ready
-        const activeTabUID = getActiveTabUID();
-        if (activeTabUID) {
-            setActiveTab(activeTabUID);
-        }
-   // Function to set the active tab
-   function setActiveTab(notebookId) {
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.dataset.notebookId === notebookId) {
-            link.classList.add('active');
-        }
-    });
-    loadNotes(notebookId);
-}
-
+            const activeTabUID = getActiveTabUID();
+            if (activeTabUID) {
+                setActiveTab(activeTabUID);
+            } else {
+                // If no active tab UID is found, set the first tab as active by default or create one if none exists
+                const firstTabLink = document.querySelector('.nav-link');
+                if (firstTabLink) {
+                    setActiveTab(firstTabLink.dataset.notebookId);
+                } else {
+                    createNotebook(); // This should also handle setting the new notebook as active
+                }
+            }
         // Add event listeners for tab clicks
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(event) {
@@ -121,7 +128,7 @@
             });
         }
 
-        function createTab(notebookId, setActive = false) {
+        function createTab(notebookId, setActive = true) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
