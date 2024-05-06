@@ -69,33 +69,11 @@
             sessionStorage.setItem('userId', newId);
             return newId;
         }
-
+        
         document.addEventListener('DOMContentLoaded', function() {
-            const activeTabUID = getActiveTabUID();
-            if (activeTabUID) {
-                setActiveTab(activeTabUID);
-            } else {
-                // If no active tab UID is found, set the first tab as active by default or create one if none exists
-                const firstTabLink = document.querySelector('.nav-link');
-                if (firstTabLink) {
-                    setActiveTab(firstTabLink.dataset.notebookId);
-                } else {
-                    createNotebook(); // This should also handle setting the new notebook as active
-                }
-            }
-        // Add event listeners for tab clicks
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(event) {
-                const notebookId = this.dataset.notebookId;
-                setActiveTab(notebookId);
-                saveActiveTabUID(notebookId); // Save the active tab's UID to local storage
-            });
-        });
-            document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
-            document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-            document.getElementById('startVoiceNoteButton').addEventListener('click', startVoiceNote);
             loadUserNotebooks();
         });
+        
 
         function addNoteFromInput() {
             const noteContent = document.getElementById('noteInput').value;
@@ -104,31 +82,29 @@
                 addNote(noteContent, notebookId);
             }
         }
-
         function loadUserNotebooks() {
             const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
-            userNotebooksRef.once('value', function(snapshot) {
+            userNotebooksRef.once('value', snapshot => {
                 const notebooks = snapshot.val();
-                const notebooksContainer = document.getElementById('notebookTabs');
-                notebooksContainer.innerHTML = ''; // Clear previous tabs
+                console.log("Notebooks fetched: ", notebooks); // Debug output
         
-                if (notebooks) {
+                if (notebooks && Object.keys(notebooks).length > 0) {
                     Object.keys(notebooks).forEach((notebookId, index) => {
-                        createTab(notebookId, index === 0); // Set the first tab as active by default if no activeTabUID is set
+                        createTab(notebookId, index === 0); // Set the first tab as active by default
                     });
         
-                    // Set the active tab based on localStorage or default to the first notebook
                     const activeTabUID = getActiveTabUID();
                     if (activeTabUID) {
                         setActiveTab(activeTabUID);
                     } else {
-                        const firstNotebookId = Object.keys(notebooks)[0];
-                        setActiveTab(firstNotebookId); // Default to the first notebook if no active tab is stored
+                        setActiveTab(Object.keys(notebooks)[0]);
                     }
                 } else {
-                    // Only create a new notebook if no notebooks are found
-                    createNotebook();
+                    console.log("No notebooks found, creating one..."); // Debug output
+                    createNotebook(); // Only create a new notebook if none are found
                 }
+            }, error => {
+                console.error("Failed to fetch notebooks:", error); // Error handling
             });
         }
 
