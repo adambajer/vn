@@ -94,7 +94,7 @@
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
-            link.className = 'nav-link' + (setActive ? ' active' : '');
+            link.className = 'nav-link';
             link.href = '#';
             link.textContent = `Notebook ${notebookId}`;
             link.dataset.notebookId = notebookId;
@@ -104,9 +104,13 @@
                 loadNotes(notebookId);
                 return false;
             };
+            tab.appendChild(link);
             document.getElementById('notebookTabs').appendChild(tab);
+            if (setActive) {
+                link.click();
+            }
         }
-        
+
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function(snapshot) {
@@ -124,34 +128,48 @@
         function addNote(content, notebookId) {
             var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
             newNoteRef.set({ content: content, createdAt: Date.now() });
-        }
-        function startVoiceNote() {
+        }function startVoiceNote() {
             if (annyang) {
                 console.log("Annyang is ready to go!");
-
+        
                 let lastRecognizedPhrase = '';
-
+        
+                // Setup the command and capture the note
                 annyang.addCommands({
                     'save note *note': function(note) {
                         lastRecognizedPhrase = note;
-                        console.log('Heard the note:', note);
+                        console.log('Captured note:', note);
                     }
                 });
-
+        
+                // When no match is found, or user stops speaking
                 annyang.addCallback('resultNoMatch', function() {
+                    console.log('No command matched, checking for recognized note...');
+                    saveRecognizedNote();
+                });
+        
+                // When a match is found
+                annyang.addCallback('result', function() {
+                    console.log('Command matched, checking for recognized note...');
+                    saveRecognizedNote();
+                });
+        
+                function saveRecognizedNote() {
                     const notebookId = document.querySelector('.active')?.dataset.notebookId;
-                    console.log(lastRecognizedPhrase);
                     if (notebookId && lastRecognizedPhrase) {
                         addNote(lastRecognizedPhrase, notebookId);
                         lastRecognizedPhrase = '';
                     } else {
                         console.log('No active notebook selected or no note recognized.');
                     }
-                });
-
+                }
+        
                 annyang.start({ continuous: false });
+            } else {
+                console.log("Annyang is not supported or failed to load.");
             }
         }
+        
     </script> 
 </body>
 </html>
