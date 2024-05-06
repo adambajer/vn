@@ -38,7 +38,14 @@
     <button id="startVoiceNoteButton" class="btn btn-info mt-3">Start Voice Note</button>
     <div id="notesContainer" class="p-3"></div>
     <script>
-
+        function saveActiveTabUID(uid) {
+            localStorage.setItem('activeTabUID', uid);
+        }
+    
+        // Function to retrieve the active tab's UID from local storage
+        function getActiveTabUID() {
+            return localStorage.getItem('activeTabUID');
+        }
         const firebaseConfig = {
             databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
         };
@@ -53,6 +60,20 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+               // Load the active tab when the DOM is ready
+        const activeTabUID = getActiveTabUID();
+        if (activeTabUID) {
+            setActiveTab(activeTabUID);
+        }
+
+        // Add event listeners for tab clicks
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(event) {
+                const notebookId = this.dataset.notebookId;
+                setActiveTab(notebookId);
+                saveActiveTabUID(notebookId); // Save the active tab's UID to local storage
+            });
+        });
             document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
             document.getElementById('startVoiceNoteButton').addEventListener('click', startVoiceNote);
@@ -157,19 +178,17 @@
                 });
         
                 annyang.addCallback('resultNoMatch', function(phrases) {
-                    console.log(`No match for: ${phrases.join(', ')}`);
                     clearTimeout(silenceTimer); // Clear previous timer
                     silenceTimer = setTimeout(saveNoteIfAny, 2000); // Reset timer after no match
                 });
         
                 annyang.addCallback('end', function() {
-                    console.log('Annyang has stopped listening.');
                     clearTimeout(silenceTimer); // Ensure no pending save operations
                     saveNoteIfAny(); // Save any last noted phrase when Annyang stops
                 });
         
                 // Start listening
-                annyang.start({ continuous: true }); // Set to continuous if you want it to keep listening
+                annyang.start({ continuous: false }); // Set to continuous if you want it to keep listening
             }
         }
         
