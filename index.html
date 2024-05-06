@@ -16,27 +16,25 @@
         }
         #notesContainer {
             margin-top: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
+             background-color: #f8f9fa;
         }
         .note {
-            background-color: #e9ecef;
+            border: 1px solid #ccc;
             margin-top: 5px;
             padding: 8px;
             border-radius: 4px;
         }
     </style>
 </head>
-<body class="p-3">
-    <h1>Voice Noter</h1>
+<body class="p-3"> 
     <ul id="notebookTabs" class="nav nav-tabs"></ul>
-    <button id="createNotebookButton" class="btn btn-primary mt-3">Create New Notebook</button>
+    <button id="createNotebookButton" class="btn btn-primary mt-3">Add Notebook</button>
     <div class="input-group mt-3">
         <input type="text" id="noteInput" class="form-control" placeholder="Enter a note">
         <button id="addNoteButton" class="btn btn-secondary">Add Note</button>
     </div>
-    <button id="startVoiceNoteButton" class="btn btn-info mt-3">Start Voice Note</button>
-    <div id="notesContainer" class="p-3"></div>
+    <button id="startVoiceNoteButton" class="btn btn-danger mt-3">Start Voice Note</button>
+    <div id="notesContainer" class=""></div>
     <script>
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
@@ -132,7 +130,7 @@ function createTab(notebookId, setActive = false) {
     var link = document.createElement('a');
     link.className = 'nav-link';
     link.href = '#';
-    link.textContent = `Notebook ${notebookId}`;
+    link.textContent = `${notebookId}`;
     link.dataset.notebookId = notebookId;
     link.onclick = function() {
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
@@ -174,6 +172,7 @@ function createTab(notebookId, setActive = false) {
         }
         function setupVoiceRecognition() {
             if (annyang) {
+                document.getElementById('startVoiceNoteButton'.classList.add("border"));
                 annyang.setLanguage('cs');
                 console.log("Setting up Annyang!");
         
@@ -183,8 +182,7 @@ function createTab(notebookId, setActive = false) {
                 function saveNoteIfAny() {
                     const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
                     if (notebookId && lastPhrase) {
-                        console.log('Adding note from voice:', lastPhrase);
-                        addNote(lastPhrase, notebookId);
+                         addNote(lastPhrase, notebookId);
                         lastPhrase = ''; // Reset last phrase after saving
                     } else {
                         console.log('No active notebook selected or no note to save.');
@@ -196,8 +194,7 @@ function createTab(notebookId, setActive = false) {
                     '*text': function(text) {
                         clearTimeout(silenceTimer);
                         lastPhrase = text;
-                        console.log(`Heard: ${text}`);
-                        silenceTimer = setTimeout(saveNoteIfAny, 2000); // Set new timer
+                         silenceTimer = setTimeout(saveNoteIfAny, 2000); // Set new timer
                     }
                 });
         
