@@ -78,7 +78,7 @@
             loadUserNotebooks();
             document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
             document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
-            document.getElementById('startVoiceNoteButton').addEventListener('click', startVoiceNote);
+            document.getElementById('startVoiceNoteButton').addEventListener('click', setupVoiceRecognition);
         });
         
 
@@ -172,19 +172,16 @@ function createTab(notebookId, setActive = false) {
                 }
             });
         }
-        
-        function startVoiceNote() {
+        function setupVoiceRecognition() {
             if (annyang) {
                 annyang.setLanguage('cs');
-
-                console.log("Annyang is ready to go!");
+                console.log("Setting up Annyang!");
         
                 let silenceTimer;
                 let lastPhrase = '';
         
-                // Function to handle saving the note
                 function saveNoteIfAny() {
-                    const notebookId = document.querySelector('.active')?.dataset.notebookId;
+                    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
                     if (notebookId && lastPhrase) {
                         console.log('Adding note from voice:', lastPhrase);
                         addNote(lastPhrase, notebookId);
@@ -195,25 +192,22 @@ function createTab(notebookId, setActive = false) {
                 }
         
                 // Setup to listen and capture any speech
-                annyang.addCallback('result', function(phrases) {
-                    clearTimeout(silenceTimer); // Clear previous timer
-                    lastPhrase = phrases[0]; // Assume the first phrase is what the user said
-                    console.log(`Heard: ${lastPhrase}`);
-                    silenceTimer = setTimeout(saveNoteIfAny, 2000); // Set new timer
+                annyang.addCommands({
+                    '*text': function(text) {
+                        clearTimeout(silenceTimer);
+                        lastPhrase = text;
+                        console.log(`Heard: ${text}`);
+                        silenceTimer = setTimeout(saveNoteIfAny, 2000); // Set new timer
+                    }
                 });
         
                 annyang.addCallback('resultNoMatch', function(phrases) {
-                    clearTimeout(silenceTimer); // Clear previous timer
-                    silenceTimer = setTimeout(saveNoteIfAny, 2000); // Reset timer after no match
+                    console.log('No match found for:', phrases);
+                    clearTimeout(silenceTimer);
+                    silenceTimer = setTimeout(saveNoteIfAny, 2000);
                 });
         
-                annyang.addCallback('end', function() {
-                    clearTimeout(silenceTimer); // Ensure no pending save operations
-                    saveNoteIfAny(); // Save any last noted phrase when Annyang stops
-                });
-        
-                // Start listening
-                annyang.start({ continuous: false }); // Set to continuous if you want it to keep listening
+                annyang.start({ continuous: false }); // Start listening
             }
         }
         
