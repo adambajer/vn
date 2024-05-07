@@ -101,25 +101,25 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 100%; /* Same as button for a full cover */
-        height: 100%; /* Same as button for a full cover */
+        width: 120%; /* Same as button for a full cover */
+        height: 120%; /* Same as button for a full cover */
         background-color: #62bd19; /* Color of the pulsating effect */
         border-radius: 50%;
-        animation: pulsate2 1s ease-out infinite;
-        -webkit-animation: pulsate2 1s ease-out infinite;;
+        animation: pulsate2 2s ease-out infinite;
+        -webkit-animation: pulsate2 ěs ease-out infinite;;
         z-index: -1;
     }
     
     @keyframes pulsate2 {
         0% {
-            transform: translate(-50%, -50%) scale(0.5);
+            transform: translate(-50%, -50%) scale(1.1);
             opacity: 1;
         }
         50% {
-            opacity: 0.7;
+            opacity: 1.2;
         }
         100% {
-            transform: translate(-50%, -50%) scale(1.2);
+            transform: translate(-50%, -50%) scale(1.3);
             opacity: 0;
         }
     }
