@@ -25,7 +25,7 @@
             
         }
 
-        #notesContainer {
+        #notesContainer2 {
 
             border-radius: 0.5vw;
             padding: 2%;
@@ -55,15 +55,9 @@
             align-items: center;
             width: -webkit-fill-available;
             justify-content: space-between;
-            margin-bottom: 2vh;
-            position: fixed;
-            z-index: 999999;
+              z-index: 999999;
             background: #ffffff;
-            padding: 1vw;
-            border-radius: 0vw;
-            left: 0;
-            top: 0vw;
-            margin: 0vw;
+             
             backdrop-filter: blur(7px);
             border: 1px solid #ccc;
         }
@@ -77,12 +71,13 @@
         <button id="createNotebookButton" class="btn btn-primary">Nové poznámky</button>
 
     </div>
+    <div id="notesContainer2" class="">
     <div class="input-group">
         <input type="text" id="noteInput" class="form-control" placeholder="Napiš poznámku ručně zde...">
         <button id="addNoteButton" class="btn btn-secondary">Nová poznámka</button>
     </div>
-
     <div id="notesContainer" class=""></div>
+</div>
     <script>
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
