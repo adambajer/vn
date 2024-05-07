@@ -181,7 +181,23 @@
                 addNote(noteContent, notebookId);
                 document.getElementById('noteInput').value = ''; // Clear the input after adding a note
             }
+        }function loadUserNotebooks() {
+            const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
+            userNotebooksRef.once('value', snapshot => {
+                const notebooks = snapshot.val();
+                console.log("Notebooks fetched: ", notebooks);
+        
+                if (notebooks) {
+                    Object.keys(notebooks).forEach((notebookId, index) => {
+                        createTab(notebookId, notebooks[notebookId].name, index === 0);
+                    });
+                } else {
+                    console.log("No notebooks found, creating one...");
+                    createNotebook();
+                }
+            });
         }
+        
         function loadUserNotebooks() {
             const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
             userNotebooksRef.once('value', snapshot => {
@@ -207,37 +223,69 @@
                 console.error("Failed to fetch notebooks:", error); // Error handling
             });
         }
-
+    
         function createNotebook() {
-            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks`).push();
-            newNotebookRef.set({ createdAt: Date.now() }, function (error) {
-                if (!error) {
-                    createTab(newNotebookRef.key, true); // Also set this new notebook as active
-                }
+            const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
+            userNotebooksRef.once('value', snapshot => {
+                const notebooks = snapshot.val();
+                const newNotebookNumber = Object.keys(notebooks || {}).length + 1;
+                const notebookName = `Notebook ${newNotebookNumber}`;
+        
+                const newNotebookRef = userNotebooksRef.push();
+                newNotebookRef.set({ name: notebookName, createdAt: Date.now() }, function (error) {
+                    if (!error) {
+                        createTab(newNotebookRef.key, notebookName, true);
+                    }
+                });
             });
         }
-
-
-        function createTab(notebookId, setActive = false) {
+        function createTab(notebookId, notebookName, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
+        
             var link = document.createElement('a');
             link.className = 'nav-link';
             link.href = '#';
-            link.textContent = `${notebookId}`;
+            link.textContent = notebookName;
             link.dataset.notebookId = notebookId;
-            link.onclick = function () {
-                document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                loadNotes(notebookId);
-                saveActiveTabUID(notebookId); // Save the active tab UID whenever a tab is clicked
-                return false;
+        
+            var renameButton = document.createElement('button');
+            renameButton.innerHTML = 'Rename';
+            renameButton.onclick = function(e) {
+                e.stopPropagation();  // Prevent the tab click event
+                var newName = prompt("Enter new name for " + notebookName);
+                if (newName) {
+                    renameNotebook(notebookId, newName);
+                }
             };
+        
+            link.appendChild(renameButton);
             tab.appendChild(link);
+        
             document.getElementById('notebookTabs').appendChild(tab);
+        
             if (setActive) {
-                link.click(); // Automatically click the link to set it as active if specified
+                link.click(); // Set this tab as active
             }
+        }
+        function renameNotebook(notebookId, newName) {
+            const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+            notebookRef.update({ name: newName }, error => {
+                if (!error) {
+                    console.log('Notebook renamed successfully');
+                    updateTabName(notebookId, newName); // Update the tab display name
+                } else {
+                    console.error('Failed to rename notebook:', error);
+                }
+            });
+        }
+        function updateTabName(notebookId, newName) {
+            var links = document.querySelectorAll('.nav-link');
+            links.forEach(link => {
+                if (link.dataset.notebookId === notebookId) {
+                    link.firstChild.textContent = newName; // Assuming the notebook name is the first child
+                }
+            });
         }
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
