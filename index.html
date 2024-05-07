@@ -21,16 +21,14 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        body {
-            
-        }
+        body {}
 
         #notesContainer2 {
 
             border-radius: 0.5vw;
             padding: 2%;
             background: #fdfde8;
-         }
+        }
 
         .note {
             position: relative;
@@ -55,12 +53,13 @@
             align-items: center;
             width: -webkit-fill-available;
             justify-content: space-between;
-              z-index: 999999;
+            z-index: 999999;
             background: #ffffff;
-             
+
             backdrop-filter: blur(7px);
             border: 1px solid #ccc;
         }
+
         #noteInput {
             background: transparent;
             border: 0px;
@@ -74,26 +73,27 @@
             color: #00085c;
             border-radius: 0px;
             padding: 0px;
-            margin: 0px;}
+            margin: 0px;
+        }
     </style>
 </head>
 
 <body class="">
     <div id="bar" class="p-3">
-
-        <ul id="notebookTabs" class="nav nav-tabs">
-
-            <li class="nav-item"><button id="createNotebookButton" class="btn btn-primary">Přidej</button></li>
-        </ul>
+        <div class="d-inline-flex">
+            <ul id="notebookTabs" class="nav nav-tabs">
+            </ul>
+            <button id="createNotebookButton" class="btn btn-primary">Přidej</button>
+        </div>
 
     </div>
     <div id="notesContainer2" class="">
-    <div class="input-group">
-        <input type="text" id="noteInput" class="form-control" placeholder="Napiš poznámku ručně zde...">
-        <button id="addNoteButton" class="btn btn-secondary">Zapiš</button>
+        <div class="input-group">
+            <input type="text" id="noteInput" class="form-control" placeholder="Text poznámky napiš zde ...">
+            <button id="addNoteButton" class="btn btn-outline-primary">Přidej</button>
+        </div>
+        <div id="notesContainer" class=""></div>
     </div>
-    <div id="notesContainer" class=""></div>
-</div>
     <script>
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
