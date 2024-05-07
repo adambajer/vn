@@ -34,10 +34,14 @@
         }
 
         .note {
-            border: 1px solid #ccc;
-            margin-top: 5px;
-            padding: 8px;
-            border-radius: 4px;
+            position: relative;
+            border-top-right-radius: 5px;
+            flex-wrap: wrap;
+            display: flex;
+            border-bottom: 0.001vh solid #9198e5;
+            border-bottom-right-radius: 5px;
+            margin-bottom: 0.4vh;
+            color: #00085c;
         }
 
         #notebookTabs {
@@ -67,8 +71,8 @@
     </style>
 </head>
 
-<body class="p-3">
-    <div id="bar">
+<body class="">
+    <div id="bar" class="p-3">
 
         <ul id="notebookTabs" class="nav nav-tabs"></ul>
         <button id="createNotebookButton" class="btn btn-primary mt-3">Nové poznámky</button>
