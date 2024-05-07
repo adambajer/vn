@@ -86,14 +86,7 @@
         align-items: center;
         width: 100%;
     }
-    #skitt-toggle-button {
-        position: relative;
-        display: inline-block; /* Ensure it can contain absolutely positioned pseudo-elements */
-        width: 60px; /* Adjust size as necessary */
-        height: 60px; /* Adjust size as necessary */
-        background-color: transparent; /* Optional: set background color */
-        border-radius: 50%; /* Optional: make it circular */
-    }
+   
     
     #skitt-ui.skitt-ui--listening #skitt-toggle-button::after {
         content: '';
@@ -103,7 +96,7 @@
         transform: translate(-50%, -50%);
         width: 120%; /* Same as button for a full cover */
         height: 120%; /* Same as button for a full cover */
-        background-color: #62bd19; /* Color of the pulsating effect */
+        background-color: #c5ff96; /* Color of the pulsating effect */
         border-radius: 50%;
         animation: pulsate2 2s ease-out infinite;
         -webkit-animation: pulsate2 ěs ease-out infinite;;
@@ -113,10 +106,10 @@
     @keyframes pulsate2 {
         0% {
             transform: translate(-50%, -50%) scale(1.1);
-            opacity: 1;
+            opacity: 0.7;
         }
         50% {
-            opacity: 1.2;
+            opacity: 0.5;
         }
         100% {
             transform: translate(-50%, -50%) scale(1.3);
