@@ -297,6 +297,7 @@
         }
         function setupVoiceRecognition() {
             if (annyang) {
+                var recognition = new webkitSpeechRecognition();
                 annyang.setLanguage('cs'); // Set the desired language
 
                 let capturedText = ""; // This will hold the ongoing speech capture
