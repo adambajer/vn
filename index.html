@@ -179,41 +179,33 @@
         function setupVoiceRecognition() {
             if (annyang) {
                 annyang.setLanguage('cs'); // Set the desired language
-
+        
                 let capturedText = ""; // This will hold the ongoing speech capture
                 let silenceTimer; // Timer to handle the end of speaking
-
+        
                 // Function to handle final processing of captured text
                 const processCapturedText = () => {
                     const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
                     if (notebookId && capturedText.trim() !== "") {
-                        addNote(capturedText, notebookId);
+                        addNote(capturedText, notebookId); // Using the existing addNote function
                         console.log("Note added:", capturedText);
                         capturedText = ""; // Reset the captured text after processing
                     }
                 };
-
-                // Start capturing speech
+        
+                // Append recognized phrases to the captured text
                 annyang.addCallback('result', function (phrases) {
-                    capturedText += phrases[0] + " "; // Append the recognized phrases to the captured text
+                    capturedText += phrases[0] + " ";
                     clearTimeout(silenceTimer); // Reset the timer on new speech detected
-                    silenceTimer = setTimeout(processCapturedText, 2000); // Set a new timer
+                    silenceTimer = setTimeout(processCapturedText, 2000); // Set a new timer for 2 seconds of silence
                 });
-
-                // Initialize SpeechKITT for a nicer UI
+        
+                // Initialize SpeechKITT for UI controls
                 SpeechKITT.annyang();
                 SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
-                SpeechKITT.displayRecognizedSentence(true);
                 SpeechKITT.start();
-                annyang.addCallback('end', function () {
-                    if (capturedText !== "") {
-                        processCapturedText(); // Process any remaining text when the recognizer stops
-                    }
-                    console.log("Speech recognition ended. Restarting...");
-                    annyang.stop(); // Optionally restart recognition if it stops
-                });
-
-                // Start annyang with continuous listening
+        
+                // Start listening continuously
                 annyang.start({ continuous: true });
             }
         }
