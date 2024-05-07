@@ -61,20 +61,36 @@
             backdrop-filter: blur(7px);
             border: 1px solid #ccc;
         }
+        #noteInput {
+            background: transparent;
+            border: 0px;
+            position: relative;
+            border-top-right-radius: 5px;
+            flex-wrap: wrap;
+            display: flex;
+            border-bottom: 0.001vh solid #9198e5;
+            border-bottom-right-radius: 0px;
+            margin-bottom: 0.4vh;
+            color: #00085c;
+            border-radius: 0px;
+            padding: 0px;
+            margin: 0px;}
     </style>
 </head>
 
 <body class="">
     <div id="bar" class="p-3">
 
-        <ul id="notebookTabs" class="nav nav-tabs"></ul>
-        <button id="createNotebookButton" class="btn btn-primary">Nové poznámky</button>
+        <ul id="notebookTabs" class="nav nav-tabs">
+
+            <li class="nav-item"><button id="createNotebookButton" class="btn btn-primary">Přidej</button></li>
+        </ul>
 
     </div>
     <div id="notesContainer2" class="">
     <div class="input-group">
         <input type="text" id="noteInput" class="form-control" placeholder="Napiš poznámku ručně zde...">
-        <button id="addNoteButton" class="btn btn-secondary">Nová poznámka</button>
+        <button id="addNoteButton" class="btn btn-secondary">Zapiš</button>
     </div>
     <div id="notesContainer" class=""></div>
 </div>
@@ -262,7 +278,7 @@
                 SpeechKITT.annyang();
 
                 SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
-                SpeechKITT.setInstructionsText('Posluchám, říkejte Vaši poznámka…');
+                SpeechKITT.setInstructionsText('Posluchám, diktujte poznámky…');
                 SpeechKITT.vroom();
             }
         }
