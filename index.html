@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous">
     <script src="annyang.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/speechkitt.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -38,8 +39,7 @@
         <input type="text" id="noteInput" class="form-control" placeholder="Enter a note">
         <button id="addNoteButton" class="btn btn-secondary">Add Note</button>
     </div>
-    <button id="startVoiceNoteButton" class="btn btn-info mt-3">Start Voice Note <span id="recordingIndicator"
-            style="display:none;">🔴</span></button>
+   
     <div id="notesContainer" class=""></div>
     <script>
         function saveActiveTabUID(uid) {
@@ -82,8 +82,7 @@
             loadUserNotebooks();
             document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
             document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
-            document.getElementById('startVoiceNoteButton').addEventListener('click', setupVoiceRecognition);
-        });
+         });
 
 
         function addNoteFromInput() {
@@ -176,78 +175,48 @@
                 }
             });
         }
-        function updateRecordingIndicator(starting) {
-            const indicator = document.getElementById('recordingIndicator');
-            if (starting) {
-                document.getElementById('startVoiceNoteButton').classList.toggle("warning");
-
-                indicator.style.display = 'inline';  // Show the indicator
-            } else {
-                document.getElementById('startVoiceNoteButton').classList.toggle("warning");
-                indicator.style.display = 'none';  // Hide the indicator
-            }
-        }
-        let silenceTimer;
-
         function setupVoiceRecognition() {
             if (annyang) {
-                annyang.setLanguage('cs');
-
-                // Setup to listen and capture any speech
-                annyang.addCommands({
-                    '*text': function (text) {
-                        clearTimeout(silenceTimer); // Clear previous silence timer
-                        console.log(`Heard: ${text}`);
-
-                        // Reset silence timer after speech detected
-                        silenceTimer = setTimeout(() => {
-                            console.log("Stopping recording due to silence.");
-                            annyang.abort();  // Stop Annyang
-                            updateRecordingIndicator(false);
-                        }, 5000); // 5000 milliseconds = 5 seconds of silence allowed
+                annyang.setLanguage('cs'); // Set the desired language
+        
+                let capturedText = ""; // This will hold the ongoing speech capture
+                let silenceTimer; // Timer to handle the end of speaking
+        
+                // Function to handle final processing of captured text
+                const processCapturedText = () => {
+                    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+                    if (notebookId && capturedText.trim() !== "") {
+                        addNote(capturedText, notebookId);
+                        console.log("Note added:", capturedText);
+                        capturedText = ""; // Reset the captured text after processing
                     }
+                };
+        
+                // Start capturing speech
+                annyang.addCallback('result', function(phrases) {
+                    capturedText += phrases[0] + " "; // Append the recognized phrases to the captured text
+                    clearTimeout(silenceTimer); // Reset the timer on new speech detected
+                    silenceTimer = setTimeout(processCapturedText, 2000); // Set a new timer
                 });
-
-                // Handle no match found
-                annyang.addCallback('resultNoMatch', function (phrases) {
-                    console.log('No match found, resetting silence timer.');
-                    clearTimeout(silenceTimer);
-                    silenceTimer = setTimeout(() => {
-                        console.log("Stopping recording due to no match and silence.");
-                        annyang.abort();
-                        updateRecordingIndicator(false);
-                    }, 5000);
+        
+                // Initialize SpeechKITT for a nicer UI
+                SpeechKITT.annyang();
+                SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
+                SpeechKITT.displayRecognizedSentence(true);
+                SpeechKITT.start();
+                annyang.addCallback('end', function() {
+                    if (capturedText !== "") {
+                        processCapturedText(); // Process any remaining text when the recognizer stops
+                    }
+                    console.log("Speech recognition ended. Restarting...");
+                    annyang.stop(); // Optionally restart recognition if it stops
                 });
-
-                // Start listening
-                annyang.start({ continuous: true }); // Set to continuous if you want it to keep listening
+                
+                // Start annyang with continuous listening
+                annyang.start({ continuous: true });
             }
         }
-
-
-        // Handle end of listening
-        annyang.addCallback('end', function () {
-            console.log("Voice recognition ended.");
-            updateRecordingIndicator(false);
-        });
-        // Setup to listen and capture any speech
-        annyang.addCommands({
-            '*text': function (text) {
-                clearTimeout(silenceTimer);
-                lastPhrase = text;
-                silenceTimer = setTimeout(saveNoteIfAny, 2000); // Set new timer
-            }
-        });
-
-        annyang.addCallback('resultNoMatch', function (phrases) {
-            console.log('No match found for:', phrases);
-            clearTimeout(silenceTimer);
-            silenceTimer = setTimeout(saveNoteIfAny, 2000);
-        });
-
-        annyang.start({ continuous: false }); // Start listening
-            }
-        }
+        
 
 
 
