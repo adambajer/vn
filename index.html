@@ -165,7 +165,7 @@
                     link.classList.add('active');
                 }
             });
-
+    
             if (notebookId) {
                 loadNotes(notebookId);
                 saveActiveTabUID(notebookId); // Ensure this is called whenever the active tab is set
@@ -267,27 +267,80 @@
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
+            var shareIcon = document.createElement('img');
+
             link.className = 'nav-link';
             link.href = '#';
-        
-            // Using an <img> tag to display the SVG image
-            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 24px; height: 24px;">'; // Adjust the path if your SVG is in a different directory
-        
+            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 24px; height: 24px;">';
             link.dataset.notebookId = notebookId;
+
+            // Sharing icon setup
+            shareIcon.src = 'share-icon.svg'; // Path to your sharing icon image
+            shareIcon.alt = 'Share Icon';
+            shareIcon.style = 'width: 16px; height: 16px; position: absolute; top: 5px; right: 5px; cursor: pointer;';
+            shareIcon.onclick = function (event) {
+                event.stopPropagation(); // Prevent the notebook link's onclick from firing
+                showShareOptions(notebookId);
+            };
+
+            link.appendChild(shareIcon);
             link.onclick = function () {
                 document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
                 loadNotes(notebookId);
-                saveActiveTabUID(notebookId); // Save the active tab UID whenever a tab is clicked
+                saveActiveTabUID(notebookId);
                 return false;
             };
+
             tab.appendChild(link);
             document.getElementById('notebookTabs').appendChild(tab);
             if (setActive) {
                 link.click(); // Automatically click the link to set it as active if specified
             }
         }
-        
+        function createTab(notebookId, setActive = false) {
+            var tab = document.createElement('li');
+            tab.className = 'nav-item';
+            var link = document.createElement('a');
+            var shareIcon = document.createElement('img');
+
+            link.className = 'nav-link';
+            link.href = '#';
+            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 24px; height: 24px;">';
+            link.dataset.notebookId = notebookId;
+
+            // Sharing icon setup
+            shareIcon.src = 'share-icon.svg'; // Path to your sharing icon image
+            shareIcon.alt = 'Share Icon';
+            shareIcon.style = 'width: 16px; height: 16px; position: absolute; top: 5px; right: 5px; cursor: pointer;';
+            shareIcon.onclick = function (event) {
+                event.stopPropagation(); // Prevent the notebook link's onclick from firing
+                showShareOptions(notebookId);
+            };
+
+            link.appendChild(shareIcon);
+            link.onclick = function () {
+                document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                loadNotes(notebookId);
+                saveActiveTabUID(notebookId);
+                return false;
+            };
+
+            tab.appendChild(link);
+            document.getElementById('notebookTabs').appendChild(tab);
+            if (setActive) {
+                link.click(); // Automatically click the link to set it as active if specified
+            }
+        }
+
+        function checkUrlAndLoadNotebook() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const notebookId = urlParams.get('notebookId'); // This assumes the URL might look like ?notebookId=123
+            if (notebookId) {
+                setActiveTab(notebookId);
+            }
+        }
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function (snapshot) {
