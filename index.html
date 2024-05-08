@@ -214,15 +214,31 @@
                 return deviceFingerprint; // Return the new ID
             }
         }
-
-
         document.addEventListener('DOMContentLoaded', function () {
-            loadUserNotebooks();
-            document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-            document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
-            setupVoiceRecognition();
+            const notebookId = checkUrlForNotebookId();
+        
+            if (notebookId) {
+                // If notebookId is found, set it active and load its notes only
+                setActiveTab(notebookId);
+                loadNotes(notebookId);
+            } else {
+                // If no specific notebookId, load all user notebooks
+                loadUserNotebooks();
+                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+            }
+        
+            setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
-
+        function checkUrlAndLoadNotebook() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const notebookId = urlParams.get('notebookId'); // This assumes the URL might look like ?notebookId=123
+            if (notebookId) {
+                setActiveTab(notebookId);
+                loadNotes(notebookId);  // Ensure notes for this notebook are loaded
+            }
+        }
+        
 
         function addNoteFromInput() {
             const noteContent = document.getElementById('noteInput').value;
@@ -306,14 +322,7 @@
             alert("Share this URL: " + shareUrl); // Show the URL to the user
         }
         
-
-        function checkUrlAndLoadNotebook() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const notebookId = urlParams.get('notebookId'); // This assumes the URL might look like ?notebookId=123
-            if (notebookId) {
-                setActiveTab(notebookId);
-            }
-        }
+ 
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function (snapshot) {
