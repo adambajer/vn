@@ -265,9 +265,12 @@ background-color: red !important;
                     noteElement.className = 'note';
                     noteElement.contentEditable = true; // Make the note editable
                     noteElement.textContent = notes[noteId].content;
-                    noteElement.oninput = function() { // Event triggered on content change
-                        updateNote(notebookId, noteId, noteElement.textContent); // Update Firebase on change
-                    };
+        
+                    // Event listener for focusout to update the note only when the user finishes editing
+                    noteElement.addEventListener('focusout', function() {
+                        updateNote(notebookId, noteId, noteElement.textContent); // Update Firebase on focus loss
+                    });
+        
                     document.getElementById('notesContainer').appendChild(noteElement);
                 });
             });
