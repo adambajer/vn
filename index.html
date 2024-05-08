@@ -201,58 +201,52 @@
         }
         function loadUserNotebooks() {
             const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
-            userNotebooksRef.once('value', snapshot => {
-                const notebooks = snapshot.val();
-                console.log("Notebooks fetched: ", notebooks); // Debug output
-
-                if (notebooks && Object.keys(notebooks).length > 0) {
-                    Object.keys(notebooks).forEach((notebookId, index) => {
-                        createTab(notebookId, index === 0); // Set the first tab as active by default
-                    });
-
-                    const activeTabUID = getActiveTabUID();
-                    if (activeTabUID) {
-                        setActiveTab(activeTabUID);
-                    } else {
-                        setActiveTab(Object.keys(notebooks)[0]);
-                    }
-                } else {
-                    console.log("No notebooks found, creating one..."); // Debug output
-                    createNotebook(); // Only create a new notebook if none are found
-                }
-            }, error => {
-                console.error("Failed to fetch notebooks:", error); // Error handling
-            });
+        userNotebooksRef.once('value', snapshot => {
+            const notebooks = snapshot.val();
+            if (notebooks) {
+                Object.keys(notebooks).forEach((notebookId, index) => {
+                    createTab(notebookId, notebooks[notebookId].name, index === 0);
+                });
+            } else {
+                console.log('No notebooks found, creating one...');
+                createNotebook();
+            }
+        }, error => {
+            console.error('Failed to fetch notebooks:', error);
+        });
         }
         // Function to generate and manage notebook names
         function getNewNotebookName() {
             let count = parseInt(localStorage.getItem('notebookCount') || '0');
             count++;  // Increment the counter for each new notebook
             localStorage.setItem('notebookCount', count.toString());
-            return 'Notebook' + count;  // Return names like Notebook1, Notebook2, ...
+            return 'Notebook' + count;  // Return names like Notebook1, Notebook2, etc.
         }
-
         function createNotebook() {
-            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks`).push();
             const notebookName = getNewNotebookName(); // Get a new notebook name
+            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks`).push();
             newNotebookRef.set({ createdAt: Date.now(), name: notebookName }, function (error) {
                 if (!error) {
+                    console.log('Creating tab with name:', notebookName);
                     createTab(newNotebookRef.key, notebookName, true); // Pass the name for UI
+                } else {
+                    console.error('Error creating notebook:', error);
                 }
             });
-        }function createTab(notebookId, notebookName, setActive = false) {
+        }
+    
+        function createTab(notebookId, notebookName, setActive = false) {
+            console.log('Creating tab:', notebookName);
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
             link.className = 'nav-link';
             link.href = '#';
-            link.textContent = notebookName;  // Display the friendly name like "Notebook1"
-            link.dataset.notebookId = notebookId;  // Use the real ID for operations
+            link.textContent = notebookName;  // Use the friendly name
+            link.dataset.notebookId = notebookId;
             link.onclick = function () {
                 document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
-                loadNotes(notebookId);
-                saveActiveTabUID(notebookId);
                 return false;
             };
             tab.appendChild(link);
