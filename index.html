@@ -201,19 +201,28 @@
         }
         function loadUserNotebooks() {
             const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
-        userNotebooksRef.once('value', snapshot => {
-            const notebooks = snapshot.val();
-            if (notebooks) {
-                Object.keys(notebooks).forEach((notebookId, index) => {
-                    createTab(notebookId, notebooks[notebookId].name, index === 0);
-                });
-            } else {
-                console.log('No notebooks found, creating one...');
-                createNotebook();
-            }
-        }, error => {
-            console.error('Failed to fetch notebooks:', error);
-        });
+            userNotebooksRef.once('value', snapshot => {
+                const notebooks = snapshot.val();
+                console.log("Notebooks fetched: ", notebooks); // Debug output
+
+                if (notebooks && Object.keys(notebooks).length > 0) {
+                    Object.keys(notebooks).forEach((notebookId, index) => {
+                        createTab(notebookId, index === 0); // Set the first tab as active by default
+                    });
+
+                    const activeTabUID = getActiveTabUID();
+                    if (activeTabUID) {
+                        setActiveTab(activeTabUID);
+                    } else {
+                        setActiveTab(Object.keys(notebooks)[0]);
+                    }
+                } else {
+                    console.log("No notebooks found, creating one..."); // Debug output
+                    createNotebook(); // Only create a new notebook if none are found
+                }
+            }, error => {
+                console.error("Failed to fetch notebooks:", error); // Error handling
+            });
         }
         // Function to generate and manage notebook names
         function getNewNotebookName() {
