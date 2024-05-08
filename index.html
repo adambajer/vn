@@ -230,7 +230,8 @@
         
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
-        function checkUrlAndLoadNotebook() {
+                 
+        function checkUrlForNotebookId() {
             const urlParams = new URLSearchParams(window.location.search);
             const notebookId = urlParams.get('notebookId'); // This assumes the URL might look like ?notebookId=123
             if (notebookId) {
