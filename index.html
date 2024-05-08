@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>VNOTER</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        crossorigin="anonymous"> 
+        crossorigin="anonymous">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -18,18 +18,18 @@
     <meta name="theme-color" content="#ffffff">
     <script src="annyang.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/speechkitt.min.js"></script>
-    
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         body {
-        background: #fdfde8;
+            background: #fdfde8;
         }
 
         #notesContainer2 {
 
-            border-radius: 0.5vw; 
+            border-radius: 0.5vw;
             background: #fdfde8;
         }
 
@@ -44,8 +44,7 @@
             color: #00085c;
         }
 
-        #notebookTabs { 
-        }
+        #notebookTabs {}
 
         #bar {
             display: inline-flex;
@@ -77,32 +76,64 @@
             padding: 0px;
             margin: 0px;
         }
-    
-    .cus {
-        width: 100%;
-        display: inline-flex !important;
-         
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        align-items: center;
-        width: 100%;
-    }
-    @keyframes pulsate {
-        0%, 100% {
-            box-shadow: 0 0 0 5px rgba(227, 55, 55, 0), 0 0 0 5px rgb(227, 55, 55);
+
+        .cus {
+            width: 100%;
+            display: inline-flex !important;
+
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            align-items: center;
+            width: 100%;
         }
-        50% {
-            box-shadow:0 0 0 20px rgba(227, 55, 55, 0.7);
-            backdrop-filter: blur(5px);
+
+        @keyframes pulsate {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 5px rgba(227, 55, 55, 0), 0 0 0 5px rgb(227, 55, 55);
+            }
+
+            50% {
+                box-shadow: 0 0 0 20px rgba(227, 55, 55, 0.7);
+                backdrop-filter: blur(5px);
+            }
         }
-    }
-    
-   #skitt-ui.skitt-ui--listening #skitt-toggle-button {
-        
-background-color: red !important;  
-        animation: pulsate 2s infinite;
-    }
-    
+
+        #skitt-ui.skitt-ui--listening #skitt-toggle-button {
+
+            background-color: red !important;
+            animation: pulsate 2s infinite;
+        }
+
+        .note {
+            position: relative;
+            border-top-right-radius: 5px;
+            flex-wrap: wrap;
+            display: flex;
+            border-bottom: 0.001vh solid #9198e5;
+            border-bottom-right-radius: 5px;
+            margin-bottom: 0.4vh;
+            color: #00085c;
+            padding: 10px;
+            /* Ensure there's padding for text visibility */
+        }
+
+        /* Optionally style the title attribute tooltip */
+        .note[title]:hover:after {
+            content: attr(title);
+            position: absolute;
+            left: 0;
+            top: 100%;
+            white-space: nowrap;
+            z-index: 20;
+            background-color: #f5f5f5;
+            padding: 4px 8px;
+            color: #333;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            font-size: 0.75em;
+        }
     </style>
 </head>
 
@@ -263,23 +294,33 @@ background-color: red !important;
                 Object.keys(notes).forEach(noteId => {
                     var noteElement = document.createElement('div');
                     noteElement.className = 'note';
-                    noteElement.contentEditable = true; // Make the note editable
+                    noteElement.contentEditable = true;
                     noteElement.textContent = notes[noteId].content;
-        
-                    // Event listener for focusout to update the note only when the user finishes editing
-                    noteElement.addEventListener('focusout', function() {
-                        updateNote(notebookId, noteId, noteElement.textContent); // Update Firebase on focus loss
+
+                    // Display creation and last update date when hovering
+                    noteElement.title = `Created: ${formatDate(new Date(notes[noteId].createdAt))}` +
+                        (notes[noteId].updatedAt ? `\nUpdated: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
+
+                    noteElement.addEventListener('focusout', function () {
+                        if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
+                            updateNote(notebookId, noteId, noteElement.textContent);
+                        }
                     });
-        
+
                     document.getElementById('notesContainer').appendChild(noteElement);
                 });
             });
         }
-        
+
 
         function addNote(content, notebookId) {
+            var now = new Date();
             var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
-            newNoteRef.set({ content: content, createdAt: Date.now() }, error => {
+            newNoteRef.set({
+                content: content,
+                createdAt: now.getTime(),
+                updatedAt: now.getTime()  // Initially, creation and update time are the same
+            }, error => {
                 if (error) {
                     console.error('Failed to add note:', error);
                 } else {
@@ -287,9 +328,23 @@ background-color: red !important;
                 }
             });
         }
+
+        function formatDate(date) {
+            let day = date.getDate();
+            let month = date.getMonth() + 1; // Months start at 0!
+            let year = date.getFullYear();
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
+        }
+
         function updateNote(notebookId, noteId, content) {
+            var now = new Date();
             var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
-            noteRef.update({ content: content }, error => {
+            noteRef.update({
+                content: content,
+                updatedAt: now.getTime()  // Update the timestamp when the note is edited
+            }, error => {
                 if (error) {
                     console.error('Failed to update note:', error);
                 } else {
@@ -322,7 +377,7 @@ background-color: red !important;
                     silenceTimer = setTimeout(processCapturedText, 2000); // Set a new timer for 2 seconds of silence
                 });
                 SpeechKITT.annyang();
- 
+
                 SpeechKITT.setInstructionsText('Nadiktuj poznámky…');
                 SpeechKITT.vroom();
             }
