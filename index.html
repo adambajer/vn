@@ -268,8 +268,8 @@
 
             // Sharing icon setup
             shareIcon.src = 'share-icon.svg'; // Path to your sharing icon image
-            shareIcon.alt = 'Share Icon';
-            shareIcon.style = 'width: 16px; height: 16px; position: absolute; top: 5px; right: 5px; cursor: pointer;';
+            shareIcon.alt = 'Sdílej poznámky';
+            shareIcon.style = 'width: 16px; height: 16px;  cursor: pointer;';
             shareIcon.onclick = function (event) {
                 event.stopPropagation(); // Prevent the notebook link's onclick from firing
                 showShareOptions(notebookId);
@@ -345,8 +345,8 @@
                     noteElement.textContent = notes[noteId].content;
 
                     // Display creation and last update date when hovering
-                    noteElement.title = `Created: ${formatDate(new Date(notes[noteId].createdAt))}` +
-                        (notes[noteId].updatedAt ? `\nUpdated: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
+                    noteElement.title = `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
+                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
 
                     noteElement.addEventListener('focusout', function () {
                         if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
