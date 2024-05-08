@@ -263,15 +263,16 @@
                 }
             });
         }
-
-
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
             link.className = 'nav-link';
             link.href = '#';
-            link.textContent = 'Poznámky';
+        
+            // Using an <img> tag to display the SVG image
+            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 24px; height: 24px;">'; // Adjust the path if your SVG is in a different directory
+        
             link.dataset.notebookId = notebookId;
             link.onclick = function () {
                 document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
@@ -286,6 +287,7 @@
                 link.click(); // Automatically click the link to set it as active if specified
             }
         }
+        
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function (snapshot) {
