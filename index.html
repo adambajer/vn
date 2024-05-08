@@ -215,7 +215,7 @@
             }
         }
         document.addEventListener('DOMContentLoaded', function () {
-            const notebookId = checkUrlForNotebookId();
+            const notebookId = getNotebookIdFromPath();
         
             if (notebookId) {
                 // If notebookId is found, set it active and load its notes only
@@ -230,16 +230,13 @@
         
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
-                 
-        function checkUrlForNotebookId() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const notebookId = urlParams.get('notebookId'); // This assumes the URL might look like ?notebookId=123
-            if (notebookId) {
-                setActiveTab(notebookId);
-                loadNotes(notebookId);  // Ensure notes for this notebook are loaded
-            }
+        function getNotebookIdFromPath() {
+            const path = window.location.pathname;
+            const pathSegments = path.split('/');
+            // Example URL path: "/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
+            // Adjust the index as necessary based on your actual URL structure
+            return pathSegments[pathSegments.length - 1];
         }
-        
 
         function addNoteFromInput() {
             const noteContent = document.getElementById('noteInput').value;
