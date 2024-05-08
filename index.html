@@ -305,41 +305,7 @@
             const shareUrl = `https://adambajer.github.io/Voice-Noter/notebooks/${notebookId}`; // Construct the URL
             alert("Share this URL: " + shareUrl); // Show the URL to the user
         }
-        function createTab(notebookId, setActive = false) {
-            var tab = document.createElement('li');
-            tab.className = 'nav-item';
-            var link = document.createElement('a');
-            var shareIcon = document.createElement('img');
-
-            link.className = 'nav-link';
-            link.href = '#';
-            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 24px; height: 24px;">';
-            link.dataset.notebookId = notebookId;
-
-            // Sharing icon setup
-            shareIcon.src = 'share-icon.svg'; // Path to your sharing icon image
-            shareIcon.alt = 'Share Icon';
-            shareIcon.style = 'width: 16px; height: 16px; fill:white; margin-left:2px; cursor: pointer;';
-            shareIcon.onclick = function (event) {
-                event.stopPropagation(); // Prevent the notebook link's onclick from firing
-                showShareOptions(notebookId);
-            };
-
-            link.appendChild(shareIcon);
-            link.onclick = function () {
-                document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                loadNotes(notebookId);
-                saveActiveTabUID(notebookId);
-                return false;
-            };
-
-            tab.appendChild(link);
-            document.getElementById('notebookTabs').appendChild(tab);
-            if (setActive) {
-                link.click(); // Automatically click the link to set it as active if specified
-            }
-        }
+        
 
         function checkUrlAndLoadNotebook() {
             const urlParams = new URLSearchParams(window.location.search);
