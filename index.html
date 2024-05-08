@@ -191,7 +191,6 @@
             setupVoiceRecognition();
         });
 
-
         function addNoteFromInput() {
             const noteContent = document.getElementById('noteInput').value;
             const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
@@ -228,9 +227,9 @@
         // Function to generate and manage notebook names
         function getNewNotebookName() {
             let count = parseInt(localStorage.getItem('notebookCount') || '0');
-            count++;
+            count++;  // Increment the counter for each new notebook
             localStorage.setItem('notebookCount', count.toString());
-            return 'Notebook' + count;
+            return 'Notebook' + count;  // Return names like Notebook1, Notebook2, ...
         }
 
         function createNotebook() {
@@ -241,14 +240,14 @@
                     createTab(newNotebookRef.key, notebookName, true); // Pass the name for UI
                 }
             });
-        } function createTab(notebookId, notebookName, setActive = false) {
+        }function createTab(notebookId, notebookName, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
             link.className = 'nav-link';
             link.href = '#';
-            link.textContent = notebookName; // Display the friendly name
-            link.dataset.notebookId = notebookId; // Use the real ID for operations
+            link.textContent = notebookName;  // Display the friendly name like "Notebook1"
+            link.dataset.notebookId = notebookId;  // Use the real ID for operations
             link.onclick = function () {
                 document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
