@@ -301,6 +301,10 @@
                 link.click(); // Automatically click the link to set it as active if specified
             }
         }
+        function showShareOptions(notebookId) {
+            const shareUrl = `https://adambajer.github.io/Voice-Noter/notebooks/${notebookId}`; // Construct the URL
+            alert("Share this URL: " + shareUrl); // Show the URL to the user
+        }
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
