@@ -89,9 +89,12 @@
     }
     @keyframes pulsate {
         0%, 100% {
-            box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.0), 0 0 0 15px rgba(52, 152, 219, 0.7);
+            box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.0), 0 0 0 5px rgba(52, 152, 219, 0.0);
         }
-        
+        50% {
+            box-shadow:0 0 0 20px rgba(52, 152, 219, 0.7);
+            filter: blur(5px);
+        }
     }
     
    #skitt-ui.skitt-ui--listening #skitt-toggle-button {
