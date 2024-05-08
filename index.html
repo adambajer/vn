@@ -135,6 +135,8 @@
             box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
             font-size: 0.75em;
         }
+        .nav-link {
+        position:relative;}
     </style>
 </head>
 
@@ -278,7 +280,7 @@
             // Sharing icon setup
             shareIcon.src = 'share-icon.svg'; // Path to your sharing icon image
             shareIcon.alt = 'Sdílej poznámky';
-            shareIcon.style = 'width: 16px; height: 16px;  cursor: pointer;';
+            shareIcon.style = 'width: 16px; height: 16px; position:absolute;top:150%; cursor: pointer;';
             shareIcon.onclick = function (event) {
                 event.stopPropagation(); // Prevent the notebook link's onclick from firing
                 showShareOptions(notebookId);
