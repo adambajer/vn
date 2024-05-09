@@ -149,17 +149,32 @@
     border-radius: 2px;opacity: 0;}
     .nav-link:hover .shareicon {
     opacity: 1;}
+    #bar .app-title {
+        font-size: 24px; /* Set the font size as desired */
+        color: #5bbad5; /* Theme color */
+        margin-right: auto; /* Pushes other elements to the right */
+        padding-left: 10px; /* Optional: Adds some padding on the left */
+    }
+    
+    #bar {
+        align-items: center; /* Ensures vertical centering of all items */
+    }
+    
     </style>
 </head>
 
 <body class="">
-    <div id="bar" class="p-2">
-        <div class="d-inline-flex cus input-group">
-            <ul id="notebookTabs" class="nav nav-pills">
-            </ul>
-            <button id="createNotebookButton" class="btn btn-outline-danger ms-2">Nový</button>
+   
+        <div id="bar" class="p-2">
+            <div class="d-inline-flex cus input-group">
+                <!-- Title of the app added here -->
+                <h1 class="app-title" style="margin-right: auto; color: #5bbad5;">Voice Noter</h1>
+                <ul id="notebookTabs" class="nav nav-pills">
+                </ul>
+                <button id="createNotebookButton" class="btn btn-outline-danger ms-2">Nový</button>
+            </div>
         </div>
-
+        
     </div>
     <div id="notesContainer2" class="p-2">
         <div class="input-group">
