@@ -156,6 +156,7 @@
         <div id="notesContainer" class=""></div>
     </div>
     <script>
+        
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
         }
@@ -216,25 +217,27 @@
                 return deviceFingerprint; // Return the new ID
             }
         }
-        document.addEventListener('DOMContentLoaded', function () {
-            const notebookId = getNotebookIdFromPath();
+        document.addEventListener('DOMContentLoaded', function() {
+            const path = window.location.pathname;
+            const pathSegments = path.split('/');
+            const notebookId = pathSegments[pathSegments.length - 1];
         
-            if (notebookId) {
-                // If notebookId is found, set it active and load its notes only
-                
-                
-                
-                (notebookId);
-                loadNotes(notebookId);
+            if (path.includes('/notebooks/')) {
+              loadNotebook(notebookId);
             } else {
-                // If no specific notebookId, load all user notebooks
-                loadUserNotebooks();
-                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+              loadUserNotebooks();
             }
+          });
         
-            setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
-        });
+          function loadNotebook(notebookId) {
+            // Code to load the notebook
+            console.log("Loading notebook with ID:", notebookId);
+            // Set the notebook as active, load its notes, etc.
+          }
+        
+          function loadUserNotebooks() {
+            // Load all notebooks as usual
+          }
         function getNotebookIdFromPath() {
             // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
             // Splitting by '/' gives us: ["https:", "", "adambajer.github.io", "Voice-Noter", "notebooks", "-NxLpMKvPUyhOnM50UvE"]
