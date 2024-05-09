@@ -156,7 +156,6 @@
         <div id="notesContainer" class=""></div>
     </div>
     <script>
-        
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
         }
@@ -166,17 +165,14 @@
                 link.classList.remove('active');
                 if (link.dataset.notebookId === notebookId) {
                     link.classList.add('active');
-                    saveActiveTabUID(notebookId);
                 }
             });
-        
-            loadNotes(notebookId); // Load notes for the active notebook
+    
+            if (notebookId) {
+                loadNotes(notebookId);
+                saveActiveTabUID(notebookId); // Ensure this is called whenever the active tab is set
+            }
         }
-        
-        function saveActiveTabUID(uid) {
-            localStorage.setItem('activeTabUID', uid);
-        }
-        
 
 
         // Function to retrieve the active tab's UID from local storage
@@ -217,27 +213,25 @@
                 return deviceFingerprint; // Return the new ID
             }
         }
-        document.addEventListener('DOMContentLoaded', function() {
-            const path = window.location.pathname;
-            const pathSegments = path.split('/');
-            const notebookId = pathSegments[pathSegments.length - 1];
+        document.addEventListener('DOMContentLoaded', function () {
+            const notebookId = getNotebookIdFromPath();
         
-            if (path.includes('/notebooks/')) {
-              loadNotebook(notebookId);
+            if (notebookId) {
+                // If notebookId is found, set it active and load its notes only
+                
+                
+                
+                (notebookId);
+                loadNotes(notebookId);
             } else {
-              loadUserNotebooks();
+                // If no specific notebookId, load all user notebooks
+                loadUserNotebooks();
+                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             }
-          });
         
-          function loadNotebook(notebookId) {
-            // Code to load the notebook
-            console.log("Loading notebook with ID:", notebookId);
-            // Set the notebook as active, load its notes, etc.
-          }
-        
-          function loadUserNotebooks() {
-            // Load all notebooks as usual
-          }
+            setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
+        });
         function getNotebookIdFromPath() {
             // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
             // Splitting by '/' gives us: ["https:", "", "adambajer.github.io", "Voice-Noter", "notebooks", "-NxLpMKvPUyhOnM50UvE"]
@@ -293,17 +287,13 @@
         }
 
         function createNotebook() {
-            const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
-            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
+            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks`).push();
             newNotebookRef.set({ createdAt: Date.now() }, function (error) {
                 if (!error) {
-                    createTab(newNotebookId, true); // Set this new notebook as active
-                } else {
-                    console.error('Error creating notebook:', error);
+                    createTab(newNotebookRef.key, true); // Also set this new notebook as active
                 }
             });
         }
-        
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
