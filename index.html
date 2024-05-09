@@ -283,39 +283,37 @@
                 
 
         function addNoteFromInput() {
-            const noteContent = document.getElementById('noteInput').value;
-            const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+            const noteContent = document.getElementById('noteInput').value.trim();
+            const notebookId = new URLSearchParams(window.location.search).get('notebook');
             if (noteContent && notebookId) {
-                addNote(noteContent, notebookId);
-                document.getElementById('noteInput').value = ''; // Clear the input after adding a note
+                const noteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
+                noteRef.set({
+                    content: noteContent,
+                    createdAt: Date.now(),
+                    updatedAt: Date.now()
+                });
+                document.getElementById('noteInput').value = '';  // Clear the input after adding the note
             }
         }
-        function loadUserNotebooks() {
-            const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
-            userNotebooksRef.once('value', snapshot => {
-                const notebooks = snapshot.val();
-                console.log("Notebooks fetched: ", notebooks); // Debug output
-
-                if (notebooks && Object.keys(notebooks).length > 0) {
-                    Object.keys(notebooks).forEach((notebookId, index) => {
-                        createTab(notebookId, index === 0); // Set the first tab as active by default
-                    });
-
-                    const activeTabUID = getActiveTabUID();
-                    if (activeTabUID) {
-                        
-                        
-                        
-                        (activeTabUID);
-                    } else {
-                        setActiveTab(Object.keys(notebooks)[0]);
-                    }
-                } else {
-                    console.log("No notebooks found, creating one..."); // Debug output
-                    createNotebook(); // Only create a new notebook if none are found
-                }
-            }, error => {
-                console.error("Failed to fetch notebooks:", error); // Error handling
+        function loadNotes(notebookId) {
+            const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
+            notesRef.on('value', snapshot => {
+                const notesContainer = document.getElementById('notesContainer');
+                notesContainer.innerHTML = '';
+                snapshot.forEach(childSnapshot => {
+                    const note = childSnapshot.val();
+                    const noteElement = document.createElement('div');
+                    noteElement.textContent = note.content;
+                    noteElement.contentEditable = true;
+                    noteElement.onblur = () => {
+                        const updatedContent = noteElement.textContent;
+                        firebase.database().ref(`notebooks/${notebookId}/notes/${childSnapshot.key}`).update({
+                            content: updatedContent,
+                            updatedAt: Date.now()
+                        });
+                    };
+                    notesContainer.appendChild(noteElement);
+                });
             });
         }
 
@@ -373,32 +371,27 @@
 }
 
  
-        function loadNotes(notebookId) {
-            var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
-            notebookNotesRef.on('value', function (snapshot) {
-                const notes = snapshot.val() || {};
-                document.getElementById('notesContainer').innerHTML = '';
-                Object.keys(notes).forEach(noteId => {
-                    var noteElement = document.createElement('div');
-                    noteElement.className = 'note';
-                    noteElement.contentEditable = true;
-                    noteElement.textContent = notes[noteId].content;
-
-                    // Display creation and last update date when hovering
-                    noteElement.title = `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
-                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
-
-                    noteElement.addEventListener('focusout', function () {
-                        if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
-                            updateNote(notebookId, noteId, noteElement.textContent);
-                        }
-                    });
-
-                    document.getElementById('notesContainer').appendChild(noteElement);
+function loadNotes(notebookId) {
+    const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
+    notesRef.on('value', snapshot => {
+        const notesContainer = document.getElementById('notesContainer');
+        notesContainer.innerHTML = '';
+        snapshot.forEach(childSnapshot => {
+            const note = childSnapshot.val();
+            const noteElement = document.createElement('div');
+            noteElement.textContent = note.content;
+            noteElement.contentEditable = true;
+            noteElement.onblur = () => {
+                const updatedContent = noteElement.textContent;
+                firebase.database().ref(`notebooks/${notebookId}/notes/${childSnapshot.key}`).update({
+                    content: updatedContent,
+                    updatedAt: Date.now()
                 });
-            });
-        }
-
+            };
+            notesContainer.appendChild(noteElement);
+        });
+    });
+}
 
         function addNote(content, notebookId) {
             var now = new Date();
