@@ -366,12 +366,13 @@
                 link.click(); // Automatically click the link to set it as active if specified
             }
         }
-       function showShareOptions(notebookId) {
-    const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
-    // Open the URL in a new browser tab
-    window.open(shareUrl, '_blank');
-}
-
+        function showShareOptions(notebookId) {
+            const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
+            // Redirect to the URL directly
+            window.location.href = shareUrl;
+        }
+        
+        
  
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
