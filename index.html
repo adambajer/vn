@@ -171,7 +171,7 @@
    
         <div id="bar" class="">
             <div class="d-inline-flex cus">
-                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon" style="width: 24px; height: 24px; margin-right: 10px;">
+                <img id="userIcon" src="usericon.png" alt="User Icon" class="user-icon" style="width: 24px; height: 24px; margin-right: 10px;">
 
                 <!-- Title of the app added here -->
                  <ul id="notebookTabs" class="nav nav-pills">
@@ -354,6 +354,8 @@
             var shareIcon = document.createElement('img');
             shareIcon.alt = 'Sdílej poznámky';
             shareIcon.classList.add('shareicon');
+            shareIcon.src = 'share-icon.svg';
+
             shareIcon.onclick = function (event) {
                 event.stopPropagation(); // Prevent the notebook link's onclick from firing
                 showShareOptions(notebookId);
