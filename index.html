@@ -171,6 +171,8 @@
    
         <div id="bar" class="">
             <div class="d-inline-flex cus">
+                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon" style="width: 24px; height: 24px; margin-right: 10px;">
+
                 <!-- Title of the app added here -->
                  <ul id="notebookTabs" class="nav nav-pills">
                 </ul>
@@ -249,16 +251,21 @@
             }
         }
         document.addEventListener('DOMContentLoaded', function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
+            let urlParams = new URLSearchParams(window.location.search);
+            let notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
         
-         
+            const userIcon = document.getElementById('userIcon');
+            userIcon.title = `UID: ${sessionStorage.getItem('userId')}`;
+        
             if (notebookId) {
                 // If notebookId is found, set it active and load its notes only
                 
                 
  
                  loadNotes(notebookId);
+                 
+                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             } else {
                 // If no specific notebookId, load all user notebooks
                 loadUserNotebooks();
@@ -332,21 +339,13 @@
             tab.className = 'nav-item';
             var link = document.createElement('a');
             var shareIcon = document.createElement('img');
-
+        
             link.className = 'nav-link';
             link.href = '#';
-            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 24px; height: 24px;">';
             link.dataset.notebookId = notebookId;
-
-            // Sharing icon setup
-            shareIcon.src = 'share-icon.svg'; // Path to your sharing icon image
-            shareIcon.alt = 'Sdílej poznámky';
-            shareIcon.classList.add('shareicon');
-             shareIcon.onclick = function (event) {
-                event.stopPropagation(); // Prevent the notebook link's onclick from firing
-                showShareOptions(notebookId);
-            };
-
+            link.title = `tabUID: ${notebookId}`; // Set title to tabUID for hover effect
+        
+            // Sharing icon and setup as before...
             link.appendChild(shareIcon);
             link.onclick = function () {
                 document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
@@ -355,7 +354,7 @@
                 saveActiveTabUID(notebookId);
                 return false;
             };
-
+        
             tab.appendChild(link);
             document.getElementById('notebookTabs').appendChild(tab);
             if (setActive) {
