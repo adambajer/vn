@@ -249,6 +249,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
         
+            document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+            document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             if (notebookId) {
                 // If a specific notebook is being accessed, change the title to reflect this
                 document.getElementById('barTitle').textContent = `Poznámkový blok: ${notebookId}`;
@@ -258,8 +260,6 @@
                 document.getElementById('barTitle').textContent = "Poznámkové bloky";
                 loadUserNotebooks();
                 
-                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             }
         
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
