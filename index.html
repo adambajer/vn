@@ -352,7 +352,12 @@
             tab.className = 'nav-item';
             var link = document.createElement('a');
             var shareIcon = document.createElement('img');
-        
+            shareIcon.alt = 'Sdílej poznámky';
+            shareIcon.classList.add('shareicon');
+            shareIcon.onclick = function (event) {
+                event.stopPropagation(); // Prevent the notebook link's onclick from firing
+                showShareOptions(notebookId);
+            };
             link.className = 'nav-link';
             link.href = '#';
             link.dataset.notebookId = notebookId;
