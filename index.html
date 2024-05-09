@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>VNOTER</title>
+    <title>NOTES</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css" rel="stylesheet">
@@ -70,9 +70,9 @@
             border-bottom: 0.001vh solid #9198e5;
             border-bottom-right-radius: 0px;
             margin-bottom: 0.4vh;
-            color: #00085c;
-            border-radius: 0px;
-            padding: 0px;
+            color: hsl(235, 100%, 18%);
+            border-radius: 0px; 
+    padding: 10px;
             margin: 0px;
         }
 
@@ -138,15 +138,19 @@
         position:relative;}
         .shareicon {
             width: 30px;
-    height: 30px;
-    position: absolute;
-    top: 100%;
-    background: #fefee9;
-    border: 1px solid #ccc;
-    left: 32%;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 2px;opacity: 0;}
+            height: 30px;
+            /* position: absolute; */
+            top: 100%;
+            /* background: #fefee9; */
+            /* border: 1px solid #ccc; */
+            left: 32%;
+            cursor: pointer;
+            padding: 5px;
+            /* border-radius: 2px; */
+            margin-left: 10px;
+            opacity: 0;
+        
+        }
     .nav-link:hover .shareicon {
     opacity: 1;}
     #bar .app-title {
@@ -165,21 +169,20 @@
 
 <body class="">
    
-        <div id="bar" class="p-2">
-            <div class="d-inline-flex cus input-group">
+        <div id="bar" class="">
+            <div class="d-inline-flex cus">
                 <!-- Title of the app added here -->
-                <h1 class="app-title" style="margin-right: auto; color: #5bbad5;">Voice Noter</h1>
-                <ul id="notebookTabs" class="nav nav-pills">
+                 <ul id="notebookTabs" class="nav nav-pills">
                 </ul>
-                <button id="createNotebookButton" class="btn btn-outline-danger ms-2">Nový</button>
+                <button id="createNotebookButton" class="btn btn-outline-danger ms-2" title="Nové poznámky">+</button>
             </div>
         </div>
         
     </div>
-    <div id="notesContainer2" class="p-2">
-        <div class="input-group">
+    <div id="notesContainer2" class="">
+        <div class=" ">
             <input type="text" id="noteInput" class="form-control" placeholder="Text poznámky napiš zde ...">
-            <button id="addNoteButton" class="btn btn-outline-primary ms-2">Přidej</button>
+            <button id="addNoteButton" class="btn btn-outline-primary ms-2" title="Přidej">+</button>
         </div>
         <div id="notesContainer" class=""></div>
     </div>
@@ -291,38 +294,30 @@
             }
         }
         function loadUserNotebooks() {
-            const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
-            userNotebooksRef.once('value', snapshot => {
+            const userId = sessionStorage.getItem('userId');
+            const notebooksRef = firebase.database().ref('notebooks').orderByChild('userId').equalTo(userId);
+            notebooksRef.once('value', snapshot => {
                 const notebooks = snapshot.val();
-                console.log("Notebooks fetched: ", notebooks); // Debug output
-
-                if (notebooks && Object.keys(notebooks).length > 0) {
-                    Object.keys(notebooks).forEach((notebookId, index) => {
-                        createTab(notebookId, index === 0); // Set the first tab as active by default
-                    });
-
-                    const activeTabUID = getActiveTabUID();
-                    if (activeTabUID) {
-                        
-                        
-                        
-                        (activeTabUID);
-                    } else {
-                        setActiveTab(Object.keys(notebooks)[0]);
-                    }
+                if (notebooks) {
+                    // Code to display notebooks goes here
                 } else {
-                    console.log("No notebooks found, creating one..."); // Debug output
-                    createNotebook(); // Only create a new notebook if none are found
+                    console.log("No notebooks found, creating one...");
+                    createNotebook();
                 }
             }, error => {
-                console.error("Failed to fetch notebooks:", error); // Error handling
+                console.error("Failed to fetch notebooks:", error);
             });
         }
+        
 
         function createNotebook() {
+            const userId = sessionStorage.getItem('userId');  // Ensure you have the userId stored in session
             const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
-            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
-            newNotebookRef.set({ createdAt: Date.now() }, function (error) {
+            const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
+            newNotebookRef.set({
+                userId: userId,  // Store the userId as part of the notebook data
+                createdAt: Date.now()
+            }, error => {
                 if (!error) {
                     createTab(newNotebookId, true); // Set this new notebook as active
                 } else {
@@ -330,6 +325,7 @@
                 }
             });
         }
+        
         
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
