@@ -7,7 +7,6 @@
     <title>VNOTER</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous">
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -166,14 +165,17 @@
                 link.classList.remove('active');
                 if (link.dataset.notebookId === notebookId) {
                     link.classList.add('active');
+                    saveActiveTabUID(notebookId);
                 }
             });
-    
-            if (notebookId) {
-                loadNotes(notebookId);
-                saveActiveTabUID(notebookId); // Ensure this is called whenever the active tab is set
-            }
+        
+            loadNotes(notebookId); // Load notes for the active notebook
         }
+        
+        function saveActiveTabUID(uid) {
+            localStorage.setItem('activeTabUID', uid);
+        }
+        
 
 
         // Function to retrieve the active tab's UID from local storage
@@ -219,7 +221,10 @@
         
             if (notebookId) {
                 // If notebookId is found, set it active and load its notes only
-                setActiveTab(notebookId);
+                
+                
+                
+                (notebookId);
                 loadNotes(notebookId);
             } else {
                 // If no specific notebookId, load all user notebooks
@@ -231,12 +236,21 @@
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
         function getNotebookIdFromPath() {
-            const path = window.location.pathname;
-            const pathSegments = path.split('/');
-            // Example URL path: "/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
-            // Adjust the index as necessary based on your actual URL structure
-            return pathSegments[pathSegments.length - 1];
+            // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
+            // Splitting by '/' gives us: ["https:", "", "adambajer.github.io", "Voice-Noter", "notebooks", "-NxLpMKvPUyhOnM50UvE"]
+            const pathSegments = window.location.pathname.split('/');
+            // Notebook ID is expected to be after 'notebooks', adjust the index accordingly.
+            const notebookIndex = pathSegments.indexOf('notebooks');
+            if (notebookIndex !== -1 && notebookIndex + 1 < pathSegments.length) {
+                return pathSegments[notebookIndex + 1];
+            }
+            return null; // Return null if no notebook ID is found
         }
+        function generateCustomNotebookId() {
+            // Generates a random 16-character alphanumeric string
+            return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
+        }
+                
 
         function addNoteFromInput() {
             const noteContent = document.getElementById('noteInput').value;
@@ -259,7 +273,10 @@
 
                     const activeTabUID = getActiveTabUID();
                     if (activeTabUID) {
-                        setActiveTab(activeTabUID);
+                        
+                        
+                        
+                        (activeTabUID);
                     } else {
                         setActiveTab(Object.keys(notebooks)[0]);
                     }
@@ -273,13 +290,17 @@
         }
 
         function createNotebook() {
-            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks`).push();
+            const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
+            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
             newNotebookRef.set({ createdAt: Date.now() }, function (error) {
                 if (!error) {
-                    createTab(newNotebookRef.key, true); // Also set this new notebook as active
+                    createTab(newNotebookId, true); // Set this new notebook as active
+                } else {
+                    console.error('Error creating notebook:', error);
                 }
             });
         }
+        
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
