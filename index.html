@@ -245,6 +245,17 @@
                 return deviceFingerprint; // Return the new ID
             }
         }
+        document.getElementById('addNoteButton').addEventListener('click', function() {
+            const noteContent = document.getElementById('noteInput').value;
+            const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+            if (noteContent && notebookId) {
+                addNote(noteContent, notebookId);
+                document.getElementById('noteInput').value = ''; // Clear the input after adding a note
+            } else {
+                console.log('Note content or notebook ID is missing.');
+            }
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
@@ -394,33 +405,37 @@
         
  
         function loadNotes(notebookId) {
-            var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
-            notebookNotesRef.on('value', function (snapshot) {
-                const notes = snapshot.val() || {};
-                document.getElementById('notesContainer').innerHTML = '';
-                Object.keys(notes).forEach(noteId => {
-                    var noteElement = document.createElement('div');
-                    noteElement.className = 'note';
-                    noteElement.contentEditable = true;
-                    noteElement.textContent = notes[noteId].content;
-
-                    // Display creation and last update date when hovering
-                    noteElement.title = `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
-                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
-
-                    noteElement.addEventListener('focusout', function () {
-                        if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
-                            updateNote(notebookId, noteId, noteElement.textContent);
-                        }
+            const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
+            notesRef.on('value', function(snapshot) {
+                const notes = snapshot.val();
+                const notesContainer = document.getElementById('notesContainer');
+                notesContainer.innerHTML = ''; // Clear previous notes
+        
+                if (notes) {
+                    Object.keys(notes).forEach(function(key) {
+                        const note = notes[key];
+                        const noteElement = document.createElement('div');
+                        noteElement.className = 'note';
+                        noteElement.textContent = note.content;
+                        // Optionally make notes editable here if needed
+                        // noteElement.contentEditable = 'true';
+                        notesContainer.appendChild(noteElement);
                     });
-
-                    document.getElementById('notesContainer').appendChild(noteElement);
-                });
+                } else {
+                    // No notes or access denied
+                    notesContainer.innerHTML = '<p>No notes found or access denied.</p>';
+                }
+            }, function(error) {
+                // Handle read errors here, such as permission denied
+                console.error("Failed to load notes:", error);
+                document.getElementById('notesContainer').innerHTML = '<p>Error loading notes.</p>';
             });
         }
+        
         function addNote(content, notebookId) {
             const now = new Date().getTime();
             const newNoteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
+            
             newNoteRef.set({
                 content: content,
                 createdAt: now,
