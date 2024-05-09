@@ -137,15 +137,15 @@
         .nav-link {
         position:relative;}
         .shareicon {
-            width: 18px;
-    height: 18px;
+            width: 30px;
+    height: 30px;
     position: absolute;
     top: 100%;
     background: #fefee9;
     border: 1px solid #ccc;
     left: 32%;
     cursor: pointer;
-    padding: 2px;
+    padding: 5px;
     border-radius: 2px;opacity: 0;}
     .nav-link:hover .shareicon {
     opacity: 1;}
@@ -368,10 +368,9 @@
         }
         function showShareOptions(notebookId) {
             const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
-            // Redirect to the URL directly
-            window.location.href = shareUrl;
+            // Open the URL in a new browser tab
+            window.open(shareUrl, '_blank');
         }
-        
         
  
         function loadNotes(notebookId) {
