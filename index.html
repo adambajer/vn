@@ -165,15 +165,15 @@
 
 <body class="">
    
-    <div id="bar" class="p-2">
-        <div class="d-inline-flex cus input-group">
-            <!-- Dynamic title will be set here -->
-            <h1 id="barTitle" class="flex-grow-1">Poznámkové bloky</h1>
-            <ul id="notebookTabs" class="nav nav-pills"></ul>
-            <button id="createNotebookButton" class="btn btn-outline-danger ms-2">Nový</button>
+        <div id="bar" class="p-2">
+            <div class="d-inline-flex cus input-group">
+                <!-- Title of the app added here -->
+                <h1 class="app-title" style="margin-right: auto; color: #5bbad5;">Voice Noter</h1>
+                <ul id="notebookTabs" class="nav nav-pills">
+                </ul>
+                <button id="createNotebookButton" class="btn btn-outline-danger ms-2">Nový</button>
+            </div>
         </div>
-    </div>
-    
         
     </div>
     <div id="notesContainer2" class="p-2">
@@ -245,57 +245,26 @@
                 return deviceFingerprint; // Return the new ID
             }
         }
-        document.getElementById('addNoteButton').addEventListener('click', function() {
-            const noteContent = document.getElementById('noteInput').value;
-            const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
-            if (noteContent && notebookId) {
-                addNote(noteContent, notebookId);
-                document.getElementById('noteInput').value = ''; // Clear the input after adding a note
-            } else {
-                console.log('Note content or notebook ID is missing.');
-            }
-        });
-        
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
         
+         
             if (notebookId) {
-                // Change the title to reflect that a specific notebook is being accessed
-                document.getElementById('barTitle').textContent = `Poznámkový blok: ${notebookId}`;
-                loadSingleNotebook(notebookId);
+                // If notebookId is found, set it active and load its notes only
+                
+                
+ 
+                 loadNotes(notebookId);
             } else {
-                // Load all user notebooks or show general view if no specific notebook ID is provided
-                document.getElementById('barTitle').textContent = "Poznámkové bloky";
+                // If no specific notebookId, load all user notebooks
                 loadUserNotebooks();
+                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             }
         
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
-        
-        function loadSingleNotebook(notebookId) {
-            console.log("Loading single notebook with ID:", notebookId);
-            const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
-            notebookRef.once('value').then(function(snapshot) {
-                const notebookData = snapshot.val();
-                if (notebookData) {
-                    displayNotebook(notebookData);  // Function to update the UI with notebook data
-                } else {
-                    console.log("Notebook not found or access denied.");
-                    document.getElementById('notesContainer').innerHTML = '<p>Notebook not found or access denied.</p>';
-                }
-            }).catch(function(error) {
-                console.error("Error loading the notebook:", error);
-            });
-        }
-        
-        function displayNotebook(notebookData) {
-            // Here, populate the UI elements with the notebook data
-            // This might include the notebook's title, description, notes, etc.
-            document.getElementById('notesContainer').innerHTML = '<h1>' + notebookData.title + '</h1>';
-            // Add more UI updates as needed
-        }
-        
         function getNotebookIdFromPath() {
             // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
             // Splitting by '/' gives us: ["https:", "", "adambajer.github.io", "Voice-Noter", "notebooks", "-NxLpMKvPUyhOnM50UvE"]
@@ -397,40 +366,48 @@
                 link.click(); // Automatically click the link to set it as active if specified
             }
         }
-        function showShareOptions(notebookId) {
-            const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
-            window.location.href = shareUrl;
-        }
-        
-        function loadNotes() {
-            firebase.database().ref(`notebooks/${currentNotebookId}/notes`).on('value', snapshot => {
-                const notesContainer = document.getElementById('notesContainer');
-                notesContainer.innerHTML = '';
-                snapshot.forEach(childSnapshot => {
-                    const note = childSnapshot.val();
-                    const div = document.createElement('div');
-                    div.className = 'note';
-                    div.textContent = note.content;
-                    div.contentEditable = true;
-                    div.onblur = function() {
-                        if (div.textContent !== note.content) {
-                            updateNote(childSnapshot.key, div.textContent);
+       function showShareOptions(notebookId) {
+    const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
+    // Open the URL in a new browser tab
+    window.open(shareUrl, '_blank');
+}
+
+ 
+        function loadNotes(notebookId) {
+            var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
+            notebookNotesRef.on('value', function (snapshot) {
+                const notes = snapshot.val() || {};
+                document.getElementById('notesContainer').innerHTML = '';
+                Object.keys(notes).forEach(noteId => {
+                    var noteElement = document.createElement('div');
+                    noteElement.className = 'note';
+                    noteElement.contentEditable = true;
+                    noteElement.textContent = notes[noteId].content;
+
+                    // Display creation and last update date when hovering
+                    noteElement.title = `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
+                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
+
+                    noteElement.addEventListener('focusout', function () {
+                        if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
+                            updateNote(notebookId, noteId, noteElement.textContent);
                         }
-                    };
-                    notesContainer.appendChild(div);
+                    });
+
+                    document.getElementById('notesContainer').appendChild(noteElement);
                 });
             });
-        }   
-        
+        }
+
+
         function addNote(content, notebookId) {
-            const now = new Date().getTime();
-            const newNoteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
-            
+            var now = new Date();
+            var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
             newNoteRef.set({
                 content: content,
-                createdAt: now,
-                updatedAt: now
-            }, function(error) {
+                createdAt: now.getTime(),
+                updatedAt: now.getTime()  // Initially, creation and update time are the same
+            }, error => {
                 if (error) {
                     console.error('Failed to add note:', error);
                 } else {
@@ -438,8 +415,6 @@
                 }
             });
         }
-        
-
 
         function formatDate(date) {
             let day = date.getDate();
@@ -450,14 +425,20 @@
             return `${day}.${month}.${year} ${hours}:${minutes}`;
         }
 
-        function updateNote(noteId, content) {
-            const now = Date.now();
-            firebase.database().ref(`notebooks/${currentNotebookId}/notes/${noteId}`).update({
+        function updateNote(notebookId, noteId, content) {
+            var now = new Date();
+            var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
+            noteRef.update({
                 content: content,
-                updatedAt: now
+                updatedAt: now.getTime()  // Update the timestamp when the note is edited
+            }, error => {
+                if (error) {
+                    console.error('Failed to update note:', error);
+                } else {
+                    console.log('Note updated successfully');
+                }
             });
         }
-
         function setupVoiceRecognition() {
             if (annyang) {
                 var recognition = new webkitSpeechRecognition();
