@@ -352,9 +352,11 @@
             }
         }
         function showShareOptions(notebookId) {
-            const shareUrl = `https://adambajer.github.io/Voice-Noter/notebooks/${notebookId}`; // Construct the URL
-            alert("Share this URL: " + shareUrl); // Show the URL to the user
+            const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
+            // Redirect to the URL directly
+            window.location.href = shareUrl;
         }
+        
         
  
         function loadNotes(notebookId) {
