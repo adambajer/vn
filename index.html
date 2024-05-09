@@ -156,6 +156,7 @@
         <div id="notesContainer" class=""></div>
     </div>
     <script>
+        
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
         }
@@ -165,14 +166,17 @@
                 link.classList.remove('active');
                 if (link.dataset.notebookId === notebookId) {
                     link.classList.add('active');
+                    saveActiveTabUID(notebookId);
                 }
             });
-    
-            if (notebookId) {
-                loadNotes(notebookId);
-                saveActiveTabUID(notebookId); // Ensure this is called whenever the active tab is set
-            }
+        
+            loadNotes(notebookId); // Load notes for the active notebook
         }
+        
+        function saveActiveTabUID(uid) {
+            localStorage.setItem('activeTabUID', uid);
+        }
+        
 
 
         // Function to retrieve the active tab's UID from local storage
@@ -214,15 +218,16 @@
             }
         }
         document.addEventListener('DOMContentLoaded', function () {
-            const notebookId = getNotebookIdFromPath();
+            const urlParams = new URLSearchParams(window.location.search);
+            const notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
         
+         
             if (notebookId) {
                 // If notebookId is found, set it active and load its notes only
                 
                 
-                
-                (notebookId);
-                loadNotes(notebookId);
+ 
+                 loadNotes(notebookId);
             } else {
                 // If no specific notebookId, load all user notebooks
                 loadUserNotebooks();
@@ -287,13 +292,17 @@
         }
 
         function createNotebook() {
-            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks`).push();
+            const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
+            const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
             newNotebookRef.set({ createdAt: Date.now() }, function (error) {
                 if (!error) {
-                    createTab(newNotebookRef.key, true); // Also set this new notebook as active
+                    createTab(newNotebookId, true); // Set this new notebook as active
+                } else {
+                    console.error('Error creating notebook:', error);
                 }
             });
         }
+        
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
