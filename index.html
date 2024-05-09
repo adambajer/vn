@@ -301,18 +301,31 @@
             }
         }
         function loadUserNotebooks() {
-            const userId = sessionStorage.getItem('userId');
-            const notebooksRef = firebase.database().ref('notebooks').orderByChild('userId').equalTo(userId);
-            notebooksRef.once('value', snapshot => {
+            const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
+            userNotebooksRef.once('value', snapshot => {
                 const notebooks = snapshot.val();
-                if (notebooks) {
-                    // Code to display notebooks goes here
+                console.log("Notebooks fetched: ", notebooks); // Debug output
+
+                if (notebooks && Object.keys(notebooks).length > 0) {
+                    Object.keys(notebooks).forEach((notebookId, index) => {
+                        createTab(notebookId, index === 0); // Set the first tab as active by default
+                    });
+
+                    const activeTabUID = getActiveTabUID();
+                    if (activeTabUID) {
+                        
+                        
+                        
+                        (activeTabUID);
+                    } else {
+                        setActiveTab(Object.keys(notebooks)[0]);
+                    }
                 } else {
-                    console.log("No notebooks found, creating one...");
-                    createNotebook();
+                    console.log("No notebooks found, creating one..."); // Debug output
+                    createNotebook(); // Only create a new notebook if none are found
                 }
             }, error => {
-                console.error("Failed to fetch notebooks:", error);
+                console.error("Failed to fetch notebooks:", error); // Error handling
             });
         }
         
