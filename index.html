@@ -249,23 +249,44 @@
             const urlParams = new URLSearchParams(window.location.search);
             const notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
         
-            document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-            document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             if (notebookId) {
-                // If a specific notebook is being accessed, change the title to reflect this
+                // Change the title to reflect that a specific notebook is being accessed
                 document.getElementById('barTitle').textContent = `Poznámkový blok: ${notebookId}`;
-                loadUserNotebooks(notebookId);
+                loadSingleNotebook(notebookId);
             } else {
                 // Load all user notebooks or show general view if no specific notebook ID is provided
                 document.getElementById('barTitle').textContent = "Poznámkové bloky";
                 loadUserNotebooks();
-                
             }
         
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
         
      
+        function loadSingleNotebook(notebookId) {
+            console.log("Loading single notebook with ID:", notebookId);
+            // Fetch the notebook data from your database or API
+            const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+            notebookRef.once('value').then(function(snapshot) {
+                const notebookData = snapshot.val();
+                if (notebookData) {
+                    displayNotebook(notebookData);  // Function to update the UI with notebook data
+                } else {
+                    console.log("Notebook not found or access denied.");
+                    // Handle cases where no data is returned
+                    document.getElementById('notesContainer').innerHTML = '<p>Notebook not found or access denied.</p>';
+                }
+            }).catch(function(error) {
+                console.error("Error loading the notebook:", error);
+            });
+        }
+        
+        function displayNotebook(notebookData) {
+            // Here, populate the UI elements with the notebook data
+            // This might include the notebook's title, description, notes, etc.
+            document.getElementById('notesContainer').innerHTML = '<h1>' + notebookData.title + '</h1>';
+            // Add more UI updates as needed
+        }
         
         function getNotebookIdFromPath() {
             // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
