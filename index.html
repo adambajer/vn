@@ -418,18 +418,14 @@
                 });
             });
         }
-
         function addNote(content, notebookId) {
-            const now = new Date();
-            const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
-            
-            // Example to push a new note if the notebook is considered public
-            const newNoteRef = notesRef.push();
+            const now = new Date().getTime();
+            const newNoteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
             newNoteRef.set({
                 content: content,
-                createdAt: now.getTime(),
-                updatedAt: now.getTime()
-            }, error => {
+                createdAt: now,
+                updatedAt: now
+            }, function(error) {
                 if (error) {
                     console.error('Failed to add note:', error);
                 } else {
@@ -438,6 +434,7 @@
             });
         }
         
+
 
         function formatDate(date) {
             let day = date.getDate();
