@@ -257,6 +257,9 @@
                 // Load all user notebooks or show general view if no specific notebook ID is provided
                 document.getElementById('barTitle').textContent = "Poznámkové bloky";
                 loadUserNotebooks();
+                
+                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             }
         
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
