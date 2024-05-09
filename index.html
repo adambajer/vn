@@ -165,15 +165,15 @@
 
 <body class="">
    
-        <div id="bar" class="p-2">
-            <div class="d-inline-flex cus input-group">
-                <!-- Title of the app added here -->
-                <h1 class="app-title" style="margin-right: auto; color: #5bbad5;">Voice Noter</h1>
-                <ul id="notebookTabs" class="nav nav-pills">
-                </ul>
-                <button id="createNotebookButton" class="btn btn-outline-danger ms-2">Nový</button>
-            </div>
+    <div id="bar" class="p-2">
+        <div class="d-inline-flex cus input-group">
+            <!-- Dynamic title will be set here -->
+            <h1 id="barTitle" class="flex-grow-1">Poznámkové bloky</h1>
+            <ul id="notebookTabs" class="nav nav-pills"></ul>
+            <button id="createNotebookButton" class="btn btn-outline-danger ms-2">Nový</button>
         </div>
+    </div>
+    
         
     </div>
     <div id="notesContainer2" class="p-2">
@@ -245,26 +245,25 @@
                 return deviceFingerprint; // Return the new ID
             }
         }
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
         
-         
             if (notebookId) {
-                // If notebookId is found, set it active and load its notes only
-                
-                
- 
-                 loadNotes(notebookId);
+                // If a specific notebook is being accessed, change the title to reflect this
+                document.getElementById('barTitle').textContent = `Poznámkový blok: ${notebookId}`;
+                loadUserNotebooks(notebookId);
             } else {
-                // If no specific notebookId, load all user notebooks
+                // Load all user notebooks or show general view if no specific notebook ID is provided
+                document.getElementById('barTitle').textContent = "Poznámkové bloky";
                 loadUserNotebooks();
-                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             }
         
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
+        
+     
+        
         function getNotebookIdFromPath() {
             // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
             // Splitting by '/' gives us: ["https:", "", "adambajer.github.io", "Voice-Noter", "notebooks", "-NxLpMKvPUyhOnM50UvE"]
