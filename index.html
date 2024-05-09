@@ -136,6 +136,19 @@
         }
         .nav-link {
         position:relative;}
+        .shareicon {
+            width: 18px;
+    height: 18px;
+    position: absolute;
+    top: 100%;
+    background: #fefee9;
+    border: 1px solid #ccc;
+    left: 32%;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 2px;opacity: 0;}
+    .nav-link:hover .shareicon {
+    opacity: 1;}
     </style>
 </head>
 
@@ -317,8 +330,8 @@
             // Sharing icon setup
             shareIcon.src = 'share-icon.svg'; // Path to your sharing icon image
             shareIcon.alt = 'Sdílej poznámky';
-            shareIcon.style = 'width: 18px; height: 18px; position:absolute;top:100%; cursor: pointer;';
-            shareIcon.onclick = function (event) {
+            shareIcon.classList.add('shareicon');
+             shareIcon.onclick = function (event) {
                 event.stopPropagation(); // Prevent the notebook link's onclick from firing
                 showShareOptions(notebookId);
             };
