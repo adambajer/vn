@@ -402,35 +402,25 @@
             window.location.href = shareUrl;
         }
         
-        
- 
-        function loadNotes(notebookId) {
-            const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
-            notesRef.on('value', function(snapshot) {
-                const notes = snapshot.val();
+        function loadNotes() {
+            firebase.database().ref(`notebooks/${currentNotebookId}/notes`).on('value', snapshot => {
                 const notesContainer = document.getElementById('notesContainer');
-                notesContainer.innerHTML = ''; // Clear previous notes
-        
-                if (notes) {
-                    Object.keys(notes).forEach(function(key) {
-                        const note = notes[key];
-                        const noteElement = document.createElement('div');
-                        noteElement.className = 'note';
-                        noteElement.textContent = note.content;
-                        // Optionally make notes editable here if needed
-                        // noteElement.contentEditable = 'true';
-                        notesContainer.appendChild(noteElement);
-                    });
-                } else {
-                    // No notes or access denied
-                    notesContainer.innerHTML = '<p>No notes found or access denied.</p>';
-                }
-            }, function(error) {
-                // Handle read errors here, such as permission denied
-                console.error("Failed to load notes:", error);
-                document.getElementById('notesContainer').innerHTML = '<p>Error loading notes.</p>';
+                notesContainer.innerHTML = '';
+                snapshot.forEach(childSnapshot => {
+                    const note = childSnapshot.val();
+                    const div = document.createElement('div');
+                    div.className = 'note';
+                    div.textContent = note.content;
+                    div.contentEditable = true;
+                    div.onblur = function() {
+                        if (div.textContent !== note.content) {
+                            updateNote(childSnapshot.key, div.textContent);
+                        }
+                    };
+                    notesContainer.appendChild(div);
+                });
             });
-        }
+        }   
         
         function addNote(content, notebookId) {
             const now = new Date().getTime();
@@ -460,20 +450,14 @@
             return `${day}.${month}.${year} ${hours}:${minutes}`;
         }
 
-        function updateNote(notebookId, noteId, content) {
-            var now = new Date();
-            var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
-            noteRef.update({
+        function updateNote(noteId, content) {
+            const now = Date.now();
+            firebase.database().ref(`notebooks/${currentNotebookId}/notes/${noteId}`).update({
                 content: content,
-                updatedAt: now.getTime()  // Update the timestamp when the note is edited
-            }, error => {
-                if (error) {
-                    console.error('Failed to update note:', error);
-                } else {
-                    console.log('Note updated successfully');
-                }
+                updatedAt: now
             });
         }
+
         function setupVoiceRecognition() {
             if (annyang) {
                 var recognition = new webkitSpeechRecognition();
