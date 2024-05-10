@@ -32,17 +32,7 @@
             background: #fdfde8;
         }
 
-        .note {
-            position: relative;
-            border-top-right-radius: 5px;
-            flex-wrap: wrap;
-            display: flex;
-            border-bottom: 0.001vh solid #9198e5;
-            border-bottom-right-radius: 5px;
-            margin-bottom: 0.4vh;
-            color: #00085c;
-        }
-
+      
         #notebookTabs {}
 
         #bar {
@@ -79,11 +69,9 @@
         .cus {
             width: 100%;
             display: inline-flex !important;
-
-            justify-content: space-between;
+            justify-content: flex-start;
             flex-wrap: nowrap;
-            align-items: center;
-            width: 100%;
+             width: 100%;
         }
 
         @keyframes pulsate {
@@ -107,14 +95,12 @@
 
         .note {
             position: relative;
-            border-top-right-radius: 5px;
-            flex-wrap: wrap;
+             flex-wrap: wrap;
             display: flex;
-            border-bottom: 0.001vh solid #9198e5;
-            border-bottom-right-radius: 5px;
-            margin-bottom: 0.4vh;
-            color: #00085c;
+              color: #00085c;
             padding: 10px;
+            border-radius: 0px;
+            border-bottom: 1px solid #ccc;
             /* Ensure there's padding for text visibility */
         }
 
@@ -137,21 +123,21 @@
         .nav-link {
         position:relative;}
         .shareicon {
-            width: 30px;
-            height: 30px;
+            width: 0px;
+            height: 18px;
             /* position: absolute; */
-            top: 100%;
-            /* background: #fefee9; */
+             /* background: #fefee9; */
             /* border: 1px solid #ccc; */
-            left: 32%;
-            cursor: pointer;
-            padding: 5px;
-            /* border-radius: 2px; */
-            margin-left: 10px;
-            opacity: 0;
+             cursor: pointer;
+             /* border-radius: 2px; */
+             opacity: 0;
+             margin-left:5PX;
         
         }
+        .shareicon PATH {fill: WHITE;}
     .nav-link:hover .shareicon {
+        width: 18px;
+
     opacity: 1;}
     #bar .app-title {
         font-size: 24px; /* Set the font size as desired */
@@ -163,7 +149,12 @@
     #bar {
         align-items: center; /* Ensures vertical centering of all items */
     }
-    
+    .nav-link {
+    border-radius: 0px !important;background-color: #ececec !important;
+   border-right: 1px solid #ccc;}
+    #userIcon {
+    background-color: #ececec;
+padding: 2px;border-right: 1px solid #ccc;}
     </style>
 </head>
 
@@ -171,12 +162,12 @@
    
         <div id="bar" class="">
             <div class="d-inline-flex cus">
-                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon" style="width: 24px; height: 24px; margin-right: 10px;">
+                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon" style="width: 40px; height: 40px;">
 
                 <!-- Title of the app added here -->
                  <ul id="notebookTabs" class="nav nav-pills">
                 </ul>
-                <button id="createNotebookButton" class="btn btn-outline-danger ms-2" title="Nové poznámky">+</button>
+                <button id="createNotebookButton" class="btn btn-danger rounded-0" title="Nové poznámky">+</button>
             </div>
         </div>
         
@@ -184,7 +175,7 @@
     <div id="notesContainer2" class="">
         <div class="d-inline-flex w-100 justify-content-end">
             <input type="text" id="noteInput" class="form-control" placeholder="Text poznámky napiš zde ...">
-            <button id="addNoteButton" class="btn btn-outline-primary ms-2" title="Přidej">+</button>
+            <button id="addNoteButton" class="btn btn-primary ms-2 rounded-0" title="Přidej">+</button>
         </div>
         <div id="notesContainer" class=""></div>
     </div>
@@ -362,10 +353,10 @@
             };
             link.className = 'nav-link';
             link.href = '#';
-            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 24px; height: 24px;">';
+            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 18px; height: 18px;">';
 
             link.dataset.notebookId = notebookId;
-            link.title = `tabUID: ${notebookId}`; // Set title to tabUID for hover effect
+            link.title = `${notebookId}`; // Set title to tabUID for hover effect
         
             // Sharing icon and setup as before...
             link.appendChild(shareIcon);
