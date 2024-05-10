@@ -33,7 +33,7 @@
             background: #fdfde8;
         }
 
-      
+
         #notebookTabs {}
 
         #bar {
@@ -47,7 +47,7 @@
             z-index: 999999;
             background: #ffffff;
 
-            backdrop-filter: blur(7px); 
+            backdrop-filter: blur(7px);
         }
 
         #noteInput {
@@ -61,8 +61,8 @@
             border-bottom-right-radius: 0px;
             margin-bottom: 0.4vh;
             color: hsl(235, 100%, 18%);
-            border-radius: 0px; 
-    padding: 10px;
+            border-radius: 0px;
+            padding: 10px;
             margin: 0px;
         }
 
@@ -71,7 +71,7 @@
             display: inline-flex !important;
             justify-content: flex-start;
             flex-wrap: nowrap;
-             width: 100%;
+            width: 100%;
         }
 
         @keyframes pulsate {
@@ -85,23 +85,26 @@
                 box-shadow: 0 0 0 20px rgba(227, 55, 55, 0.7);
                 backdrop-filter: blur(5px);
             }
-        }     #skitt-ui.skitt-ui--listening {
+        }
+
+        #skitt-ui.skitt-ui--listening {
 
             background-color: rgb(255, 75, 75) !important;
         }
+
         #skitt-ui.skitt-ui--listening #skitt-toggle-button {
 
             background-color: red !important;
             animation: pulsate 2s infinite;
         }
 
-   
+
 
         .note {
             position: relative;
-             flex-wrap: wrap;
+            flex-wrap: wrap;
             display: flex;
-              color: #00085c;
+            color: #00085c;
             padding: 10px;
             border-radius: 0px;
             border-bottom: 1px solid #ccc;
@@ -109,8 +112,8 @@
         }
 
         /* Optionally style the title attribute tooltip */
-         /* Optionally style the title attribute tooltip */
-         .note[title]:hover:after {
+        /* Optionally style the title attribute tooltip */
+        .note[title]:hover:after {
             content: attr(title);
             position: absolute;
             left: 0;
@@ -124,67 +127,94 @@
             box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
             font-size: 0.75em;
         }
+
         .nav-link {
-        position:relative;
-        border-bottom: 3px solid #ececec;}
+            position: relative;
+            border-bottom: 3px solid #ececec;
+        }
+
         .nav-link.active {
-        background-color: #ccc !important;
-    border-bottom: 3px solid blue;}
+            background-color: #ccc !important;
+            border-bottom: 3px solid blue;
+        }
+
         .shareicon {
             width: 0px;
             height: 18px;
             /* position: absolute; */
-             /* background: #fefee9; */
+            /* background: #fefee9; */
             /* border: 1px solid #ccc; */
-             cursor: pointer;
-             /* border-radius: 2px; */
-             opacity: 0;
-             margin-left:5PX;
-        
-        }
-        .shareicon PATH {fill: WHITE;}
-    .nav-link:hover .shareicon {
-        width: 18px;
+            cursor: pointer;
+            /* border-radius: 2px; */
+            opacity: 0;
+            margin-left: 5PX;
 
-    opacity: 1;}
-    #bar .app-title {
-        font-size: 24px; /* Set the font size as desired */
-        color: #5bbad5; /* Theme color */
-        margin-right: auto; /* Pushes other elements to the right */
-        padding-left: 10px; /* Optional: Adds some padding on the left */
-    }
-    
-    #bar {
-        align-items: center; /* Ensures vertical centering of all items */
-    }
-    .nav-link {
-    border-radius: 0px !important;background-color: #ececec !important;
-   border-right: 1px solid #ccc;}
-    #userIcon {
-    background-color: #ececec;
-padding: 2px;border-bottom: 3px solid #ececec;}
+        }
+
+        .shareicon PATH {
+            fill: WHITE;
+        }
+
+        .nav-link:hover .shareicon {
+            width: 18px;
+
+            opacity: 1;
+        }
+
+        #bar .app-title {
+            font-size: 24px;
+            /* Set the font size as desired */
+            color: #5bbad5;
+            /* Theme color */
+            margin-right: auto;
+            /* Pushes other elements to the right */
+            padding-left: 10px;
+            /* Optional: Adds some padding on the left */
+        }
+
+        #bar {
+            align-items: center;
+            /* Ensures vertical centering of all items */
+        }
+
+        .nav-link {
+            border-radius: 0px !important;
+            background-color: #ececec !important;
+            border-right: 1px solid #ccc;
+        }
+
+        #userIcon {
+            background-color: #ececec;
+            padding: 2px;
+            border-bottom: 3px solid #ececec;
+        }
     </style>
 </head>
 
 <body class="">
-   
-        <div id="bar" class="">
-            <div class="d-inline-flex cus">
-                <div class="d-inline-flex align-items-center ps-1 pe-1" style="background-color: black;">
+
+    <div id="bar" class="">
+        <div class="d-inline-flex cus">
+            <div class="d-inline-flex align-items-center ps-1 pe-1" style="background-color: black;">
 
                 <img src="favicon.svg" width="30px" height="30px">
                 <h3 style="color: white;">NOTES</h3>
 
-            </div>                
-                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon" style="width: 40px; height: 40px;">
+            </div>
+            <div class="d-inline-flex">
+
 
                 <!-- Title of the app added here -->
-                 <ul id="notebookTabs" class="nav nav-pills">
+                <ul id="notebookTabs" class="nav nav-pills">
                 </ul>
                 <button id="createNotebookButton" class="btn btn-danger rounded-0" title="Nové poznámky">+</button>
+                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon"
+                    style="width: 40px; height: 40px;">
             </div>
+
         </div>
-        
+    </div>
+
     </div>
     <div id="notesContainer2" class="">
         <div class="d-inline-flex w-100 justify-content-end">
@@ -194,7 +224,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
         <div id="notesContainer" class=""></div>
     </div>
     <script>
-        
+
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
         }
@@ -207,14 +237,14 @@ padding: 2px;border-bottom: 3px solid #ececec;}
                     saveActiveTabUID(notebookId);
                 }
             });
-        
+
             loadNotes(notebookId); // Load notes for the active notebook
         }
-        
+
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
         }
-        
+
 
 
         // Function to retrieve the active tab's UID from local storage
@@ -243,22 +273,22 @@ padding: 2px;border-bottom: 3px solid #ececec;}
                 ].join('|');
                 return fingerprint;
             }
-        
+
             function hashString(str) {
                 // Simple hash function for illustration
                 var hash = 0, i, chr;
                 for (i = 0; i < str.length; i++) {
-                    chr   = str.charCodeAt(i);
-                    hash  = ((hash << 5) - hash) + chr;
+                    chr = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + chr;
                     hash |= 0; // Convert to 32bit integer
                 }
                 return hash;
             }
-        
+
             const fingerprint = getDeviceFingerprint();
             const hashedFingerprint = hashString(fingerprint).toString(16); // Convert to hex
             const shortId = hashedFingerprint.substr(0, 8); // Take first 8 characters
-        
+
             const storedUserId = localStorage.getItem('userId');
             if (storedUserId === shortId) {
                 return storedUserId;
@@ -267,7 +297,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
                 return shortId;
             }
         }
-        
+
         document.addEventListener('DOMContentLoaded', function () {
             let urlParams = new URLSearchParams(window.location.search);
             let notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
@@ -279,11 +309,11 @@ padding: 2px;border-bottom: 3px solid #ececec;}
 
             if (notebookId) {
                 // If notebookId is found, set it active and load its notes only
-                
-                
- 
-                 loadNotes(notebookId);
-                 
+
+
+
+                loadNotes(notebookId);
+
                 document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
                 document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             } else {
@@ -292,7 +322,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
                 document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
                 document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             }
-        
+
             setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
         });
         function getNotebookIdFromPath() {
@@ -310,7 +340,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
             // Generates a random 16-character alphanumeric string
             return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
         }
-                
+
 
         function addNoteFromInput() {
             const noteContent = document.getElementById('noteInput').value;
@@ -333,9 +363,9 @@ padding: 2px;border-bottom: 3px solid #ececec;}
 
                     const activeTabUID = getActiveTabUID();
                     if (activeTabUID) {
-                        
-                        
-                        
+
+
+
                         (activeTabUID);
                     } else {
                         setActiveTab(Object.keys(notebooks)[0]);
@@ -348,7 +378,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
                 console.error("Failed to fetch notebooks:", error); // Error handling
             });
         }
-        
+
 
         function createNotebook() {
             const userId = sessionStorage.getItem('userId');  // Ensure you have the userId stored in session
@@ -365,8 +395,8 @@ padding: 2px;border-bottom: 3px solid #ececec;}
                 }
             });
         }
-        
-        
+
+
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
@@ -375,7 +405,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
             shareIcon.alt = 'Sdílej poznámky';
             shareIcon.classList.add('shareicon');
             shareIcon.src = 'share-icon.svg';
- 
+
             shareIcon.onclick = function (event) {
                 event.stopPropagation(); // Prevent the notebook link's onclick from firing
                 showShareOptions(notebookId);
@@ -386,7 +416,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
 
             link.dataset.notebookId = notebookId;
             link.title = `${notebookId}`; // Set title to tabUID for hover effect
-        
+
             // Sharing icon and setup as before...
             link.appendChild(shareIcon);
             link.onclick = function () {
@@ -396,7 +426,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
                 saveActiveTabUID(notebookId);
                 return false;
             };
-        
+
             tab.appendChild(link);
             document.getElementById('notebookTabs').appendChild(tab);
             if (setActive) {
@@ -408,10 +438,10 @@ padding: 2px;border-bottom: 3px solid #ececec;}
             // Open the share URL in a new tab
             window.open(shareUrl, '_blank');
         }
-        
-        
-        
- 
+
+
+
+
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function (snapshot) {
