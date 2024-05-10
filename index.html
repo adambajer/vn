@@ -197,11 +197,12 @@
 
     <div id="bar" class="border-bottom">
         <div class="d-inline-flex cus justify-content-between">
-            <div class="d-inline-flex align-items-center ps-2 pe-2" style="background-color: black;">
+            <div class="d-inline-flex align-items-center ps-2 pe-2" >
 
                 <img src="favicon.svg" width="30px" height="30px">
-                <h3 style="color: white;">NOTES</h3>
-
+                <h3>NOTES</h3>
+                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon"
+                    style="width: 43px; height: 43px;">
             </div>
             <div class="d-inline-flex">
 
@@ -209,9 +210,8 @@
                 <!-- Title of the app added here -->
                 <ul id="notebookTabs" class="nav nav-pills">
                 </ul>
-                <button id="createNotebookButton" class="btn btn-danger rounded-0" title="Nové poznámky">+</button>
-                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon"
-                    style="width: 43px; height: 43px;">
+                <button id="createNotebookButton" class="btn btn-danger rounded-0" title="Nový blok poznámek">+</button>
+                
             </div>
 
         </div>
@@ -221,7 +221,7 @@
     <div id="notesContainer2" class="">
         <div class="d-inline-flex w-100 justify-content-end">
             <input type="text" id="noteInput" class="form-control" placeholder="Text poznámky napiš zde ...">
-            <button id="addNoteButton" class="btn btn-primary rounded-0" title="Přidej">+</button>
+            <button id="addNoteButton" class="btn btn-primary rounded-0" title="Zapiš">+</button>
         </div>
         <div id="notesContainer" class=""></div>
     </div>
