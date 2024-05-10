@@ -189,40 +189,7 @@
             padding: 2px;
             border-bottom: 3px solid #ececec;
         }
-        .menu-icon {
-            visibility: visible; /* Make sure it's always visible */
-            margin-left: 5px;
-            color: #333; /* Adjust color to match your design */
-        }
         
-        .context-menu {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            z-index: 100;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            min-width: 160px; /* Set width of the context menu */
-        }
-        
-        .context-menu ul {
-            list-style-type: none;
-            padding: 10px 0;
-            margin: 0;
-        }
-        
-        .context-menu ul li {
-            padding: 10px 20px;
-            cursor: pointer;
-            color: black;
-            text-align: left;
-        }
-        
-        .context-menu ul li:hover {
-            background-color: #f1f1f1;
-        }
-        
-
     </style>
 </head>
 
@@ -436,70 +403,38 @@
             var tab = document.createElement('li');
             tab.className = 'nav-item';
             var link = document.createElement('a');
+            var shareIcon = document.createElement('img');
+            shareIcon.alt = 'Sdílej poznámky';
+            shareIcon.classList.add('shareicon');
+            shareIcon.src = 'share-icon.svg';
+
+            shareIcon.onclick = function (event) {
+                event.stopPropagation(); // Prevent the notebook link's onclick from firing
+                showShareOptions(notebookId);
+            };
             link.className = 'nav-link';
             link.href = '#';
-            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 18px; height: 18px;"> ' + notebookId;
-        
-            // Three dots menu icon
-            var menuIcon = document.createElement('span');
-            menuIcon.className = 'menu-icon';
-            menuIcon.innerHTML = '⋮';  // Unicode character for vertical ellipsis
-            menuIcon.style.float = 'right';  // Position it to the right of the tab
-            menuIcon.style.cursor = 'pointer';
-        
-            // Context menu
-            var contextMenu = document.createElement('div');
-            contextMenu.className = 'context-menu';
-            var menuList = document.createElement('ul');
-            var shareItem = document.createElement('li');
-            shareItem.textContent = 'Share';
-            shareItem.onclick = function() {
-                showShareOptions(notebookId);
-                contextMenu.style.display = 'none';  // Hide menu after action
-            };
-        
-            menuList.appendChild(shareItem);
-            contextMenu.appendChild(menuList);
-            tab.appendChild(contextMenu);
-        
-            // Append elements
-            tab.appendChild(link);
-            tab.appendChild(menuIcon);
-        
-            // Event to show context menu
-            menuIcon.addEventListener('click', function(event) {
-                toggleContextMenu(event, contextMenu);
-            });
-        
-            tab.oncontextmenu = function(event) {
-                event.preventDefault();
-                toggleContextMenu(event, contextMenu);
+            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 18px; height: 18px;">';
+
+            link.dataset.notebookId = notebookId;
+            link.title = `${notebookId}`; // Set title to tabUID for hover effect
+
+            // Sharing icon and setup as before...
+            link.appendChild(shareIcon);
+            link.onclick = function () {
+                document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                loadNotes(notebookId);
+                saveActiveTabUID(notebookId);
                 return false;
             };
-        
+
+            tab.appendChild(link);
             document.getElementById('notebookTabs').appendChild(tab);
             if (setActive) {
-                link.click();
+                link.click(); // Automatically click the link to set it as active if specified
             }
         }
-        function toggleContextMenu(event, menu) {
-            // Position the menu
-            menu.style.left = `${event.clientX}px`;
-            menu.style.top = `${event.clientY}px`;
-            // Toggle display
-            menu.style.display = (menu.style.display === 'block' ? 'none' : 'block');
-        }
-        
-        // Close context menu when clicking elsewhere
-        document.addEventListener('click', function(event) {
-            var contextMenus = document.querySelectorAll('.context-menu');
-            contextMenus.forEach(function(menu) {
-                if (!menu.contains(event.target)) {
-                    menu.style.display = 'none';
-                }
-            });
-        });
-        
         function showShareOptions(notebookId) {
             const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
             // Open the share URL in a new tab
