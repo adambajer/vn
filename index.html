@@ -368,8 +368,7 @@ padding: 2px;border-bottom: 3px solid #ececec;}
             shareIcon.alt = 'Sdílej poznámky';
             shareIcon.classList.add('shareicon');
             shareIcon.src = 'share-icon.svg';
-            shareIcon.target = '_blank'; // Ensures the link opens in a new tab
-
+ 
             shareIcon.onclick = function (event) {
                 event.stopPropagation(); // Prevent the notebook link's onclick from firing
                 showShareOptions(notebookId);
@@ -396,13 +395,12 @@ padding: 2px;border-bottom: 3px solid #ececec;}
             if (setActive) {
                 link.click(); // Automatically click the link to set it as active if specified
             }
-        }
-        function showShareOptions(notebookId) {
-            const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
-            // Redirect to the URL directly
-            window.location.href = shareUrl;
-        }
-        
+            function showShareOptions(notebookId) {
+                const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
+                // Open the share URL in a new tab
+                window.open(shareUrl, '_blank');
+            }
+            
         
  
         function loadNotes(notebookId) {
