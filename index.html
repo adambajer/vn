@@ -189,6 +189,44 @@
             padding: 2px;
             border-bottom: 3px solid #ececec;
         }
+        /* Style for the three dots menu icon */
+.menu-icon {
+    cursor: pointer;
+    padding: 5px;
+    display: inline-block;
+    visibility: hidden; /* Hidden by default */
+}
+
+.nav-item:hover .menu-icon {
+    visibility: visible; /* Show on hover */
+}
+
+/* Context menu styles */
+.context-menu {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 150px;
+}
+
+.context-menu ul {
+    list-style: none;
+    padding: 5px 0;
+    margin: 0;
+}
+
+.context-menu ul li {
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+.context-menu ul li:hover {
+    background-color: #f0f0f0;
+}
+
     </style>
 </head>
 
@@ -401,39 +439,66 @@
         function createTab(notebookId, setActive = false) {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
+            tab.dataset.notebookId = notebookId; // Set the notebook ID on the tab for reference
+        
             var link = document.createElement('a');
-            var shareIcon = document.createElement('img');
-            shareIcon.alt = 'Sdílej poznámky';
-            shareIcon.classList.add('shareicon');
-            shareIcon.src = 'share-icon.svg';
-
-            shareIcon.onclick = function (event) {
-                event.stopPropagation(); // Prevent the notebook link's onclick from firing
-                showShareOptions(notebookId);
-            };
             link.className = 'nav-link';
             link.href = '#';
-            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 18px; height: 18px;">';
-
-            link.dataset.notebookId = notebookId;
-            link.title = `${notebookId}`; // Set title to tabUID for hover effect
-
-            // Sharing icon and setup as before...
-            link.appendChild(shareIcon);
-            link.onclick = function () {
-                document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                loadNotes(notebookId);
-                saveActiveTabUID(notebookId);
+            link.textContent = 'Notebook ' + notebookId; // Just an example text
+        
+            var menuIcon = document.createElement('span');
+            menuIcon.textContent = '⋮'; // Using Unicode for three dots
+            menuIcon.className = 'menu-icon';
+        
+            // Context menu setup
+            var contextMenu = document.createElement('div');
+            contextMenu.className = 'context-menu';
+            var ul = document.createElement('ul');
+            var liShare = document.createElement('li');
+            liShare.textContent = 'Share';
+            liShare.onclick = function () {
+                showShareOptions(notebookId);
+            };
+        
+            ul.appendChild(liShare);
+            contextMenu.appendChild(ul);
+            tab.appendChild(contextMenu);
+        
+            // Event listeners for menu and context
+            menuIcon.onclick = function (event) {
+                event.stopPropagation();
+                toggleContextMenu(event, contextMenu);
+            };
+        
+            tab.oncontextmenu = function (event) {
+                event.preventDefault();
+                toggleContextMenu(event, contextMenu);
                 return false;
             };
-
+        
             tab.appendChild(link);
+            tab.appendChild(menuIcon);
             document.getElementById('notebookTabs').appendChild(tab);
+        
             if (setActive) {
-                link.click(); // Automatically click the link to set it as active if specified
+                link.click();
             }
+        }function toggleContextMenu(event, menu) {
+            // Position the menu at the event coordinates
+            menu.style.left = event.clientX + 'px';
+            menu.style.top = event.clientY + 'px';
+            // Toggle display
+            menu.style.display = (menu.style.display == 'block' ? 'none' : 'block');
         }
+        // Hide context menus when clicking elsewhere
+document.addEventListener('click', function (e) {
+    var contextMenus = document.querySelectorAll('.context-menu');
+    contextMenus.forEach(function (menu) {
+        if (menu.style.display == 'block') {
+            menu.style.display = 'none';
+        }
+    });
+});
         function showShareOptions(notebookId) {
             const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
             // Open the share URL in a new tab
