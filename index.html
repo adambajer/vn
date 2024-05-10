@@ -161,7 +161,7 @@
    border-right: 1px solid #ccc;}
     #userIcon {
     background-color: #ececec;
-padding: 2px;border-right: 1px solid #ccc;}
+padding: 2px;border-right: 1px solid #ccc;border-bottom: 3px solid #ececec;}
     </style>
 </head>
 
@@ -368,6 +368,7 @@ padding: 2px;border-right: 1px solid #ccc;}
             shareIcon.alt = 'Sdílej poznámky';
             shareIcon.classList.add('shareicon');
             shareIcon.src = 'share-icon.svg';
+            shareLink.target = '_blank'; // Ensures the link opens in a new tab
 
             shareIcon.onclick = function (event) {
                 event.stopPropagation(); // Prevent the notebook link's onclick from firing
