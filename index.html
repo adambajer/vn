@@ -56,7 +56,7 @@
             border-top-right-radius: 5px;
             flex-wrap: wrap;
             display: flex;
-            border-bottom: 0.001vh solid #9198e5;
+            border-bottom: 0.001vh solid #ccc;
             border-bottom-right-radius: 0px;
             margin-bottom: 0.4vh;
             color: hsl(235, 100%, 18%);
@@ -227,27 +227,40 @@ padding: 2px;border-right: 1px solid #ccc;}
                 var screenData = window.screen;
                 var fingerprint = [
                     navigatorData.platform,
-                    navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to prevent minor version changes affecting the ID
+                    navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
                     navigatorData.language,
                     screenData.height,
                     screenData.width,
                     screenData.colorDepth,
                     new Date().getTimezoneOffset()
                 ].join('|');
-
-                return btoa(fingerprint).replace(/=+$/, ''); // Encode to base64 and remove any trailing '='
+                return fingerprint;
             }
-
-            const deviceFingerprint = getDeviceFingerprint();
-            const storedUserId = localStorage.getItem('userId'); // Attempt to retrieve a stored user ID
-
-            if (storedUserId && btoa(storedUserId).replace(/=+$/, '') === deviceFingerprint) {
-                return storedUserId; // Return the stored ID if it matches the generated fingerprint
+        
+            function hashString(str) {
+                // Simple hash function for illustration
+                var hash = 0, i, chr;
+                for (i = 0; i < str.length; i++) {
+                    chr   = str.charCodeAt(i);
+                    hash  = ((hash << 5) - hash) + chr;
+                    hash |= 0; // Convert to 32bit integer
+                }
+                return hash;
+            }
+        
+            const fingerprint = getDeviceFingerprint();
+            const hashedFingerprint = hashString(fingerprint).toString(16); // Convert to hex
+            const shortId = hashedFingerprint.substr(0, 8); // Take first 8 characters
+        
+            const storedUserId = localStorage.getItem('userId');
+            if (storedUserId === shortId) {
+                return storedUserId;
             } else {
-                localStorage.setItem('userId', deviceFingerprint); // Store the new ID in localStorage
-                return deviceFingerprint; // Return the new ID
+                localStorage.setItem('userId', shortId);
+                return shortId;
             }
         }
+        
         document.addEventListener('DOMContentLoaded', function () {
             let urlParams = new URLSearchParams(window.location.search);
             let notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
@@ -404,7 +417,7 @@ padding: 2px;border-right: 1px solid #ccc;}
 
                     // Display creation and last update date when hovering
                     noteElement.title = `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
-                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
+                        (notes[noteId].updatedAt ? `<br>Upraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
 
                     noteElement.addEventListener('focusout', function () {
                         if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
