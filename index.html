@@ -251,10 +251,12 @@ padding: 2px;border-right: 1px solid #ccc;}
         document.addEventListener('DOMContentLoaded', function () {
             let urlParams = new URLSearchParams(window.location.search);
             let notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
-        
+            let userId = localStorage.getItem('userId') || generateUserId(); // Fetch from localStorage
+            localStorage.setItem('userId', userId); // Store in localStorage if not already present
+
             const userIcon = document.getElementById('userIcon');
-            userIcon.title = `UID: ${sessionStorage.getItem('userId')}`;
-        
+            userIcon.title = `UID: ${userId}`;
+
             if (notebookId) {
                 // If notebookId is found, set it active and load its notes only
                 
