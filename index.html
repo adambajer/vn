@@ -243,6 +243,24 @@ height: 100%;
 .note-checkbox {
     margin-right: 10px; /* Adjust the margin size as needed */
 }
+.delete-note {
+    position: absolute;
+    right: 20px;
+    font-size: 0.75rem;
+    padding: 2px 5px;
+    margin-left: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    visibility: hidden;
+ }
+
+.note:hover .delete-note {
+    visibility: visible;
+    background-color: #d32f2f;
+}
 
     </style>
 </head>
@@ -348,7 +366,12 @@ height: 100%;
                 document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             } else {
                 // If no specific notebookId, load all user notebooks
-                loadUserNotebooks();
+                loadUserNotebooks(function() {
+                    let activeNotebookId = localStorage.getItem('activeNotebookId');
+                    if (activeNotebookId) {
+                        setActiveTab(activeNotebookId);
+                    }
+                });
                 const noteInput = document.getElementById('noteInput');
                 noteInput.addEventListener('keydown', function(event) {
                     if (event.key === "Enter") {
@@ -372,12 +395,13 @@ height: 100%;
                 link.classList.remove('active');
                 if (link.dataset.notebookId === notebookId) {
                     link.classList.add('active');
-                    saveActiveTabUID(notebookId);
+                    localStorage.setItem('activeNotebookId', notebookId); // Save the active notebook ID
                 }
             });
-
+        
             loadNotes(notebookId); // Load notes for the active notebook
         }
+        
 
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
@@ -474,25 +498,27 @@ height: 100%;
                 document.getElementById('noteInput').value = ''; // Clear the input after adding a note
             }
         }
-        function loadUserNotebooks() {
+        function loadUserNotebooks(callback) {
             const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
             userNotebooksRef.once('value', snapshot => {
                 const notebooks = snapshot.val();
                 if (notebooks) {
                     Object.keys(notebooks).forEach((notebookId, index) => {
                         const notebookData = notebooks[notebookId];
-                        const notebookName = notebookData.name || ""; // Use an empty string if no name is defined
+                        const notebookName = notebookData.name || "";
                         const noteCount = notebookData.notes ? Object.keys(notebookData.notes).length : 0;
                         createTab(notebookId, index === 0, noteCount, notebookName);
                     });
                 } else {
                     console.log("No notebooks found, creating one...");
-                    createNotebook(); // Only create a new notebook if none are found
+                    createNotebook();
                 }
+                if (callback) callback();
             }, error => {
                 console.error("Failed to fetch notebooks:", error);
             });
         }
+        
         
 
         function createNotebook() {
@@ -700,18 +726,29 @@ function createDropdownItem(text, action) {
                 Object.keys(notes).forEach(noteId => {
                     var noteElement = document.createElement('div');
                     noteElement.className = 'note';
-                    noteElement.contentEditable = !notes[noteId].finished;  // Make content not editable if the note is finished
+                    noteElement.contentEditable = !notes[noteId].finished;
                     noteElement.textContent = notes[noteId].content;
-                    noteElement.setAttribute('data-title', `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
-                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : ""));
+                    noteElement.setAttribute('data-note-id', noteId);
         
+                    
+            // Set the creation date in the data-title attribute
+            noteElement.setAttribute('data-title', `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
+            (notes[noteId].updatedAt ? `, Upraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : ""));
+
                     var checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.className = 'note-checkbox';
                     checkbox.checked = notes[noteId].finished || false;
                     checkbox.onchange = function () {
                         toggleNoteFinished(notebookId, noteId, checkbox.checked);
-                        noteElement.contentEditable = !checkbox.checked;  // Update editability based on the checkbox
+                        noteElement.contentEditable = !checkbox.checked;
+                    };
+        
+                    var deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.className = 'delete-note';
+                    deleteBtn.onclick = function () {
+                        deleteNote(notebookId, noteId);
                     };
         
                     if (notes[noteId].finished) {
@@ -719,11 +756,27 @@ function createDropdownItem(text, action) {
                     }
         
                     noteElement.prepend(checkbox);
+                    noteElement.appendChild(deleteBtn);
         
                     document.getElementById('notesContainer').prepend(noteElement);
                 });
             });
         }
+        function deleteNote(notebookId, noteId) {
+            var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
+            noteRef.remove()
+                .then(() => {
+                    console.log('Note deleted successfully');
+                    var noteElement = document.querySelector(`div[data-note-id="${noteId}"]`);
+                    if (noteElement) {
+                        noteElement.parentNode.removeChild(noteElement);
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to delete note:', error);
+                });
+        }
+        
         
         function toggleNoteFinished(notebookId, noteId, isFinished) {
             var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
