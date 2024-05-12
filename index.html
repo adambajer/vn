@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>NOTES</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -24,31 +26,17 @@
     <style>
         body {
             background: #fdfde8;
-            display: block;
-        }
+         }
 
         #notesContainer2 {
 
             border-radius: 0.5vw;
-            background: #fdfde8;
-        }
+         }
 
 
         #notebookTabs {}
 
-        #bar {
-            display: inline-flex;
-            flex-direction: row;
-            align-content: center;
-            flex-wrap: nowrap;
-            align-items: center;
-            width: -webkit-fill-available;
-            justify-content: space-between;
-            z-index: 999999;
-            background: #ffffff;
-
-            backdrop-filter: blur(7px);
-        }
+     
 
         #noteInput {
             background: transparent;
@@ -67,13 +55,9 @@
         }
 
         .cus {
-            width: 100%;
-            display: inline-flex !important;
-            justify-content: flex-start;
-            flex-wrap: nowrap;
-            width: 100%;
-            background-color: #ececec;
-        }
+            width: 100%;  
+            background-color: white;
+         }
 
         @keyframes pulsate {
 
@@ -119,7 +103,7 @@
             position: absolute;
             left: 0;
             top: 100%;
-            white-space: nowrap;
+            white-space: wrap;
             z-index: 20;
             background-color: #f5f5f5;
             padding: 4px 8px;
@@ -129,16 +113,7 @@
             font-size: 0.75em;
         }
 
-        .nav-link {
-            position: relative;
-            border-bottom: 3px solid #ececec;
-        }
-
-        .nav-link.active {
-            background-color: #ccc !important;
-            border-bottom: 3px solid blue;
-        }
-
+       
         .shareicon {
             width: 0px;
             height: 18px;
@@ -172,61 +147,182 @@
             padding-left: 10px;
             /* Optional: Adds some padding on the left */
         }
-
-        #bar {
-            align-items: center;
-            /* Ensures vertical centering of all items */
-        }
-
-        .nav-link {
-            border-radius: 0px !important;
-            background-color: #ececec !important;
-            border-right: 1px solid #ccc;
-        }
-
-        #userIcon {
-            background-color: #ececec;
-            padding: 2px;
-            border-bottom: 3px solid #ececec;
+        .navbar {
+            display: flex;
+            align-items: center; /* Center items vertically */
+            justify-content: space-between; /* Space out navbar items */
         }
         
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space between the logo and text */
+        }
+        
+        .navbar-toggler {
+            margin-right: 10px; /* Add space between hamburger menu and logo if needed */
+        }
+        .dropdownBtn   {
+            display: inline-block;
+          background-color: transparent;border-right:1px solid #ccc;
+           padding: 0.5rem;
+           padding-left: 0px;
+          border-radius: 0px;
+          margin-left: 0.5rem;
+        }
+        
+        .nav-link:hover .dropdownBtn,.nav-link:active .dropdownBtn,.nav-link:focus .dropdownBtn,.nav-link:target .dropdownBtn,.nav-link.active .dropdownBtn   {
+            display: inline-block;
+        }
+        .nav-link {
+        padding-left: 0.5rem;padding-right: 0;padding-bottom: 0px;padding-top: 0px;border-right:1px solid #ccc;}
+        
+.nav-link button.dropdownBtn { }
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+background-color: #ccc;}
+.custom-tooltip {
+    display: none; /* Hidden by default */
+    position: absolute;
+    z-index: 10;
+    width: 30%;
+    background-color: #f9f9f9;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 10px;
+    color: #000; 
+    text-align: left;
+    font-size: 0.9em;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+#userIcon {
+cursor: pointer;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+background-color: black;
+padding: 5px;
+}
+#userIcon:hover  {
+background-color: red;}
+/* Positioning the tooltip text */
+#userIcon:hover + .custom-tooltip {
+    display: block; /* Show the tooltip on hover */
+    top: 50px; /* Adjust this value based on your layout */
+    right: 0.75rem;  /* Adjust this value based on your layout */
+}
+.dropdown-item-delete {
+    color: red; /* Set the color to red for delete action */
+}
+
+/* Optional: Change the hover color to a darker shade of red */
+.dropdown-item-delete:hover {
+    color: darkred;
+}
+
+
     </style>
 </head>
 
 <body class="">
+  
+    <div class="main-content" id="main-content">
+      
+        <div id="bar" class=" ">
+            
+            <nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+                <div class="container-fluid">
+                    <!-- Hamburger Menu first -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="menu-icon">☰</span> <!-- Hamburger Icon -->
+                    </button>
+            
+                    <!-- Logo and Brand Name next to the hamburger -->
+                    <a class="navbar-brand" href="#">
+                        <img src="favicon.svg" width="30px" height="30px" class="pe-2">
+                        <span>NOTES</span>
+                    </a>
+            
+                    <!-- Rest of the navbar items -->
+                    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item dropdown">
+                                <button class="btn btn-dark menu-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ☰ <!-- If you need a second menu, otherwise remove this -->
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark">
+                                    <li><a class="dropdown-item" href="#">Action</a></li>
+                                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <img id="userIcon" src="user-icon.svg" alt="User Icon" class="user-icon" style="width: 43px; height: 43px;">
+                        <div id="userTooltip" class="custom-tooltip">
 
-    <div id="bar" class="border-bottom">
-        <div class="d-inline-flex cus justify-content-between">
-            <div class="d-inline-flex align-items-center ps-2 pe-2" >
-
-                <img src="favicon.svg" width="30px" height="30px">
-                <h3>NOTES</h3>
-                <img id="userIcon" src="user-icon.png" alt="User Icon" class="user-icon"
-                    style="width: 43px; height: 43px;">
-            </div>
-            <div class="d-inline-flex">
-
-
-                <!-- Title of the app added here -->
-                <ul id="notebookTabs" class="nav nav-pills">
-                </ul>
-                <button id="createNotebookButton" class="btn btn-danger rounded-0" title="Nový blok poznámek">+</button>
-                
-            </div>
-
+                    </div>
+                </div>
+            </nav>
+            
+             
         </div>
-    </div>
+        
+    <div class="d-flex cus align-items-center border-bottom">
+
+
+        <!-- Title of the app added here -->
+        <ul id="notebookTabs" class="nav nav-pills">
+        </ul>
+        <button id="createNotebookButton" class="btn btn-outline-danger  rounded-0" title="Nový blok poznámek">Nový blok</button>
 
     </div>
     <div id="notesContainer2" class="">
         <div class="d-inline-flex w-100 justify-content-end">
             <input type="text" id="noteInput" class="form-control" placeholder="Text poznámky napiš zde ...">
-            <button id="addNoteButton" class="btn btn-primary rounded-0" title="Zapiš">+</button>
+            <button id="addNoteButton" class="btn btn-outline-primary rounded-0" title="Zapiš">Zapiš</button>
         </div>
         <div id="notesContainer" class=""></div>
-    </div>
-    <script>
 
+        <button id="startVoiceRecognition">Start Voice Recognition</button>
+
+    </div>
+      
+</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let urlParams = new URLSearchParams(window.location.search);
+            let notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
+            let userId = localStorage.getItem('userId') || generateUserId(); // Fetch from localStorage
+            localStorage.setItem('userId', userId); // Store in localStorage if not already present
+            let deviceInfo = getDeviceInfo();
+
+            const userIcon = document.getElementById('userIcon');
+            const userTooltip = document.getElementById('userTooltip');
+            userTooltip.innerHTML = `
+                <strong>UID:</strong> ${userId}<br>
+                <strong>Platform:</strong> ${deviceInfo.platform}<br>
+                <strong>User Agent:</strong> ${deviceInfo.userAgent}<br>
+                <strong>Language:</strong> ${deviceInfo.language}<br>
+                <strong>Resolution:</strong> ${deviceInfo.resolution}<br>
+                <strong>Color Depth:</strong> ${deviceInfo.colorDepth}<br>
+                <strong>Timezone Offset:</strong> ${deviceInfo.timezoneOffset}`;
+            if (notebookId) {
+                // If notebookId is found, set it active and load its notes only
+
+
+
+                loadNotes(notebookId);
+
+                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+            } else {
+                // If no specific notebookId, load all user notebooks
+                loadUserNotebooks();
+                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+            }
+            toggleSpeechKITT();
+        });
+        
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
         }
@@ -299,34 +395,20 @@
                 return shortId;
             }
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            let urlParams = new URLSearchParams(window.location.search);
-            let notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
-            let userId = localStorage.getItem('userId') || generateUserId(); // Fetch from localStorage
-            localStorage.setItem('userId', userId); // Store in localStorage if not already present
-
-            const userIcon = document.getElementById('userIcon');
-            userIcon.title = `UID: ${userId}`;
-
-            if (notebookId) {
-                // If notebookId is found, set it active and load its notes only
-
-
-
-                loadNotes(notebookId);
-
-                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
-            } else {
-                // If no specific notebookId, load all user notebooks
-                loadUserNotebooks();
-                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
-                document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
-            }
-
-            setupVoiceRecognition();  // Setup voice recognition regardless of notebook loading strategy
-        });
+        function getDeviceInfo() {
+            var navigatorData = window.navigator;
+            var screenData = window.screen;
+            var deviceInfo = {
+                platform: navigatorData.platform,
+                userAgent: navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
+                language: navigatorData.language,
+                resolution: `${screenData.width} x ${screenData.height}`,
+                colorDepth: `${screenData.colorDepth}-bit`,
+                timezoneOffset: `UTC ${new Date().getTimezoneOffset() / 60}`
+            };
+            return deviceInfo;
+        }
+     
         function getNotebookIdFromPath() {
             // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
             // Splitting by '/' gives us: ["https:", "", "adambajer.github.io", "Voice-Noter", "notebooks", "-NxLpMKvPUyhOnM50UvE"]
@@ -356,31 +438,22 @@
             const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
             userNotebooksRef.once('value', snapshot => {
                 const notebooks = snapshot.val();
-                console.log("Notebooks fetched: ", notebooks); // Debug output
-
-                if (notebooks && Object.keys(notebooks).length > 0) {
+                if (notebooks) {
                     Object.keys(notebooks).forEach((notebookId, index) => {
-                        createTab(notebookId, index === 0); // Set the first tab as active by default
+                        const notebookData = notebooks[notebookId];
+                        const notebookName = notebookData.name || ""; // Use an empty string if no name is defined
+                        const noteCount = notebookData.notes ? Object.keys(notebookData.notes).length : 0;
+                        createTab(notebookId, index === 0, noteCount, notebookName);
                     });
-
-                    const activeTabUID = getActiveTabUID();
-                    if (activeTabUID) {
-
-
-
-                        (activeTabUID);
-                    } else {
-                        setActiveTab(Object.keys(notebooks)[0]);
-                    }
                 } else {
-                    console.log("No notebooks found, creating one..."); // Debug output
+                    console.log("No notebooks found, creating one...");
                     createNotebook(); // Only create a new notebook if none are found
                 }
             }, error => {
-                console.error("Failed to fetch notebooks:", error); // Error handling
+                console.error("Failed to fetch notebooks:", error);
             });
         }
-
+        
 
         function createNotebook() {
             const userId = sessionStorage.getItem('userId');  // Ensure you have the userId stored in session
@@ -397,53 +470,198 @@
                 }
             });
         }
-
-
-        function createTab(notebookId, setActive = false) {
+        function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
             var tab = document.createElement('li');
             tab.className = 'nav-item';
+        
+            // Create the link that will act as the main clickable area for the tab
             var link = document.createElement('a');
-            var shareIcon = document.createElement('img');
-            shareIcon.alt = 'Sdílej poznámky';
-            shareIcon.classList.add('shareicon');
-            shareIcon.src = 'share-icon.svg';
-
-            shareIcon.onclick = function (event) {
-                event.stopPropagation(); // Prevent the notebook link's onclick from firing
-                showShareOptions(notebookId);
-            };
-            link.className = 'nav-link';
+            link.className = 'nav-link rounded-0';
             link.href = '#';
-            link.innerHTML = '<img src="note.svg" alt="Note Icon" style="width: 18px; height: 18px;">';
-
             link.dataset.notebookId = notebookId;
-            link.title = `${notebookId}`; // Set title to tabUID for hover effect
-
-            // Sharing icon and setup as before...
-            link.appendChild(shareIcon);
-            link.onclick = function () {
+        
+            // Notebook icon
+            var img = document.createElement('img');
+            img.src = "note.svg"; // Ensure you have an image at this path or adjust accordingly
+            img.alt = "Note Icon";
+            img.style.width = "24px";
+            img.style.height = "24px";
+        
+            // Span for displaying the notebook name
+            var nameLabel = document.createElement('span');
+            nameLabel.className = 'notebook-name ms-2'; // Added ms-2 for spacing
+            nameLabel.textContent = notebookName;
+        
+            // Badge for displaying the note count
+            var badge = document.createElement('span');
+            badge.className = 'badge bg-danger ms-2'; // Bootstrap classes for styling
+            badge.textContent = noteCount;
+        
+            // Dropdown button for additional options
+            var dropdownBtn = document.createElement('button');
+            dropdownBtn.className = 'btn btn-sm border-0 menu-icon';
+            dropdownBtn.setAttribute('data-bs-toggle', 'dropdown');
+            dropdownBtn.ariaExpanded = false;
+            dropdownBtn.innerHTML = '⋮';
+        
+            // Dropdown menu containing various actions
+            var dropdownMenu = document.createElement('div');
+            dropdownMenu.className = 'dropdown-menu';
+            dropdownMenu.appendChild(createDropdownItem('Rename', () => promptRenameNotebook(notebookId, nameLabel)));
+            dropdownMenu.appendChild(createDropdownItem('Share', () => shareNotebook(notebookId)));
+            dropdownMenu.appendChild(createDropdownItem('Duplicate', () => copyNotebook(notebookId)));
+            dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
+            dropdownMenu.appendChild(createDropdownItem('Delete', () => deleteNotebook(notebookId)));
+        
+            // Appending all elements to the link
+            link.appendChild(img);
+            link.appendChild(nameLabel);
+            link.appendChild(badge);
+            tab.appendChild(link);
+            tab.appendChild(dropdownBtn);
+            tab.appendChild(dropdownMenu);
+        
+            // Set up the tab's behavior on click
+            link.onclick = function (event) {
+                event.preventDefault(); // Prevent default link behavior
                 document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
                 loadNotes(notebookId);
                 saveActiveTabUID(notebookId);
-                return false;
             };
-
-            tab.appendChild(link);
+        
+            // Append the tab to the document
             document.getElementById('notebookTabs').appendChild(tab);
+        
+            // Automatically make the new tab active if required
             if (setActive) {
-                link.click(); // Automatically click the link to set it as active if specified
+                link.click();
+            }
+        
+            // Return the elements that may need dynamic updates
+            return { badge: badge, nameLabel: nameLabel };
+        }
+        
+        function createDropdownItem(text, action) {
+            var item = document.createElement('a');
+            item.className = 'dropdown-item';
+            item.href = '#';
+            item.textContent = text;
+            item.onclick = function (event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                action();
+            };
+            return item;
+        }
+        
+        
+        function promptRenameNotebook(notebookId, nameLabel) {
+            const currentName = nameLabel.textContent;
+            const newName = prompt("Please enter a new name for the notebook:", currentName);
+            if (newName && newName.trim() !== "" && newName !== currentName) {
+                renameNotebook(notebookId, newName.trim(), nameLabel);
             }
         }
-        function showShareOptions(notebookId) {
-            const shareUrl = `https://adambajer.github.io/Voice-Noter/index.html?notebook=${notebookId}`;
-            // Open the share URL in a new tab
-            window.open(shareUrl, '_blank');
+        
+        function renameNotebook(notebookId, newName, nameLabel) {
+            const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+            notebookRef.update({ name: newName }).then(() => {
+                nameLabel.textContent = newName; // Update the notebook name in the UI
+                console.log("Notebook renamed successfully");
+            }).catch(error => {
+                console.error("Error renaming notebook:", error);
+            });
         }
+        
+       
 
+function createDropdownItem(text, action) {
+    var item = document.createElement('a');
+    item.className = 'dropdown-item';
+    item.href = '#';
+    item.textContent = text;
 
+    // Assign additional class based on the action text
+    if (text.toLowerCase() === 'delete') {
+        item.classList.add('dropdown-item-delete');
+    }
 
+    item.onclick = function (event) {
+        event.preventDefault(); // Prevent the link from triggering a page reload
+        action();
+    };
+    return item;
+}
 
+        function shareNotebook(notebookId) {
+            const shareUrl = `/notebook/${notebookId}`;
+            console.log("Sharing notebook:", notebookId);
+            // Implement actual sharing logic, e.g., copy to clipboard
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert('Share link copied to clipboard: ' + shareUrl);
+            }, (err) => {
+                console.error('Error copying link to clipboard', err);
+            });
+        }
+        
+        
+        function deleteNotebook(notebookId) {
+            const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+            notebookRef.remove()
+            .then(() => {
+                alert('Notebook successfully deleted.');
+                // Remove the tab from the UI
+                removeTab(notebookId);
+            })
+            .catch(error => {
+                console.error('Error deleting notebook:', error);
+                alert('Failed to delete notebook: ' + error);
+            });
+        }
+        
+        function removeTab(notebookId) {
+            const tabElement = document.querySelector(`a[data-notebook-id="${notebookId}"]`).parentNode;
+            if (tabElement) {
+                tabElement.parentNode.removeChild(tabElement);
+            }
+        }
+        
+        
+        function copyNotebook(notebookId) {
+            const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+            notebookRef.once('value', snapshot => {
+                const data = snapshot.val();
+                const newNotebookId = generateCustomNotebookId(); // Assuming you have a function to generate IDs
+                const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
+                newNotebookRef.set(data)
+                .then(() => {
+                    alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
+                    createTab(newNotebookId, true); // Adding new notebook tab to UI
+                })
+                .catch(error => {
+                    alert('Failed to copy notebook: ' + error);
+                });
+            });
+        }
+        
+        function downloadNotebookAsText(notebookId) {
+            const notesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
+            notesRef.once('value', snapshot => {
+                const notes = snapshot.val();
+                const allNotesText = Object.keys(notes).map(key => notes[key].content).join('\n');
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(allNotesText));
+                element.setAttribute('download', `notebook-${notebookId}.txt`);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+             })
+            .catch(err => {
+                alert('Error downloading the notebook: ' + err);
+            });
+        }
+        
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function (snapshot) {
@@ -457,7 +675,7 @@
 
                     // Display creation and last update date when hovering
                     noteElement.title = `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
-                        (notes[noteId].updatedAt ? `<br>Upraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
+                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
 
                     noteElement.addEventListener('focusout', function () {
                         if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
@@ -465,7 +683,7 @@
                         }
                     });
 
-                    document.getElementById('notesContainer').appendChild(noteElement);
+                    document.getElementById('notesContainer').prepend(noteElement);
                 });
             });
         }
@@ -483,10 +701,17 @@
                     console.error('Failed to add note:', error);
                 } else {
                     console.log('Note added successfully');
+                    updateNoteCount(notebookId, 1);  // Increment the note count for the notebook
+
                 }
             });
         }
-
+        function updateNoteCount(notebookId, increment) {
+            const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
+            let count = parseInt(badge.textContent) || 0;
+            badge.textContent = count + increment;
+        }
+        
         function formatDate(date) {
             let day = date.getDate();
             let month = date.getMonth() + 1; // Months start at 0!
@@ -510,38 +735,53 @@
                 }
             });
         }
-        function setupVoiceRecognition() {
-            if (annyang) {
-                var recognition = new webkitSpeechRecognition();
-                annyang.setLanguage('cs'); // Set the desired language
-
-                let capturedText = ""; // This will hold the ongoing speech capture
-                let silenceTimer; // Timer to handle the end of speaking
-
-                // Function to handle final processing of captured text
-                const processCapturedText = () => {
-                    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
-                    if (notebookId && capturedText.trim() !== "") {
-                        addNote(capturedText, notebookId); // Using the existing addNote function
-                        console.log("Note added:", capturedText);
-                        capturedText = ""; // Reset the captured text after processing
-                    }
-                };
-
-                // Append recognized phrases to the captured text
-                annyang.addCallback('result', function (phrases) {
-                    capturedText += phrases[0] + " ";
-                    clearTimeout(silenceTimer); // Reset the timer on new speech detected
-                    silenceTimer = setTimeout(processCapturedText, 2000); // Set a new timer for 2 seconds of silence
-                });
-                SpeechKITT.annyang();
-
-                SpeechKITT.setInstructionsText('Poslouchám, mluv');
-                SpeechKITT.vroom();
+        
+        
+        function toggleSpeechKITT() {
+            if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
+                console.error("Annyang or SpeechKITT is not loaded!");
+                return;
             }
+        
+            // Initialize SpeechKITT settings once
+            SpeechKITT.annyang();
+            SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css');
+            SpeechKITT.setInstructionsText('Press the microphone button to start speaking');
+            SpeechKITT.displayRecognizedSentence(true);
+        
+            // Toggle SpeechKITT and annyang
+            if (!SpeechKITT.isListening()) {
+                SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
+                SpeechKITT.setAbortCommand(() => annyang.abort());
+                SpeechKITT.vroom();
+            } else {
+                if (annyang.isListening()) {
+                    SpeechKITT.abortRecognition();
+                    document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+                } else {
+                    SpeechKITT.startRecognition();
+                    document.getElementById('voiceButton').textContent = "Stop Voice Recognition";
+                }
+            }
+        
+            // Handle voice recognition result
+            annyang.addCallback('result', function(phrases) {
+                // Assume the first phrase is the most accurate
+                let text = phrases[0];
+                const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+                if (notebookId && text.trim() !== "") {
+                    addNote(text, notebookId);
+                    console.log("Added note: ", text);
+                    SpeechKITT.abortRecognition();
+                    document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+                }
+            });
         }
-
-
+        
+        
+        document.getElementById('startVoiceRecognition').addEventListener('click', toggleSpeechKITT);
+        
+        
 
 
     </script>
