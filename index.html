@@ -98,8 +98,8 @@
 
         /* Optionally style the title attribute tooltip */
         /* Optionally style the title attribute tooltip */
-        .note[title]:hover:after {
-            content: attr(title);
+        .note:hover:after {
+            content: attr(data-title); /* Use data-title for the tooltip text */
             position: absolute;
             left: 0;
             top: 100%;
@@ -107,10 +107,13 @@
             z-index: 20;
             background-color: #f5f5f5;
             padding: 4px 8px;
-            color: #333;
-            border-radius: 5px;
-            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-            font-size: 0.75em;
+            max-width: 180px; /* Maximum width with text wrapping */
+            padding: 8px 10px; /* Padding around text */
+            color: #333; /* Text color */
+            background-color: #fff; /* Background color */
+            border-radius: 4px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25); /* Shadow for depth */
+            font-size: 0.75rem;
         }
 
        
@@ -174,8 +177,7 @@
         .nav-link:hover .dropdownBtn,.nav-link:active .dropdownBtn,.nav-link:focus .dropdownBtn,.nav-link:target .dropdownBtn,.nav-link.active .dropdownBtn   {
             display: inline-block;
         }
-        .nav-link {
-        padding-left: 0.5rem;padding-right: 0;padding-bottom: 0px;padding-top: 0px;border-right:1px solid #ccc;}
+        
         
 .nav-link button.dropdownBtn { }
 .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
@@ -217,7 +219,30 @@ background-color: red;}
 .dropdown-item-delete:hover {
     color: darkred;
 }
+#notebookTabs .nav-item {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    border-right: 1px solid #ccc;
+    padding: 0px !important;
+}
+#notebookTabs .nav-item .btn {
+border-radius: 0px;}
 
+#notebookTabs .nav-link {
+color:black !important;
+padding:6px;
+border-radius: 0px !important;
+height: 100%;
+}
+.note.finished {
+    text-decoration: line-through;
+    color: #aaa; /* Gray out the text to show it's completed */
+}
+
+.note-checkbox {
+    margin-right: 10px; /* Adjust the margin size as needed */
+}
 
     </style>
 </head>
@@ -249,9 +274,9 @@ background-color: red;}
                                     ☰ <!-- If you need a second menu, otherwise remove this -->
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-dark">
-                                    <li><a class="dropdown-item" href="#">Action</a></li>
-                                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                    <li><a class="dropdown-item" href="#">Export</a></li>
+                                    <li><a class="dropdown-item" href="#">Share app</a></li>
+                                    <li><a class="dropdown-item" href="#">About</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -278,12 +303,11 @@ background-color: red;}
     <div id="notesContainer2" class="">
         <div class="d-inline-flex w-100 justify-content-end">
             <input type="text" id="noteInput" class="form-control" placeholder="Text poznámky napiš zde ...">
-            <button id="addNoteButton" class="btn btn-outline-primary rounded-0" title="Zapiš">Zapiš</button>
+          
         </div>
         <div id="notesContainer" class=""></div>
 
-        <button id="startVoiceRecognition">Start Voice Recognition</button>
-
+ 
     </div>
       
 </div>
@@ -312,12 +336,28 @@ background-color: red;}
 
                 loadNotes(notebookId);
 
-                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                const noteInput = document.getElementById('noteInput');
+                noteInput.addEventListener('keydown', function(event) {
+                    if (event.key === "Enter") {
+                        addNoteFromInput();  // Function to handle note addition
+                        event.preventDefault();  // Prevent default Enter key behavior (form submission)
+                    }
+                });
+            
+                noteInput.addEventListener('blur', addNoteFromInput); 
                 document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             } else {
                 // If no specific notebookId, load all user notebooks
                 loadUserNotebooks();
-                document.getElementById('addNoteButton').addEventListener('click', addNoteFromInput);
+                const noteInput = document.getElementById('noteInput');
+                noteInput.addEventListener('keydown', function(event) {
+                    if (event.key === "Enter") {
+                        addNoteFromInput();  // Function to handle note addition
+                        event.preventDefault();  // Prevent default Enter key behavior (form submission)
+                    }
+                });
+            
+                noteInput.addEventListener('blur', addNoteFromInput); 
                 document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
             }
             toggleSpeechKITT();
@@ -469,37 +509,41 @@ background-color: red;}
                     console.error('Error creating notebook:', error);
                 }
             });
-        }
-        function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
+        }function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
             var tab = document.createElement('li');
-            tab.className = 'nav-item';
+            tab.className = 'nav-item d-inline-flex justify-content-between'; // Add flexbox layout here
         
             // Create the link that will act as the main clickable area for the tab
             var link = document.createElement('a');
-            link.className = 'nav-link rounded-0';
+            link.className = 'nav-link'; // Ensure it grows to take available space
             link.href = '#';
             link.dataset.notebookId = notebookId;
         
             // Notebook icon
             var img = document.createElement('img');
-            img.src = "note.svg"; // Ensure you have an image at this path or adjust accordingly
+            img.src = "note.svg";
             img.alt = "Note Icon";
             img.style.width = "24px";
             img.style.height = "24px";
         
             // Span for displaying the notebook name
             var nameLabel = document.createElement('span');
-            nameLabel.className = 'notebook-name ms-2'; // Added ms-2 for spacing
+            nameLabel.className = 'notebook-name ms-2';
             nameLabel.textContent = notebookName;
         
             // Badge for displaying the note count
             var badge = document.createElement('span');
-            badge.className = 'badge bg-danger ms-2'; // Bootstrap classes for styling
+            badge.className = 'badge bg-danger ms-2';
             badge.textContent = noteCount;
+        
+            // Append elements to the link
+            link.appendChild(img);
+            link.appendChild(nameLabel);
+            link.appendChild(badge);
         
             // Dropdown button for additional options
             var dropdownBtn = document.createElement('button');
-            dropdownBtn.className = 'btn btn-sm border-0 menu-icon';
+            dropdownBtn.className = 'btn';
             dropdownBtn.setAttribute('data-bs-toggle', 'dropdown');
             dropdownBtn.ariaExpanded = false;
             dropdownBtn.innerHTML = '⋮';
@@ -513,10 +557,7 @@ background-color: red;}
             dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
             dropdownMenu.appendChild(createDropdownItem('Delete', () => deleteNotebook(notebookId)));
         
-            // Appending all elements to the link
-            link.appendChild(img);
-            link.appendChild(nameLabel);
-            link.appendChild(badge);
+            // Append the link and dropdown button to the tab
             tab.appendChild(link);
             tab.appendChild(dropdownBtn);
             tab.appendChild(dropdownMenu);
@@ -542,18 +583,8 @@ background-color: red;}
             return { badge: badge, nameLabel: nameLabel };
         }
         
-        function createDropdownItem(text, action) {
-            var item = document.createElement('a');
-            item.className = 'dropdown-item';
-            item.href = '#';
-            item.textContent = text;
-            item.onclick = function (event) {
-                event.preventDefault(); // Prevent default anchor behavior
-                action();
-            };
-            return item;
-        }
         
+ 
         
         function promptRenameNotebook(notebookId, nameLabel) {
             const currentName = nameLabel.textContent;
@@ -661,7 +692,6 @@ function createDropdownItem(text, action) {
                 alert('Error downloading the notebook: ' + err);
             });
         }
-        
         function loadNotes(notebookId) {
             var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
             notebookNotesRef.on('value', function (snapshot) {
@@ -670,25 +700,53 @@ function createDropdownItem(text, action) {
                 Object.keys(notes).forEach(noteId => {
                     var noteElement = document.createElement('div');
                     noteElement.className = 'note';
-                    noteElement.contentEditable = true;
+                    noteElement.contentEditable = !notes[noteId].finished;  // Make content not editable if the note is finished
                     noteElement.textContent = notes[noteId].content;
-
-                    // Display creation and last update date when hovering
-                    noteElement.title = `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
-                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : "");
-
-                    noteElement.addEventListener('focusout', function () {
-                        if (noteElement.textContent !== notes[noteId].content) {  // Only update if there's a change
-                            updateNote(notebookId, noteId, noteElement.textContent);
-                        }
-                    });
-
+                    noteElement.setAttribute('data-title', `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
+                        (notes[noteId].updatedAt ? `\nUpraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : ""));
+        
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'note-checkbox';
+                    checkbox.checked = notes[noteId].finished || false;
+                    checkbox.onchange = function () {
+                        toggleNoteFinished(notebookId, noteId, checkbox.checked);
+                        noteElement.contentEditable = !checkbox.checked;  // Update editability based on the checkbox
+                    };
+        
+                    if (notes[noteId].finished) {
+                        noteElement.classList.add('finished');
+                    }
+        
+                    noteElement.prepend(checkbox);
+        
                     document.getElementById('notesContainer').prepend(noteElement);
                 });
             });
         }
-
-
+        
+        function toggleNoteFinished(notebookId, noteId, isFinished) {
+            var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
+            noteRef.update({
+                finished: isFinished
+            }, error => {
+                if (error) {
+                    console.error('Failed to update note:', error);
+                } else {
+                    console.log('Note updated successfully');
+                    var noteElement = document.querySelector(`div[data-note-id="${noteId}"]`); // Ensure you set `data-note-id` attribute when creating the note element
+                    if (isFinished) {
+                        noteElement.classList.add('finished');
+                        noteElement.contentEditable = false;  // Disable editing when finished
+                    } else {
+                        noteElement.classList.remove('finished');
+                        noteElement.contentEditable = true;  // Enable editing when not finished
+                    }
+                }
+            });
+        }
+        
+        
         function addNote(content, notebookId) {
             var now = new Date();
             var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
@@ -745,6 +803,8 @@ function createDropdownItem(text, action) {
         
             // Initialize SpeechKITT settings once
             SpeechKITT.annyang();
+            annyang.setLanguage('cs'); // Set the desired language
+
             SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css');
             SpeechKITT.setInstructionsText('Press the microphone button to start speaking');
             SpeechKITT.displayRecognizedSentence(true);
@@ -778,8 +838,7 @@ function createDropdownItem(text, action) {
             });
         }
         
-        
-        document.getElementById('startVoiceRecognition').addEventListener('click', toggleSpeechKITT);
+         
         
         
 
