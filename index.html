@@ -726,57 +726,60 @@ function createDropdownItem(text, action) {
                 alert('Error downloading the notebook: ' + err);
             });
         }
-        function loadNotes(notebookId) {
-            var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
-            notebookNotesRef.on('value', function (snapshot) {
-                const notes = snapshot.val() || {};
-                document.getElementById('notesContainer').innerHTML = '';
-                Object.keys(notes).forEach(noteId => {
-                    var noteElement = document.createElement('div');
-                    noteElement.className = 'note';
-                    noteElement.contentEditable = !notes[noteId].finished;
-                    noteElement.textContent = notes[noteId].content;
-                    noteElement.setAttribute('data-note-id', noteId);
-        
-                     // Format the creation and update dates
+       function loadNotes(notebookId) {
+    var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
+    notebookNotesRef.on('value', function (snapshot) {
+        const notes = snapshot.val() || {};
+        document.getElementById('notesContainer').innerHTML = '';
+        Object.keys(notes).forEach(noteId => {
+            var noteElement = document.createElement('div');
+            noteElement.className = 'note';
+            noteElement.setAttribute('data-note-id', noteId);
+
+            // Create a span to hold the note text, making only the text editable
+            var noteText = document.createElement('span');
+            noteText.textContent = notes[noteId].content;
+            noteText.className = 'note-text';
+            noteText.contentEditable = !notes[noteId].finished; // Only editable if not marked as finished
+
+            // Set the tooltip content
             let createdAt = formatDate(new Date(notes[noteId].createdAt));
             let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
-            
-            // Set the tooltip content based on whether createdAt and updatedAt are the same
             let tooltipContent = `Vytvořeno: ${createdAt}`;
             if (createdAt !== updatedAt) {
                 tooltipContent += `, Upraveno: ${updatedAt}`;
             }
-            
             noteElement.setAttribute('data-title', tooltipContent);
 
-                    var checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'note-checkbox';
-                    checkbox.checked = notes[noteId].finished || false;
-                    checkbox.onchange = function () {
-                        toggleNoteFinished(notebookId, noteId, checkbox.checked);
-                        noteElement.contentEditable = !checkbox.checked;
-                    };
-        
-                    var deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = 'Smazat';
-                    deleteBtn.className = 'delete-note';
-                    deleteBtn.onclick = function () {
-                        deleteNote(notebookId, noteId);
-                    };
-        
-                    if (notes[noteId].finished) {
-                        noteElement.classList.add('finished');
-                    }
-        
-                    noteElement.prepend(checkbox);
-                    noteElement.append(deleteBtn);
-        
-                    document.getElementById('notesContainer').prepend(noteElement);
-                });
-            });
-        }
+            // Checkbox for marking the note as finished
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'note-checkbox';
+            checkbox.checked = notes[noteId].finished;
+            checkbox.onchange = function () {
+                toggleNoteFinished(notebookId, noteId, checkbox.checked);
+                noteText.contentEditable = !checkbox.checked;
+            };
+
+            // Delete button setup
+            var deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Smazat';
+            deleteBtn.className = 'delete-note';
+            deleteBtn.onclick = function () {
+                deleteNote(notebookId, noteId);
+            };
+
+            // Append elements to the note container
+            noteElement.appendChild(checkbox);
+            noteElement.appendChild(noteText);  // Ensure text is separately appended to maintain content integrity
+            noteElement.appendChild(deleteBtn);
+
+            // Append the fully constructed note to the container
+            document.getElementById('notesContainer').prepend(noteElement);
+        });
+    });
+}
+
         function deleteNote(notebookId, noteId) {
             var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
             noteRef.remove()
