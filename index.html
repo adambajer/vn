@@ -386,13 +386,14 @@ height: 100%;
             toggleSpeechKITT();
         });
         document.addEventListener('input', function (event) {
-    if (event.target.matches('.note[contenteditable]')) {
+            if (event.target.matches('.note[contenteditable]')) {
         const noteId = event.target.getAttribute('data-note-id');
         const notebookId = document.querySelector('.nav-link.active').dataset.notebookId;
         const newContent = event.target.textContent;
+                console.log(event);
         updateNote(notebookId, noteId, newContent);
-    }
-});
+                }
+    	    });
 
         function saveActiveTabUID(uid) {
             localStorage.setItem('activeTabUID', uid);
