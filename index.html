@@ -855,21 +855,18 @@ function createDropdownItem(text, action) {
             return `${day}.${month}.${year} ${hours}:${minutes}`;
         }
 
-        function updateNote(notebookId, noteId, content) {
-            var now = new Date();
-            var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
-            noteRef.update({
-                content: content,
-                updatedAt: now.getTime()  // Update the timestamp when the note is edited
-            }, error => {
-                if (error) {
-                    console.error('Failed to update note:', error);
-                } else {
-                    console.log('Note updated successfully');
-                }
-            });
-        }
-        
+function updateNote(notebookId, noteId, content) {
+    var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
+    noteRef.update({
+        content: content,
+        updatedAt: Date.now() // Update timestamp
+    }).then(() => {
+        console.log('Note updated successfully');
+    }).catch(error => {
+        console.error('Failed to update note:', error);
+    });
+}
+
         
         function toggleSpeechKITT() {
             if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
