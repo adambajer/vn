@@ -752,7 +752,7 @@ function createDropdownItem(text, action) {
             let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
             let tooltipContent = `Vytvořeno: ${createdAt}`;
             if (createdAt !== updatedAt) {
-                tooltipContent += `, Upraveno: ${updatedAt}`;
+                tooltipContent += `Upraveno: ${updatedAt}`;
             }
             noteElement.setAttribute('data-title', tooltipContent);
 
