@@ -730,10 +730,17 @@ function createDropdownItem(text, action) {
                     noteElement.textContent = notes[noteId].content;
                     noteElement.setAttribute('data-note-id', noteId);
         
-                    
-            // Set the creation date in the data-title attribute
-            noteElement.setAttribute('data-title', `Vytvořeno: ${formatDate(new Date(notes[noteId].createdAt))}` +
-            (notes[noteId].updatedAt ? `, Upraveno: ${formatDate(new Date(notes[noteId].updatedAt))}` : ""));
+                     // Format the creation and update dates
+            let createdAt = formatDate(new Date(notes[noteId].createdAt));
+            let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
+            
+            // Set the tooltip content based on whether createdAt and updatedAt are the same
+            let tooltipContent = `Vytvořeno: ${createdAt}`;
+            if (createdAt !== updatedAt) {
+                tooltipContent += `, Upraveno: ${updatedAt}`;
+            }
+            
+            noteElement.setAttribute('data-title', tooltipContent);
 
                     var checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
@@ -745,7 +752,7 @@ function createDropdownItem(text, action) {
                     };
         
                     var deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.textContent = 'Smazat';
                     deleteBtn.className = 'delete-note';
                     deleteBtn.onclick = function () {
                         deleteNote(notebookId, noteId);
