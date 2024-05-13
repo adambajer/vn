@@ -737,12 +737,16 @@ function createDropdownItem(text, action) {
             noteElement.className = 'note';
             noteElement.setAttribute('data-note-id', noteId);
 
-            // Create a span to hold the note text, making only the text editable
-            var noteText = document.createElement('span');
+        var noteText = document.createElement('span');
             noteText.textContent = notes[noteId].content;
             noteText.className = 'note-text';
-            noteText.contentEditable = !notes[noteId].finished; // Only editable if not marked as finished
+            noteText.contentEditable = !notes[noteId].finished;
+            noteText.setAttribute('data-note-id', noteId); // Important for identifying which note to update
 
+            // Set up blur event to handle updates
+            noteText.addEventListener('blur', function() {
+                updateNote(notebookId, noteId, noteText.textContent);
+            });
             // Set the tooltip content
             let createdAt = formatDate(new Date(notes[noteId].createdAt));
             let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
