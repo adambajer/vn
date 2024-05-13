@@ -1,60 +1,111 @@
-document.addEventListener('DOMContentLoaded', function () {
-    let urlParams = new URLSearchParams(window.location.search);
-    let notebookId = urlParams.get('notebook');  // Get 'notebook' parameter from URL
-    let userId = localStorage.getItem('userId') || generateUserId(); // Fetch from localStorage
-    localStorage.setItem('userId', userId); // Store in localStorage if not already present
-    let deviceInfo = getDeviceInfo();
+document.addEventListener('DOMContentLoaded', async function () {
+    let userId = localStorage.getItem('userId') || generateUserId();
+    localStorage.setItem('userId', userId);
     initializeFontSettings();
     loadFontPreference();
-    observeNoteContainerChanges(); // Observe changes in the note container
-    const userIcon = document.getElementById('userIcon');
-    const userTooltip = document.getElementById('userTooltip');
-    userTooltip.innerHTML = `
-                <strong>UID:</strong> ${userId}<br>
-                <strong>Platform:</strong> ${deviceInfo.platform}<br>
-                <strong>User Agent:</strong> ${deviceInfo.userAgent}<br>
-                <strong>Language:</strong> ${deviceInfo.language}<br>
-                <strong>Resolution:</strong> ${deviceInfo.resolution}<br>
-                <strong>Color Depth:</strong> ${deviceInfo.colorDepth}<br>
-                <strong>Timezone Offset:</strong> ${deviceInfo.timezoneOffset}`;
-    if (notebookId) {
-        // If notebookId is found, set it active and load its notes only
+    observeNoteContainerChanges();
 
+    let urlParams = new URLSearchParams(window.location.search);
+    let notebookIdFromURL = urlParams.get('notebook');
 
+    console.log("Notebook ID from URL:", notebookIdFromURL);
 
-        loadNotes(notebookId);
-
-        const noteInput = document.getElementById('noteInput');
-        noteInput.addEventListener('keydown', function (event) {
-            if (event.key === "Enter") {
-                addNoteFromInput();  // Function to handle note addition
-                event.preventDefault();  // Prevent default Enter key behavior (form submission)
-            }
-        });
-
-        noteInput.addEventListener('blur', addNoteFromInput);
-        document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+    if (notebookIdFromURL) {
+        console.log("Loading single notebook...");
+        await loadSingleNotebook(notebookIdFromURL);
     } else {
-        // If no specific notebookId, load all user notebooks
-        loadUserNotebooks(function () {
-            let activeNotebookId = localStorage.getItem('activeNotebookId');
-            if (activeNotebookId) {
-                setActiveTab(activeNotebookId);
-            }
-        });
-        const noteInput = document.getElementById('noteInput');
-        noteInput.addEventListener('keydown', function (event) {
-            if (event.key === "Enter") {
-                addNoteFromInput();  // Function to handle note addition
-                event.preventDefault();  // Prevent default Enter key behavior (form submission)
-            }
-        });
-
-        noteInput.addEventListener('blur', addNoteFromInput);
-        document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+     
+        let activeTabUID = await getActiveTabUID();
+        console.log("Retrieved Active Tab UID:", activeTabUID);
+        if (activeTabUID) {
+            setActiveTab(activeTabUID);
+        } else {
+            setFirstTabActive();
+        }
+        console.log("Loading all notebooks...");
+        await loadUserNotebooks();
     }
+
+    setUpNoteInput();
     toggleSpeechKITT();
 });
+
+function setUpNoteInput() {
+    const noteInput = document.getElementById('noteInput');
+    noteInput.addEventListener('keydown', function (event) {
+        if (event.key === "Enter") {
+            addNoteFromInput();
+            event.preventDefault();
+        }
+    });
+    noteInput.addEventListener('blur', addNoteFromInput);
+    document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
+}
+ 
+function setFirstTabActive() {
+    let firstTabLink = document.querySelector('.nav-link');
+    if (firstTabLink) {
+        firstTabLink.click();
+    }
+}
+
+async function loadSingleNotebook(notebookId) {
+    const userId = localStorage.getItem('userId');
+    const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+    let snapshot = await notebookRef.once('value');
+    if (snapshot.exists()) {
+        let notebookData = snapshot.val();
+        createTab(notebookId, true, notebookData.notes ? Object.keys(notebookData.notes).length : 0, notebookData.name);
+        loadNotes(notebookId);
+    } else {
+        console.log("Notebook not found");
+    }
+}
+
+
+
+// Update the share function to open only the shared notebook
+function shareNotebook(notebookId) {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?notebook=${notebookId}`;
+    console.log("Sharing notebook URL:", shareUrl);
+    window.open(shareUrl, '_blank'); 
+}
+async function loadUserNotebooks() {
+    const userId = localStorage.getItem('userId');
+    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
+    let snapshot = await userNotebooksRef.once('value');
+    const notebooks = snapshot.val() || {};
+    
+    let activeTabUID = await getActiveTabUID();  // Fetch the active tab UID early on.
+    let foundActiveTab = false;
+
+    Object.keys(notebooks).forEach((notebookId, index) => {
+        let notebookData = notebooks[notebookId];
+        // Set tab as active only if it matches the stored activeTabUID or if it's the first tab and no activeTabUID was found.
+        let shouldSetActive = notebookId === activeTabUID || (!foundActiveTab && index === 0 && !activeTabUID);
+        createTab(notebookId, shouldSetActive, notebookData.notes ? Object.keys(notebookData.notes).length : 0, notebookData.name);
+        if (shouldSetActive) foundActiveTab = true;  // Mark found so no other tabs are set as active accidentally.
+    });
+
+    // If after looping, no tab has been set as active and there's an activeTabUID, there's a mismatch or the specific tab doesn't exist anymore.
+    if (!foundActiveTab && activeTabUID) {
+        console.log("Stored active tab ID not found among current notebooks.");
+        setFirstTabActive();  // Fallback to setting the first tab as active if the supposed active tab is missing.
+    }
+}
+
+
+function setActiveTab(notebookId) {
+    const notebookTabs = document.querySelectorAll('.nav-link');
+    notebookTabs.forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.notebookId === notebookId) {
+            tab.classList.add('active');
+        }
+    });
+    saveActiveTabUID(notebookId);
+}
 document.addEventListener('input', function (event) {
     if (event.target.matches('.note[contenteditable]')) {
         const noteId = event.target.getAttribute('data-note-id');
@@ -68,18 +119,7 @@ document.addEventListener('input', function (event) {
 function saveActiveTabUID(uid) {
     localStorage.setItem('activeTabUID', uid);
 }
-function setActiveTab(notebookId) {
-    const notebookTabs = document.querySelectorAll('.nav-link');
-    notebookTabs.forEach(link => {
-        link.classList.remove('active');
-        if (link.dataset.notebookId === notebookId) {
-            link.classList.add('active');
-            localStorage.setItem('activeNotebookId', notebookId); // Save the active notebook ID
-        }
-    });
-
-    loadNotes(notebookId); // Load notes for the active notebook
-}
+ 
 
 
 function saveActiveTabUID(uid) {
@@ -88,8 +128,7 @@ function saveActiveTabUID(uid) {
 
 
 
-// Function to retrieve the active tab's UID from local storage
-function getActiveTabUID() {
+async function getActiveTabUID() {
     return localStorage.getItem('activeTabUID');
 }
 const firebaseConfig = {
@@ -176,7 +215,7 @@ function addNoteFromInput() {
         addNote(noteContent, notebookId);
         document.getElementById('noteInput').value = ''; // Clear the input after adding a note
     }
-}
+}/*
 function loadUserNotebooks(callback) {
     const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
     userNotebooksRef.once('value', snapshot => {
@@ -197,7 +236,7 @@ function loadUserNotebooks(callback) {
         console.error("Failed to fetch notebooks:", error);
     });
 }
-
+*/
 
 
 function createNotebook() {
@@ -224,6 +263,7 @@ function createNotebook() {
     link.className = 'nav-link'; // Ensure it grows to take available space
     link.href = '#';
     link.dataset.notebookId = notebookId;
+    link.setAttribute('title', notebookId); // Important for identifying which note to update
 
     // Notebook icon
     var img = document.createElement('img');
@@ -332,16 +372,6 @@ function createDropdownItem(text, action) {
     return item;
 }
 
-function shareNotebook(notebookId) {
-    const shareUrl = `/notebook/${notebookId}`;
-    console.log("Sharing notebook:", notebookId);
-    // Implement actual sharing logic, e.g., copy to clipboard
-    navigator.clipboard.writeText(shareUrl).then(() => {
-        alert('Share link copied to clipboard: ' + shareUrl);
-    }, (err) => {
-        console.error('Error copying link to clipboard', err);
-    });
-}
 
 
 function deleteNotebook(notebookId) {
