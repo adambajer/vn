@@ -804,18 +804,38 @@ function loadFontPreference() {
         console.error('Failed to load font settings:', error);
     });
 }
+document.getElementById('spaceName').addEventListener('focus', function() {
+    const spaceNameElement = document.getElementById('spaceName');
+    if (spaceNameElement.classList.contains('placeholder')) {
+        spaceNameElement.textContent = '';  // Clear placeholder text
+        spaceNameElement.classList.remove('placeholder');  // Remove placeholder style
+    }
+});
+
+document.getElementById('spaceName').addEventListener('blur', function() {
+    const spaceNameElement = document.getElementById('spaceName');
+    if (!spaceNameElement.textContent.trim()) {
+        spaceNameElement.textContent = localStorage.getItem('userId');  // Reset to userId if empty
+        spaceNameElement.classList.add('placeholder');  // Reapply placeholder style
+    }
+    saveSpaceName();  // Save the space name when focus is lost
+});
 function saveSpaceName() {
-    const spaceName = document.getElementById('spaceName').textContent;
-    const userId = localStorage.getItem('userId');
-    const spaceRef = firebase.database().ref(`users/${userId}/spaceName`);
-    spaceRef.set(spaceName, error => {
-        if (error) {
-            console.error('Error saving space name:', error);
-        } else {
-            console.log('Space name saved successfully');
-        }
-    });
+    const spaceNameElement = document.getElementById('spaceName');
+    if (!spaceNameElement.classList.contains('placeholder')) {
+        const spaceName = spaceNameElement.textContent;
+        const userId = localStorage.getItem('userId');
+        const spaceRef = firebase.database().ref(`users/${userId}/spaceName`);
+        spaceRef.set(spaceName, error => {
+            if (error) {
+                console.error('Error saving space name:', error);
+            } else {
+                console.log('Space name saved successfully');
+            }
+        });
+    }
 }
+
 
 function shareSpace() {
     const userId = localStorage.getItem('userId');
