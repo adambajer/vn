@@ -341,3 +341,14 @@ right: 0px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+#spaceName {
+    border: 1px solid #ccc;
+    padding: 8px;
+    min-width: 200px;
+    display: inline-block;
+}
+
+#shareSpaceButton {
+    padding: 8px 16px;
+    margin-left: 10px;
+}
