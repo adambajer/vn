@@ -314,8 +314,7 @@ padding: 5px;
     white-space: nowrap;
 }
 
-.nav-pills .nav-link { 
-}
+
 #notebookTabs  {
     overflow-x: auto;
     display: flex;
@@ -329,22 +328,7 @@ padding: 5px;
 }
 
 
-/* Base styles for mobile and up */
-.nav-pills .nav-link {
-    padding: 10px 15px; /* More padding for larger touch targets */
-    margin-right: 5px;  /* Space between tabs */
-    font-size: 14px;    /* Larger font size for readability */
-    border-radius: 0.25rem; /* Optional: rounded corners for a better look */
-}
 
-/* Media query for very small screens */
-@media (max-width: 576px) {
-    .nav-pills .nav-link {
-        padding: 12px 20px; /* Even larger padding for smaller devices */
-        font-size: 16px;    /* Increase font size for better visibility */
-        margin-bottom: 5px; /* Add some bottom margin for vertical stacking if needed */
-    }
-}
 .custom-tooltip {
     position: absolute;
     border: 1px solid #ccc;
