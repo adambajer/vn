@@ -378,7 +378,7 @@ function deleteNotebook(notebookId) {
     const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
     notebookRef.remove()
         .then(() => {
-            alert('Notebook successfully deleted.');
+            //alert('Notebook successfully deleted.');
             // Remove the tab from the UI
             removeTab(notebookId);
         })
@@ -404,7 +404,7 @@ function copyNotebook(notebookId) {
         const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
         newNotebookRef.set(data)
             .then(() => {
-                alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
+              //  alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
                 createTab(newNotebookId, true); // Adding new notebook tab to UI
             })
             .catch(error => {
@@ -445,6 +445,9 @@ function loadNotes(notebookId) {
             noteText.className = 'note-text';
             noteText.contentEditable = !notes[noteId].finished;
             noteText.setAttribute('data-note-id', noteId); // Important for identifying which note to update
+            if (notes[noteId].finished) {
+                noteElement.classList.add('finished'); // Apply a CSS class for finished notes
+            }
 
             // Set up blur event to handle updates
             noteText.addEventListener('blur', function () {
