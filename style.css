@@ -182,20 +182,7 @@ border: 0px;border-radius: 0px;
 .menu-icon:hover, .menu-icon:active,.menu-icon:target, .menu-icon:focus  {
 background-color: white;
 }
-.custom-tooltip {
-display: none; /* Hidden by default */
-position: absolute;
-z-index: 10;
-width: 30%;
-background-color: #f9f9f9;
-border: 1px solid #d3d3d3;
 
-padding: 10px;
-color: #000; 
-text-align: left;
-font-size: 0.9em;
-box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-}
 #userIcon {border-left:1px solid #ccc;
 cursor: pointer;
 border-top-right-radius: 5px;
@@ -362,7 +349,7 @@ padding: 5px;
     position: absolute;
     border: 1px solid #ccc;
     background-color: #fff;
-    padding: 10px;left: 0;
+    padding: 10px;
 right: 0px;
 top: 0px; 
     z-index: 1000;
