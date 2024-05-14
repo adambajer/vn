@@ -342,10 +342,14 @@ right: 0px;
     text-overflow: ellipsis;
 }
 #spaceName {
-    border: 1px solid #ccc;
-    padding: 8px;
-    min-width: 200px;
+border: 1px solid #ccc; 
+    font-size: 1.5rem;
+    padding-left: 2rem;
+    padding-right: 2rem; 
     display: inline-block;
+    text-transform: uppercase;
+    font-weight: bold;
+    background: white;
 }
 
 #shareSpaceButton {
