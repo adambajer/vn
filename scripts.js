@@ -12,28 +12,28 @@ document.addEventListener('DOMContentLoaded', async function () {
             spaceNameElement.classList.add('placeholder');  // Optionally apply a placeholder style
         }
     });
+
     var userIcon = document.getElementById('userIcon');
     var tooltip = document.getElementById('userTooltip');
     userIcon.addEventListener('mouseover', function() {
         var deviceInfo = getDeviceInfo();
         var infoText = "";  // Initialize an empty string to hold the information.
-infoText = 'ActiveTabUID: '+localStorage.getItem('activeTabUID')+ infoText + "<br>";
+        infoText = 'ActiveTabUID: ' + localStorage.getItem('activeTabUID') + infoText + "<br>";
         // Iterate over each property in the deviceInfo object
         for (var key in deviceInfo) {
             if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
                 infoText += key + ": " + deviceInfo[key] + "<br>";  // Append each key-value pair to the string using <br> for new lines
             }
         }
-    
+
         tooltip.innerHTML = infoText;  // Set the inner HTML of the tooltip to the compiled string
         tooltip.style.display = 'block';  // Make sure to show the tooltip when hovering
     });
-    
+
     userIcon.addEventListener('mouseout', function() {
         tooltip.style.display = 'none';  // Hide the tooltip
     });
-    
-    
+
     initializeFontSettings();
     loadFontPreference();
     observeNoteContainerChanges();
@@ -47,14 +47,6 @@ infoText = 'ActiveTabUID: '+localStorage.getItem('activeTabUID')+ infoText + "<b
         console.log("Loading single notebook...");
         await loadSingleNotebook(notebookIdFromURL);
     } else {
-     
-        let activeTabUID = await getActiveTabUID();
-        console.log("Retrieved Active Tab UID:", activeTabUID);
-        if (activeTabUID) {
-            setActiveTab(activeTabUID);
-        } else {
-            setFirstTabActive();
-        }
         console.log("Loading all notebooks...");
         await loadUserNotebooks();
     }
@@ -62,6 +54,7 @@ infoText = 'ActiveTabUID: '+localStorage.getItem('activeTabUID')+ infoText + "<b
     setUpNoteInput();
     toggleSpeechKITT();
 });
+
 
 function setUpNoteInput() {
     const noteInput = document.getElementById('noteInput');
@@ -109,22 +102,27 @@ async function loadUserNotebooks() {
     const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
     let snapshot = await userNotebooksRef.once('value');
     const notebooks = snapshot.val() || {};
-    
-    let activeTabUID = await getActiveTabUID();  // Fetch the active tab UID early on.
-    let foundActiveTab = false;
 
-    Object.keys(notebooks).forEach((notebookId, index) => {
-        let notebookData = notebooks[notebookId];
-        // Set tab as active only if it matches the stored activeTabUID or if it's the first tab and no activeTabUID was found.
-        let shouldSetActive = notebookId === activeTabUID || (!foundActiveTab && index === 0 && !activeTabUID);
-        createTab(notebookId, shouldSetActive, notebookData.notes ? Object.keys(notebookData.notes).length : 0, notebookData.name);
-        if (shouldSetActive) foundActiveTab = true;  // Mark found so no other tabs are set as active accidentally.
-    });
+    if (Object.keys(notebooks).length === 0) {
+        console.log("No notebooks found, creating one...");
+        createNotebook();  // Create a default notebook if none exist
+    } else {
+        let activeTabUID = await getActiveTabUID();  // Fetch the active tab UID early on.
+        let foundActiveTab = false;
 
-    // If after looping, no tab has been set as active and there's an activeTabUID, there's a mismatch or the specific tab doesn't exist anymore.
-    if (!foundActiveTab && activeTabUID) {
-        console.log("Stored active tab ID not found among current notebooks.");
-        setFirstTabActive();  // Fallback to setting the first tab as active if the supposed active tab is missing.
+        Object.keys(notebooks).forEach((notebookId, index) => {
+            let notebookData = notebooks[notebookId];
+            // Set tab as active only if it matches the stored activeTabUID or if it's the first tab and no activeTabUID was found.
+            let shouldSetActive = notebookId === activeTabUID || (!foundActiveTab && index === 0 && !activeTabUID);
+            createTab(notebookId, shouldSetActive, notebookData.notes ? Object.keys(notebookData.notes).length : 0, notebookData.name);
+            if (shouldSetActive) foundActiveTab = true;  // Mark found so no other tabs are set as active accidentally.
+        });
+
+        // If after looping, no tab has been set as active and there's an activeTabUID, there's a mismatch or the specific tab doesn't exist anymore.
+        if (!foundActiveTab && activeTabUID) {
+            console.log("Stored active tab ID not found among current notebooks.");
+            setFirstTabActive();  // Fallback to setting the first tab as active if the supposed active tab is missing.
+        }
     }
 }
 
