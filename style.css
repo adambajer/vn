@@ -335,7 +335,7 @@ right: 0px;
     width: auto; /* Ensure it stretches as needed */
     max-width: 300px; /* Avoid overly wide tooltips */
     border-radius: 4px;
-    
+    padding:5px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.18);
     white-space: nowrap; /* Keeps the text on a single line, scroll to view if needed */
     overflow: hidden;
