@@ -1,6 +1,17 @@
 document.addEventListener('DOMContentLoaded', async function () {
     let userId = localStorage.getItem('userId') || generateUserId();
     localStorage.setItem('userId', userId);
+    const spaceRef = firebase.database().ref(`users/${userId}/spaceName`);
+    spaceRef.on('value', snapshot => {
+        const spaceName = snapshot.val();
+        const spaceNameElement = document.getElementById('spaceName');
+        if (spaceName) {
+            spaceNameElement.textContent = spaceName;
+        } else {
+            spaceNameElement.textContent = userId;  // Use userId as placeholder
+            spaceNameElement.classList.add('placeholder');  // Optionally apply a placeholder style
+        }
+    });
     var userIcon = document.getElementById('userIcon');
     var tooltip = document.getElementById('userTooltip');
     userIcon.addEventListener('mouseover', function() {
@@ -792,4 +803,24 @@ function loadFontPreference() {
     }).catch(error => {
         console.error('Failed to load font settings:', error);
     });
+}
+function saveSpaceName() {
+    const spaceName = document.getElementById('spaceName').textContent;
+    const userId = localStorage.getItem('userId');
+    const spaceRef = firebase.database().ref(`users/${userId}/spaceName`);
+    spaceRef.set(spaceName, error => {
+        if (error) {
+            console.error('Error saving space name:', error);
+        } else {
+            console.log('Space name saved successfully');
+        }
+    });
+}
+
+function shareSpace() {
+    const userId = localStorage.getItem('userId');
+    const spaceName = document.getElementById('spaceName').textContent;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?userId=${userId}&spaceName=${encodeURIComponent(spaceName)}`;
+    window.open(shareUrl, '_blank');
 }
