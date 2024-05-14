@@ -1,6 +1,28 @@
 document.addEventListener('DOMContentLoaded', async function () {
     let userId = localStorage.getItem('userId') || generateUserId();
     localStorage.setItem('userId', userId);
+    var userIcon = document.getElementById('userIcon');
+    var tooltip = document.getElementById('userTooltip');
+    userIcon.addEventListener('mouseover', function() {
+        var deviceInfo = getDeviceInfo();
+        var infoText = "";  // Initialize an empty string to hold the information.
+infoText = 'ActiveTabUID: '+localStorage.getItem('activeTabUID')+ infoText + "<br>";
+        // Iterate over each property in the deviceInfo object
+        for (var key in deviceInfo) {
+            if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
+                infoText += key + ": " + deviceInfo[key] + "<br>";  // Append each key-value pair to the string using <br> for new lines
+            }
+        }
+    
+        tooltip.innerHTML = infoText;  // Set the inner HTML of the tooltip to the compiled string
+        tooltip.style.display = 'block';  // Make sure to show the tooltip when hovering
+    });
+    
+    userIcon.addEventListener('mouseout', function() {
+        tooltip.style.display = 'none';  // Hide the tooltip
+    });
+    
+    
     initializeFontSettings();
     loadFontPreference();
     observeNoteContainerChanges();

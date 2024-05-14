@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -25,56 +26,69 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="style.css" rel="stylesheet">
 </head>
+
 <body class="">
     <div class="main-content" id="main-content">
         <div id="bar" class="shadow">
             <nav class="navbar navbar-expand-lg navbar-expand-md navbar-expand-sn navbar-expand" data-bs-theme="light">
                 <div class="container-fluid">
-               
-                  
-                    
+
+
+
                     <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-                        
+
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item dropdown">
                                 <button class="btn menu-icon" data-bs-toggle="dropdown" aria-expanded="false">
                                     ☰ <!-- If you need a second menu, otherwise remove this -->
                                 </button>
-                              
+
                                 <ul class="dropdown-menu dropdown-menu-light">
-                                 
+
 
                                     <li><a class="dropdown-item" href="#">Share app</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Export All Notebooks</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Export All
+                                            Notebooks</a></li>
 
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutAppModal">About App</a></li>
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#fontSettingsModal">Settings</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                            data-bs-target="#aboutAppModal">About App</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                            data-bs-target="#fontSettingsModal">Settings</a></li>
 
                                 </ul>
                             </li>
                         </ul>
+
                         <a class="logo ps-2" href="#">
                             <img src="favicon.svg" width="30px" height="30px" class="pe-2 ">
                             <span>NOTES</span>
                         </a>
-                  
                     </div>
-                    <img id="userIcon" src="user-icon.svg" alt="User Icon" class="user-icon"
-                    style="width: 43px; height: 43px;">
-                <div id="userTooltip" class="custom-tooltip">
-                </div>
-                
-                 
+                    <div>
+                        <button id="createNotebookButton" class="btn btn-primary  rounded-0" title="New notebook">New
+                            notebook</button>
+                        <img id="userIcon" src="user-icon.svg" alt="User Icon" class="user-icon"
+                            style="width: 43px; height: 43px;">
+                    </div>
+
+
+                    <div id="userTooltip" class="custom-tooltip">
+                    </div>
+
+
             </nav>
         </div>
 
-        <div id="bartabs" class="d-flex cus align-items-center ">
+        <div id="bartabs" class="cus align-items-center ">
             <!-- Title of the app added here -->
-            <ul id="notebookTabs" class="nav nav-pills">
-            </ul>
-            <button id="createNotebookButton" class="btn btn-primary  rounded-0" title="New notebook">New notebook</button>
+            <div class="scrollable-nav">
+
+                <ul id="notebookTabs" class="nav nav-pills">
+                </ul>
+            </div>
+
         </div>
-        <div id="notesContainer2" >
+        <div id="notesContainer2">
             <div class="d-inline-flex w-100 justify-content-end">
                 <input type="text" id="noteInput" class="form-control" placeholder="Your note content here...">
             </div>
@@ -82,42 +96,47 @@
         </div>
     </div>
     <!-- Modal -->
-<div class="modal fade" id="aboutAppModal" tabindex="-1" aria-labelledby="aboutAppModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="aboutAppModalLabel">About NOTES </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>NOTES App is a dynamic note-taking tool that allows users to capture and organize their thoughts efficiently. Developed to enhance productivity, it features voice recognition, various font customizations, and a user-friendly interface.</p>
-          <ul>
-            <li>Version: 1.0</li>
-            <li>Developed by: Adam Bajer</li>
-            <li>Visit us: <a href="https://github.com/adambajer/Voice-Noter">https://github.com/adambajer/Voice-Noter</a></li>
-            <li>Contact: <a href="mailto:adam.bajer@gmail.com">adam.bajer@gmail.com</a></li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-<!-- Font Settings Modal -->
-<div id="fontSettingsModal" class="modal fade" tabindex="-1" aria-labelledby="fontSettingsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fontSettingsModalLabel">Font Settings</h5>
-           
+    <div class="modal fade" id="aboutAppModal" tabindex="-1" aria-labelledby="aboutAppModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aboutAppModalLabel">About NOTES </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>NOTES App is a dynamic note-taking tool that allows users to capture and organize their thoughts
+                        efficiently. Developed to enhance productivity, it features voice recognition, various font
+                        customizations, and a user-friendly interface.</p>
+                    <ul>
+                        <li>Version: 1.0</li>
+                        <li>Developed by: Adam Bajer</li>
+                        <li>Visit us: <a
+                                href="https://github.com/adambajer/Voice-Noter">https://github.com/adambajer/Voice-Noter</a>
+                        </li>
+                        <li>Contact: <a href="mailto:adam.bajer@gmail.com">adam.bajer@gmail.com</a></li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <form>
-                    <div class="mb-3">
-                        
-                        <select class="form-select" id="fontSelect">
-                                 <option value="Open Sans">Open Sans</option>
+        </div>
+    </div>
+    <!-- Font Settings Modal -->
+    <div id="fontSettingsModal" class="modal fade" tabindex="-1" aria-labelledby="fontSettingsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fontSettingsModalLabel">Font Settings</h5>
+
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+
+                            <select class="form-select" id="fontSelect">
+                                <option value="Open Sans">Open Sans</option>
                                 <option value="Roboto">Roboto</option>
                                 <option value="Lato">Lato</option>
                                 <option value="Montserrat">Montserrat</option>
@@ -157,22 +176,23 @@
                                 <option value="Acme">Acme</option>
                                 <option value="Permanent Marker">Permanent Marker</option>
                                 <option value="Varela Round">Varela Round</option>
-                             
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                         <input type="range" class="form-range" min="12" max="24" id="fontSizeInput">
-                    </div>
-                </form>
-                <p id="fontPreview" style="padding: 10px; border: 1px solid #ccc;">The quick brown fox jumps over the lazy dog.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                
+
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <input type="range" class="form-range" min="12" max="24" id="fontSizeInput">
+                        </div>
+                    </form>
+                    <p id="fontPreview" style="padding: 10px; border: 1px solid #ccc;">The quick brown fox jumps over
+                        the lazy dog.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     <script src="scripts.js"></script>
