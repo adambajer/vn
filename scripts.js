@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     userIcon.addEventListener('mouseover', function() {
         var deviceInfo = getDeviceInfo();
         var infoText = "";  // Initialize an empty string to hold the information.
+        infoText = 'userId: ' + localStorage.getItem('userId') + infoText + "<br>";
         infoText = 'ActiveTabUID: ' + localStorage.getItem('activeTabUID') + infoText + "<br>";
         // Iterate over each property in the deviceInfo object
         for (var key in deviceInfo) {
@@ -32,8 +33,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (notebookToken) {
         accessContentByNotebookToken(notebookToken);
+        
+        console.log("notebookToken"-notebookToken);
     } else if (spaceToken) {
-        accessContentBySpaceToken(spaceToken);
+        console.log(spaceToken);
+        accessContentBySpaceToken("spaceToken"-spaceToken);
     } else {
         console.log("No specific token found, loading default user notebooks...");
         loadUserNotebooks();
@@ -357,14 +361,32 @@ function createNotebook() {
     const userId = sessionStorage.getItem('userId');  // Ensure you have the userId stored in session
     const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
-    newNotebookRef.set({
+
+    // Set up initial notebook data
+    const notebookData = {
         userId: userId,  // Store the userId as part of the notebook data
-        createdAt: Date.now()
-    }, error => {
+        createdAt: Date.now(),
+        token: ''  // Placeholder for the token we'll generate
+    };
+
+    newNotebookRef.set(notebookData, error => {
         if (!error) {
+            // Generate and save a token for this notebook
+            generateAndSaveToken(newNotebookId);
             createTab(newNotebookId, true); // Set this new notebook as active
         } else {
             console.error('Error creating notebook:', error);
+        }
+    });
+}
+function generateAndSaveToken(notebookId) {
+    const token = btoa(Math.random()).substring(0, 12); // Simple token generation
+    const tokenRef = firebase.database().ref(`notebooks/${notebookId}/token`);
+    tokenRef.set(token, error => {
+        if (error) {
+            console.error('Error saving token:', error);
+        } else {
+            console.log('Token saved successfully:', token);
         }
     });
 }
