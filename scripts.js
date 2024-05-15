@@ -108,7 +108,7 @@ const baseUrl = '';  // Replace this with the actual base URL of your applicatio
 function shareNotebook(notebookId) {
     getTokenForNotebook(notebookId).then(token => {
         const baseUrl = window.location.origin;
-        const shareUrl = `${baseUrl}?notebookToken=${token}`;  // Changed parameter name to 'notebookToken'
+        const shareUrl = `?notebookToken=${token}`;  // Changed parameter name to 'notebookToken'
         console.log("Sharing notebook URL:", shareUrl);
         window.open(shareUrl, '_blank');
     }).catch(error => {
@@ -119,7 +119,7 @@ function shareNotebook(notebookId) {
 function shareSpace(spaceName) {
     getTokenForSpace(spaceName).then(token => {
         const baseUrl = window.location.origin;
-        const shareUrl = `${baseUrl}?spaceToken=${token}`;  // Changed parameter name to 'spaceToken'
+        const shareUrl = `?spaceToken=${token}`;  // Changed parameter name to 'spaceToken'
         console.log("Sharing space URL:", shareUrl);
         window.open(shareUrl, '_blank');
     }).catch(error => {
