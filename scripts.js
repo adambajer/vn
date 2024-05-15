@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         var deviceInfo = getDeviceInfo();
         var infoText = "";  // Initialize an empty string to hold the information.
         infoText = 'UserId: ' + localStorage.getItem('userId') + "<br><br>"; 
-        infoText = 'ActiveTabUID: ' + localStorage.getItem('activeTabUID') + infoText + "<br>";
+        infoText = infoText+ 'ActiveTabUID: ' + localStorage.getItem('activeTabUID');
         // Iterate over each property in the deviceInfo object
         for (var key in deviceInfo) {
             if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
