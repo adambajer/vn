@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     userIcon.addEventListener('mouseover', function() {
         var deviceInfo = getDeviceInfo();
         var infoText = "";  // Initialize an empty string to hold the information.
-        infoText = 'UserId: ' + localStorage.getItem('userId') + "<br><br>"; 
-        infoText = infoText+ 'ActiveTabUID: ' + localStorage.getItem('activeTabUID');
+        infoText = 'UserId: ' + localStorage.getItem('userId') + "<br>"; 
+        infoText = infoText+ 'ActiveTabUID: ' + localStorage.getItem('activeTabUID') + "<br>";
         // Iterate over each property in the deviceInfo object
         for (var key in deviceInfo) {
             if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
@@ -32,9 +32,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     const spaceToken = urlParams.get('spaceToken');
 
     if (notebookToken) {
+        console.log("notebookToken"-notebookToken);
         accessContentByNotebookToken(notebookToken);
         
-        console.log("notebookToken"-notebookToken);
+        
     } else if (spaceToken) {
         console.log(spaceToken);
         accessContentBySpaceToken("spaceToken"-spaceToken);
@@ -45,17 +46,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     setUpNoteInput();
     toggleSpeechKITT();
 });
-// Function to access content by a notebook token
+
 function accessContentByNotebookToken(token) {
-    const tokenRef = firebase.database().ref(`tokens/notebooks/${token}`);
-    tokenRef.once('value', snapshot => {
-        const notebookId = snapshot.val();
-        if (notebookId) {
-            console.log("Valid notebook token, loading notebook...");
-            loadSingleNotebook(notebookId);
+    const mappingRef = firebase.database().ref(`tokens/notebooks/${token}`);
+    mappingRef.once('value', snapshot => {
+        if (snapshot.exists()) {
+            const notebookId = snapshot.val();
+            loadSingleNotebook(notebookId); // Function to load notebook data by ID
         } else {
             console.error("Invalid or expired notebook token.");
-            // Handle error, such as showing a message to the user
+            // Handle error, such as showing a message to the user or redirecting
         }
     });
 }
@@ -96,30 +96,44 @@ function setFirstTabActive() {
     }
 }
 
-async function loadSingleNotebook(notebookId) {
-    const userId = localStorage.getItem('userId');
-    const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
-    let snapshot = await notebookRef.once('value');
-    if (snapshot.exists()) {
-        let notebookData = snapshot.val();
-        createTab(notebookId, true, notebookData.notes ? Object.keys(notebookData.notes).length : 0, notebookData.name);
-        loadNotes(notebookId);
-    } else {
-        console.log("Notebook not found");
-    }
+function loadSingleNotebookByToken(token) {
+    // Assuming you have a reference that maps tokens to notebook IDs
+    const tokenRef = firebase.database().ref(`tokens/notebooks`).orderByValue().equalTo(token);
+    tokenRef.once('value', snapshot => {
+        if (snapshot.exists()) {
+            const notebookId = Object.keys(snapshot.val())[0]; // Get notebook ID from the token
+            loadSingleNotebook(notebookId); // Load the notebook using its ID
+        } else {
+            console.error("Invalid or expired notebook token.");
+            // Handle error, such as showing a message to the user
+        }
+    });
+}
+
+function loadSingleNotebook(notebookId) {
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
+    notebookRef.once('value', snapshot => {
+        if (snapshot.exists()) {
+            const notebookData = snapshot.val();
+            console.log("Notebook data loaded:", notebookData);
+            // Further processing such as displaying notebook data in the UI
+        } else {
+            console.log("Notebook not found.");
+        }
+    });
 }
 const baseUrl = '';  // Replace this with the actual base URL of your application
+
 function shareNotebook(notebookId) {
     getTokenForNotebook(notebookId).then(token => {
-        const baseUrl = window.location.origin;
-        const shareUrl = `?notebookToken=${token}`;  // Changed parameter name to 'notebookToken'
+        const baseUrl = window.location.origin; // Get the base URL of your application
+        const shareUrl = `${baseUrl}?notebookToken=${token}`; // Construct the share URL with the token
         console.log("Sharing notebook URL:", shareUrl);
-        window.open(shareUrl, '_blank');
+        window.open(shareUrl, '_blank'); // Optionally open the URL in a new tab
     }).catch(error => {
         console.error('Error retrieving or setting token:', error);
     });
 }
-
 function shareSpace(spaceName) {
     getTokenForSpace(spaceName).then(token => {
         const baseUrl = window.location.origin;
@@ -134,28 +148,24 @@ function shareSpace(spaceName) {
 
 function getTokenForNotebook(notebookId) {
     const notebookRef = firebase.database().ref(`notebooks/${notebookId}/token`);
-    
-    // Return a new Promise since Firebase operations are asynchronous
     return new Promise((resolve, reject) => {
         notebookRef.once('value', snapshot => {
-            let token = snapshot.val();
-            if (token) {
-                // Token exists, resolve the Promise with the existing token
-                resolve(token);
+            if (snapshot.exists()) {
+                resolve(snapshot.val()); // Token already exists, use it
             } else {
-                // Token does not exist, generate a new one, save it, and then resolve the Promise
-                token = btoa(Math.random()).substring(0, 12); // Simple example of token generation
-                notebookRef.set(token, (error) => {
+                // Token does not exist, generate a new one and save it
+                const newToken = btoa(Math.random()).substring(0, 12); // Simple token generation
+                notebookRef.set(newToken, error => {
                     if (error) {
                         reject(error);  // Handle possible write error
                     } else {
-                        resolve(token);  // Resolve with the new token after saving
+                        resolve(newToken);  // Resolve with the new token after saving
                     }
                 });
             }
         });
     });
-} 
+}
 
 
 function getTokenForSpace(spaceName) {
