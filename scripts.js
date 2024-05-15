@@ -1,18 +1,7 @@
 document.addEventListener('DOMContentLoaded', async function () {
     let userId = localStorage.getItem('userId') || generateUserId();
     localStorage.setItem('userId', userId);
-    const spaceRef = firebase.database().ref(`users/${userId}/spaceName`);
-    spaceRef.on('value', snapshot => {
-        const spaceName = snapshot.val();
-        const spaceNameElement = document.getElementById('spaceName');
-        if (spaceName) {
-            spaceNameElement.textContent = spaceName;
-        } else {
-            spaceNameElement.textContent = userId;  // Use userId as placeholder
-            spaceNameElement.classList.add('placeholder');  // Optionally apply a placeholder style
-        }
-    });
-
+    
     var userIcon = document.getElementById('userIcon');
     var tooltip = document.getElementById('userTooltip');
     userIcon.addEventListener('mouseover', function() {
@@ -37,23 +26,51 @@ document.addEventListener('DOMContentLoaded', async function () {
     initializeFontSettings();
     loadFontPreference();
     observeNoteContainerChanges();
+    const urlParams = new URLSearchParams(window.location.search);
+    const notebookToken = urlParams.get('notebookToken');
+    const spaceToken = urlParams.get('spaceToken');
 
-    let urlParams = new URLSearchParams(window.location.search);
-    let notebookIdFromURL = urlParams.get('notebook');
-
-    console.log("Notebook ID from URL:", notebookIdFromURL);
-
-    if (notebookIdFromURL) {
-        console.log("Loading single notebook...");
-        await loadSingleNotebook(notebookIdFromURL);
+    if (notebookToken) {
+        accessContentByNotebookToken(notebookToken);
+    } else if (spaceToken) {
+        accessContentBySpaceToken(spaceToken);
     } else {
-        console.log("Loading all notebooks...");
-        await loadUserNotebooks();
+        console.log("No specific token found, loading default user notebooks...");
+        loadUserNotebooks();
     }
-
     setUpNoteInput();
     toggleSpeechKITT();
 });
+// Function to access content by a notebook token
+function accessContentByNotebookToken(token) {
+    const tokenRef = firebase.database().ref(`tokens/notebooks/${token}`);
+    tokenRef.once('value', snapshot => {
+        const notebookId = snapshot.val();
+        if (notebookId) {
+            console.log("Valid notebook token, loading notebook...");
+            loadSingleNotebook(notebookId);
+        } else {
+            console.error("Invalid or expired notebook token.");
+            // Handle error, such as showing a message to the user
+        }
+    });
+}
+
+// Function to access content by a space token
+function accessContentBySpaceToken(token) {
+    const tokenRef = firebase.database().ref(`tokens/spaces/${token}`);
+    tokenRef.once('value', snapshot => {
+        const spaceName = snapshot.val();
+        if (spaceName) {
+            console.log("Valid space token, accessing space...");
+            loadSpace(spaceName);
+        } else {
+            console.error("Invalid or expired space token.");
+            // Handle error, such as showing a message to the user
+        }
+    });
+}
+
 
 
 function setUpNoteInput() {
@@ -87,16 +104,82 @@ async function loadSingleNotebook(notebookId) {
         console.log("Notebook not found");
     }
 }
-
-
-
-// Update the share function to open only the shared notebook
+const baseUrl = '/';  // Replace this with the actual base URL of your application
 function shareNotebook(notebookId) {
-    const baseUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${baseUrl}?notebook=${notebookId}`;
-    console.log("Sharing notebook URL:", shareUrl);
-    window.open(shareUrl, '_blank'); 
+    getTokenForNotebook(notebookId).then(token => {
+        const baseUrl = window.location.origin;
+        const shareUrl = `${baseUrl}?notebookToken=${token}`;  // Changed parameter name to 'notebookToken'
+        console.log("Sharing notebook URL:", shareUrl);
+        window.open(shareUrl, '_blank');
+    }).catch(error => {
+        console.error('Error retrieving or setting token:', error);
+    });
 }
+
+function shareSpace(spaceName) {
+    getTokenForSpace(spaceName).then(token => {
+        const baseUrl = window.location.origin;
+        const shareUrl = `${baseUrl}?spaceToken=${token}`;  // Changed parameter name to 'spaceToken'
+        console.log("Sharing space URL:", shareUrl);
+        window.open(shareUrl, '_blank');
+    }).catch(error => {
+        console.error('Error retrieving or setting token:', error);
+    });
+}
+
+
+function getTokenForNotebook(notebookId) {
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}/token`);
+    
+    // Return a new Promise since Firebase operations are asynchronous
+    return new Promise((resolve, reject) => {
+        notebookRef.once('value', snapshot => {
+            let token = snapshot.val();
+            if (token) {
+                // Token exists, resolve the Promise with the existing token
+                resolve(token);
+            } else {
+                // Token does not exist, generate a new one, save it, and then resolve the Promise
+                token = btoa(Math.random()).substring(0, 12); // Simple example of token generation
+                notebookRef.set(token, (error) => {
+                    if (error) {
+                        reject(error);  // Handle possible write error
+                    } else {
+                        resolve(token);  // Resolve with the new token after saving
+                    }
+                });
+            }
+        });
+    });
+} 
+
+
+function getTokenForSpace(spaceName) {
+    const spaceRef = firebase.database().ref(`spaces/${spaceName}/token`);
+    
+    // Return a new Promise since Firebase operations are asynchronous
+    return new Promise((resolve, reject) => {
+        spaceRef.once('value', snapshot => {
+            let token = snapshot.val();
+            if (token) {
+                // Token exists, resolve the Promise with the existing token
+                resolve(token);
+            } else {
+                // Token does not exist, generate a new one, save it, and then resolve the Promise
+                token = btoa(Math.random()).substring(0, 12); // Simple example of token generation
+                spaceRef.set(token, (error) => {
+                    if (error) {
+                        reject(error);  // Handle possible write error
+                    } else {
+                        resolve(token);  // Resolve with the new token after saving
+                    }
+                });
+            }
+        });
+    });
+}
+
+
 async function loadUserNotebooks() {
     const userId = localStorage.getItem('userId');
     const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
@@ -834,11 +917,3 @@ function saveSpaceName() {
     }
 }
 
-
-function shareSpace() {
-    const userId = localStorage.getItem('userId');
-    const spaceName = document.getElementById('spaceName').textContent;
-    const baseUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${baseUrl}?userId=${userId}&spaceName=${encodeURIComponent(spaceName)}`;
-    window.open(shareUrl, '_blank');
-}
