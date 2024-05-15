@@ -104,7 +104,7 @@ async function loadSingleNotebook(notebookId) {
         console.log("Notebook not found");
     }
 }
-const baseUrl = '/';  // Replace this with the actual base URL of your application
+const baseUrl = '';  // Replace this with the actual base URL of your application
 function shareNotebook(notebookId) {
     getTokenForNotebook(notebookId).then(token => {
         const baseUrl = window.location.origin;
