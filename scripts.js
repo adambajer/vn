@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     userIcon.addEventListener('mouseover', function() {
         var deviceInfo = getDeviceInfo();
         var infoText = "";  // Initialize an empty string to hold the information.
-        infoText = 'userId: ' + localStorage.getItem('userId') + infoText + "<br>";
+        infoText = 'UserId: ' + localStorage.getItem('userId') + "<br><br>"; 
         infoText = 'ActiveTabUID: ' + localStorage.getItem('activeTabUID') + infoText + "<br>";
         // Iterate over each property in the deviceInfo object
         for (var key in deviceInfo) {
