@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
     } else if (spaceToken) {
-        console.log(spaceToken);
-        accessContentBySpaceToken("spaceToken" - spaceToken);
+        //console.log(spaceToken);
+        //accessContentBySpaceToken("spaceToken" - spaceToken);
     } else {
         console.log("No specific token found, loading default user notebooks...");
         loadUserNotebooks();
@@ -117,9 +117,7 @@ function loadSingleNotebookByToken(token) {
             // Handle error, such as showing a message to the user
         }
     });
-}
-
-function loadSingleNotebook(notebookId) {
+}function loadSingleNotebook(notebookId) {
     const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
     notebookRef.once('value', snapshot => {
         if (snapshot.exists()) {
@@ -131,6 +129,7 @@ function loadSingleNotebook(notebookId) {
         }
     });
 }
+
 const baseUrl = '';  // Replace this with the actual base URL of your application
 
 function shareNotebook(notebookId) {
@@ -201,36 +200,32 @@ function getTokenForSpace(spaceName) {
         });
     });
 }
-
-
 async function loadUserNotebooks() {
-    const userId = localStorage.getItem('userId');
     const userNotebooksRef = firebase.database().ref(`notebooks`);
     let snapshot = await userNotebooksRef.once('value');
     const notebooks = snapshot.val() || {};
 
     if (Object.keys(notebooks).length === 0) {
         console.log("No notebooks found, creating one...");
-        createNotebook();  // Create a default notebook if none exist
+        createNotebook();
     } else {
-        let activeTabUID = await getActiveTabUID();  // Fetch the active tab UID early on.
+        let activeTabUID = await getActiveTabUID();
         let foundActiveTab = false;
 
         Object.keys(notebooks).forEach((notebookId, index) => {
             let notebookData = notebooks[notebookId];
-            // Set tab as active only if it matches the stored activeTabUID or if it's the first tab and no activeTabUID was found.
             let shouldSetActive = notebookId === activeTabUID || (!foundActiveTab && index === 0 && !activeTabUID);
             createTab(notebookId, shouldSetActive, notebookData.notes ? Object.keys(notebookData.notes).length : 0, notebookData.name);
-            if (shouldSetActive) foundActiveTab = true;  // Mark found so no other tabs are set as active accidentally.
+            if (shouldSetActive) foundActiveTab = true;
         });
 
-        // If after looping, no tab has been set as active and there's an activeTabUID, there's a mismatch or the specific tab doesn't exist anymore.
         if (!foundActiveTab && activeTabUID) {
             console.log("Stored active tab ID not found among current notebooks.");
-            setFirstTabActive();  // Fallback to setting the first tab as active if the supposed active tab is missing.
+            setFirstTabActive();
         }
     }
 }
+
 
 
 function setActiveTab(notebookId) {
@@ -350,30 +345,24 @@ function addNoteFromInput() {
 }
 
 
-
-
-function createNotebook() { 
-    const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
+function createNotebook() {
+    const newNotebookId = generateCustomNotebookId();
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
-    const userId = localStorage.getItem('userId'); 
-    // Set up initial notebook data
+    
     const notebookData = {
-        userId: userId,  // Store the userId as part of the notebook data
         createdAt: Date.now(),
-         token: btoa(Math.random()).substring(0, 12)// Simple token generation
-
+        token: btoa(Math.random()).substring(0, 12)
     };
 
     newNotebookRef.set(notebookData, error => {
         if (!error) {
-            // Generate and save a token for this notebook
-             
-            createTab(newNotebookId, true); // Set this new notebook as active
+            createTab(newNotebookId, true);
         } else {
             console.error('Error creating notebook:', error);
         }
     });
 }
+
  
 function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
     var tab = document.createElement('li');
@@ -552,7 +541,7 @@ function downloadNotebookAsText(notebookId) {
         });
 }
 function loadNotes(notebookId) {
-    var notebookNotesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
+    var notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notebookNotesRef.on('value', function (snapshot) {
         const notes = snapshot.val() || {};
         document.getElementById('notesContainer').innerHTML = '';
@@ -565,16 +554,15 @@ function loadNotes(notebookId) {
             noteText.textContent = notes[noteId].content;
             noteText.className = 'note-text';
             noteText.contentEditable = !notes[noteId].finished;
-            noteText.setAttribute('data-note-id', noteId); // Important for identifying which note to update
+            noteText.setAttribute('data-note-id', noteId);
             if (notes[noteId].finished) {
-                noteElement.classList.add('finished'); // Apply a CSS class for finished notes
+                noteElement.classList.add('finished');
             }
 
-            // Set up blur event to handle updates
             noteText.addEventListener('blur', function () {
                 updateNote(notebookId, noteId, noteText.textContent);
             });
-            // Set the tooltip content
+
             let createdAt = formatDate(new Date(notes[noteId].createdAt));
             let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
             let tooltipContent = `Created: ${createdAt}`;
@@ -583,7 +571,6 @@ function loadNotes(notebookId) {
             }
             noteElement.setAttribute('data-title', tooltipContent);
 
-            // Checkbox for marking the note as finished
             var checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'note-checkbox';
@@ -593,7 +580,6 @@ function loadNotes(notebookId) {
                 noteText.contentEditable = !checkbox.checked;
             };
 
-            // Delete button setup
             var deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'Delete';
             deleteBtn.className = 'delete-note';
@@ -601,16 +587,15 @@ function loadNotes(notebookId) {
                 deleteNote(notebookId, noteId);
             };
 
-            // Append elements to the note container
             noteElement.appendChild(checkbox);
-            noteElement.appendChild(noteText);  // Ensure text is separately appended to maintain content integrity
+            noteElement.appendChild(noteText);
             noteElement.appendChild(deleteBtn);
 
-            // Append the fully constructed note to the container
             document.getElementById('notesContainer').prepend(noteElement);
         });
     });
 }
+
 
 
 
@@ -633,16 +618,17 @@ function addNote(content, notebookId) {
     });
 }
 function updateNote(notebookId, noteId, content) {
-    var noteRef = firebase.database().ref(`notebooks/${notebookId}/${noteId}`);
+    var noteRef = firebase.database().ref(`notebooks/${notebookId}/notes/${noteId}`);
     noteRef.update({
         content: content,
-        updatedAt: Date.now() // Update timestamp
+        updatedAt: Date.now()
     }).then(() => {
         console.log('Note updated successfully');
     }).catch(error => {
         console.error('Failed to update note:', error);
     });
 }
+
 
 function updateNoteCount(notebookId, increment) {
     const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
@@ -742,7 +728,7 @@ function toggleSpeechKITT() {
 }
 function exportAllNotebooks() {
     const userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
-    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
+    const userNotebooksRef = firebase.database().ref(`notebooks`);
 
     userNotebooksRef.once('value', snapshot => {
         const notebooks = snapshot.val();
