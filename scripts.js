@@ -205,7 +205,7 @@ function getTokenForSpace(spaceName) {
 
 async function loadUserNotebooks() {
     const userId = localStorage.getItem('userId');
-    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
+    const userNotebooksRef = firebase.database().ref(`notebooks`);
     let snapshot = await userNotebooksRef.once('value');
     const notebooks = snapshot.val() || {};
 
@@ -258,12 +258,7 @@ function saveActiveTabUID(uid) {
 }
 
 
-
-function saveActiveTabUID(uid) {
-    localStorage.setItem('activeTabUID', uid);
-}
-
-
+ 
 
 async function getActiveTabUID() {
     return localStorage.getItem('activeTabUID');
@@ -352,37 +347,18 @@ function addNoteFromInput() {
         addNote(noteContent, notebookId);
         document.getElementById('noteInput').value = ''; // Clear the input after adding a note
     }
-}/*
-function loadUserNotebooks(callback) {
-    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
-    userNotebooksRef.once('value', snapshot => {
-        const notebooks = snapshot.val();
-        if (notebooks) {
-            Object.keys(notebooks).forEach((notebookId, index) => {
-                const notebookData = notebooks[notebookId];
-                const notebookName = notebookData.name || "";
-                const noteCount = notebookData.notes ? Object.keys(notebookData.notes).length : 0;
-                createTab(notebookId, index === 0, noteCount, notebookName);
-            });
-        } else {
-            console.log("No notebooks found, creating one...");
-            createNotebook();
-        }
-        if (callback) callback();
-    }, error => {
-        console.error("Failed to fetch notebooks:", error);
-    });
 }
-*/
+
+
 
 
 function createNotebook() { 
     const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
-
+    const userId = localStorage.getItem('userId'); 
     // Set up initial notebook data
     const notebookData = {
-        //userId: userId,  // Store the userId as part of the notebook data
+        userId: userId,  // Store the userId as part of the notebook data
         createdAt: Date.now(),
          token: btoa(Math.random()).substring(0, 12)// Simple token generation
 
@@ -488,7 +464,7 @@ function promptRenameNotebook(notebookId, nameLabel) {
 }
 
 function renameNotebook(notebookId, newName, nameLabel) {
-    const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
     notebookRef.update({ name: newName }).then(() => {
         nameLabel.textContent = newName; // Update the notebook name in the UI
         console.log("Notebook renamed successfully");
@@ -520,7 +496,7 @@ function createDropdownItem(text, action) {
 
 
 function deleteNotebook(notebookId) {
-    const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
     notebookRef.remove()
         .then(() => {
             //alert('Notebook successfully deleted.');
@@ -542,11 +518,11 @@ function removeTab(notebookId) {
 
 
 function copyNotebook(notebookId) {
-    const notebookRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
     notebookRef.once('value', snapshot => {
         const data = snapshot.val();
         const newNotebookId = generateCustomNotebookId(); // Assuming you have a function to generate IDs
-        const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
+        const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
         newNotebookRef.set(data)
             .then(() => {
                 //  alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
@@ -641,7 +617,7 @@ function loadNotes(notebookId) {
 
 function addNote(content, notebookId) {
     var now = new Date();
-    var newNoteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`).push();
+    var newNoteRef = firebase.database().ref(`notebooks/${notebookId}`).push();
     newNoteRef.set({
         content: content,
         createdAt: now.getTime(),
@@ -657,7 +633,7 @@ function addNote(content, notebookId) {
     });
 }
 function updateNote(notebookId, noteId, content) {
-    var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
+    var noteRef = firebase.database().ref(`notebooks/${notebookId}/${noteId}`);
     noteRef.update({
         content: content,
         updatedAt: Date.now() // Update timestamp
@@ -674,7 +650,7 @@ function updateNoteCount(notebookId, increment) {
     badge.textContent = count + increment;
 }
 function deleteNote(notebookId, noteId) {
-    var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
+    var noteRef = firebase.database().ref(`notebooks/${notebookId}/${noteId}`);
     noteRef.remove()
         .then(() => {
             console.log('Note deleted successfully');
@@ -690,7 +666,7 @@ function deleteNote(notebookId, noteId) {
 
 
 function toggleNoteFinished(notebookId, noteId, isFinished) {
-    var noteRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes/${noteId}`);
+    var noteRef = firebase.database().ref(`notebooks/${notebookId}/${noteId}`);
     noteRef.update({
         finished: isFinished
     }, error => {
@@ -918,13 +894,7 @@ function loadFontPreference() {
     });
 }
 
-document.getElementById('spaceName').addEventListener('focus', function () {
-    const spaceNameElement = document.getElementById('spaceName');
-    if (spaceNameElement.classList.contains('placeholder')) {
-        spaceNameElement.textContent = '';  // Clear placeholder text
-        spaceNameElement.classList.remove('placeholder');  // Remove placeholder style
-    }
-});
+ 
 
 document.getElementById('spaceName').addEventListener('blur', function () {
     const spaceNameElement = document.getElementById('spaceName');
