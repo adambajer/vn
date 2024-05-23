@@ -376,39 +376,29 @@ function loadUserNotebooks(callback) {
 */
 
 
-function createNotebook() {
-    const userId = sessionStorage.getItem('userId');  // Ensure you have the userId stored in session
+function createNotebook() { 
     const newNotebookId = generateCustomNotebookId(); // Use the custom ID generator
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
 
     // Set up initial notebook data
     const notebookData = {
-        userId: userId,  // Store the userId as part of the notebook data
+        //userId: userId,  // Store the userId as part of the notebook data
         createdAt: Date.now(),
-        token: ''  // Placeholder for the token we'll generate
+         token: btoa(Math.random()).substring(0, 12)// Simple token generation
+
     };
 
     newNotebookRef.set(notebookData, error => {
         if (!error) {
             // Generate and save a token for this notebook
-            generateAndSaveToken(newNotebookId);
+             
             createTab(newNotebookId, true); // Set this new notebook as active
         } else {
             console.error('Error creating notebook:', error);
         }
     });
 }
-function generateAndSaveToken(notebookId) {
-    const token = btoa(Math.random()).substring(0, 12); // Simple token generation
-    const tokenRef = firebase.database().ref(`notebooks/${notebookId}/token`);
-    tokenRef.set(token, error => {
-        if (error) {
-            console.error('Error saving token:', error);
-        } else {
-            console.log('Token saved successfully:', token);
-        }
-    });
-}
+ 
 function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
     var tab = document.createElement('li');
     tab.className = 'nav-item d-inline-flex justify-content-between'; // Add flexbox layout here
