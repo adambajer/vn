@@ -808,7 +808,6 @@ function triggerDownload(content, filename) {
 }
 
  
-// Initializes the font settings in the dropdown and attaches event listeners
 function initializeFontSettings() {
     // Attach change event listeners to font selection and size input
     document.getElementById('fontSelect').addEventListener('change', applyFontChange);
@@ -817,6 +816,7 @@ function initializeFontSettings() {
     // Load the initial preview when font settings are first set up
     updatePreview();
 }
+
 function applyFontChange() {
     var selectedFont = document.getElementById('fontSelect').value;
     var selectedFontSize = document.getElementById('fontSizeInput').value;
@@ -842,13 +842,15 @@ function applyFontChange() {
     });
 }
 
+
 function updatePreview() {
-    var previewFont = document.getElementById('fontSelect').value;
-    var previewSize = document.getElementById('fontSizeInput').value;
-    var preview = document.getElementById('fontPreview');
+    const previewFont = document.getElementById('fontSelect').value;
+    const previewSize = document.getElementById('fontSizeInput').value;
+    const preview = document.getElementById('fontPreview');
     preview.style.fontFamily = `'${previewFont}', sans-serif`;
     preview.style.fontSize = `${previewSize}px`;
 }
+
 
 function applyFontToElements(font, fontSize) {
     const noteTextElements = document.querySelectorAll('.note-text');
@@ -898,7 +900,6 @@ function saveFontPreference(font, fontSize) {
     });
 }
 
-
 function loadFontPreference() {
     const userId = localStorage.getItem('userId');
     if (!userId) {
@@ -917,6 +918,7 @@ function loadFontPreference() {
         console.error('Failed to load font settings:', error);
     });
 }
+
 document.getElementById('spaceName').addEventListener('focus', function() {
     const spaceNameElement = document.getElementById('spaceName');
     if (spaceNameElement.classList.contains('placeholder')) {
