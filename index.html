@@ -53,7 +53,7 @@
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
                                             data-bs-target="#aboutAppModal">About App</a></li>
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                            data-bs-target="#fontSettingsModal">Settings</a></li>
+                                            data-bs-target="#fontSettingsModal">Font</a></li>
 
                                 </ul>
                             </li>
@@ -133,15 +133,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="fontSettingsModalLabel">Font Settings</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-
-                            <select class="form-select" id="fontSelect">
+                      <select class="form-select" id="fontSelect">
                                 <option value="Open Sans">Open Sans</option>
                                 <option value="Roboto">Roboto</option>
                                 <option value="Lato">Lato</option>
@@ -187,7 +179,13 @@
 
 
                             </select>
-                        </div>
+                    
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <h5>Font size;</h5>
                         <div class="mb-3">
                             <input type="range" class="form-range" min="12" max="60" id="fontSizeInput">
                         </div>
