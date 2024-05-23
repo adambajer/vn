@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,11 +7,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -26,48 +23,26 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="style.css" rel="stylesheet">
 </head>
-
 <body class="">
     <div class="main-content" id="main-content">
         <div id="bar" class="shadow">
             <nav class="navbar navbar-expand-lg navbar-expand-md navbar-expand-sn navbar-expand" data-bs-theme="light">
                 <div class="container-fluid">
-
-
-
                     <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item dropdown">
-                                <button class="btn menu-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                                    ☰ <!-- If you need a second menu, otherwise remove this -->
-                                </button>
-
-                                <ul class="dropdown-menu dropdown-menu-light">
-
-
+                                <button class="btn menu-icon" data-bs-toggle="dropdown" aria-expanded="false">☰</button>
+                                <ul class="dropdown-menu dropdown-menu-light"> 
                                     <li><a class="dropdown-item" href="#">Share</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Export All
-                                            </a></li>
-
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                            data-bs-target="#aboutAppModal">About</a></li>
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                            data-bs-target="#fontSettingsModal">Font</a></li>
-
+                                    <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Export All</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutAppModal">About</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#fontSettingsModal">Font</a></li>
                                 </ul>
                             </li>
-                        </ul>
-
-                        <a class="logo ps-2" href="#">
-                            <img src="favicon.svg" width="30px" height="30px" class="pe-2 ">
-                            VOICE NOTER
-                        </a>
+                        </ul> 
+                        <a class="logo ps-2" href="#"><img src="favicon.svg" width="30px" height="30px" class="pe-2 ">VOICE NOTER</a>
                     </div>
                     <div>
-                        <span>
-
-                        
                         <div id="spaceName" contenteditable="true" placeholder="Enter Space Name Here" onblur="saveSpaceName()"></div>
                         <button id="shareSpaceButton" onclick="shareSpace()">S</button>
                     </div>
@@ -76,29 +51,18 @@
                         <div id="userId"></div>
                     </div>
                     <div>
-                        <img id="userIcon" src="user-icon.svg" alt="User Icon" class="user-icon"
-                            style="width: 43px; height: 43px;">
+                        <img id="userIcon" src="user-icon.svg" alt="User Icon" class="user-icon" style="width: 43px; height: 43px;">
                     </div>
-
-
-                    <div id="userTooltip" class="custom-tooltip">
-                    </div>
-
-
-            </nav>
+                    <div id="userTooltip" class="custom-tooltip"></div>
+                </nav>
         </div>
-
         <div id="bartabs" class="cus align-items-center ">
             <!-- Title of the app added here -->
             <div class="scrollable-nav">
-
-                <ul id="notebookTabs" class="nav nav-pills">
-                </ul>
-                
-                        <button id="createNotebookButton" class="btn btn-primary  rounded-0" title="New notebook">New
-                            </button>
+                <ul id="notebookTabs" class="nav nav-pills"</ul>
+                <button id="createNotebookButton" class="btn btn-primary  rounded-0" title="New notebook">New
+                </button>
             </div>
-
         </div>
         <div id="notesContainer2">
             <div class="d-inline-flex w-100 justify-content-end">
@@ -112,82 +76,73 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="aboutAppModalLabel"><img src="favicon.svg" width="30px" height="30px" class="pe-2 ">VOICE NOTER </h5>
+                    <h5 class="modal-title" id="aboutAppModalLabel"><img src="favicon.svg" width="30px" height="30px"
+                            class="pe-2 ">VOICE NOTER </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    
                     <p>
-                        VOICE NOTER is a dynamic note-taking tool that allows users to capture and organize their thoughts
+                        VOICE NOTER is a dynamic note-taking tool that allows users to capture and organize their
+                        thoughts
                         efficiently. Developed to enhance productivity, it features voice recognition, various font
                         customizations, and a user-friendly interface.</p>
-  
-                           1.0</br>
-                        Adam Bajer</br>
-                        <a
-                                href="https://github.com/adambajer/Voice-Noter">https://github.com/adambajer/Voice-Noter</a></br>
-                        
-                        <a href="mailto:adam.bajer@gmail.com">adam.bajer@gmail.com</a></br>
-                    
-                </div> 
+                    1.0</br>
+                    Adam Bajer</br>
+                    <a href="https://github.com/adambajer/Voice-Noter">https://github.com/adambajer/Voice-Noter</a></br>
+                    <a href="mailto:adam.bajer@gmail.com">adam.bajer@gmail.com</a></br>
+                </div>
             </div>
         </div>
     </div>
     <!-- Font Settings Modal -->
-    <div id="fontSettingsModal" class="modal fade" tabindex="-1" aria-labelledby="fontSettingsModalLabel"
-        aria-hidden="true">
+    <div id="fontSettingsModal" class="modal fade" tabindex="-1" aria-labelledby="fontSettingsModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                      <select class="form-select" id="fontSelect">
-                                <option value="Open Sans">Open Sans</option>
-                                <option value="Roboto">Roboto</option>
-                                <option value="Lato">Lato</option>
-                                <option value="Montserrat">Montserrat</option>
-                                <option value="Source Sans Pro">Source Sans Pro</option>
-                                <option value="Oswald">Oswald</option>
-                                <option value="Raleway">Raleway</option>
-                                <option value="Merriweather">Merriweather</option>
-                                <option value="Ubuntu">Ubuntu</option>
-                                <option value="Playfair Display">Playfair Display</option>
-                                <option value="Roboto Slab">Roboto Slab</option>
-                                <option value="Noto Sans">Noto Sans</option>
-                                <option value="Arimo">Arimo</option>
-                                <option value="Nunito">Nunito</option>
-                                <option value="Poppins">Poppins</option>
-                                <option value="PT Serif">PT Serif</option>
-                                <option value="Dancing Script">Dancing Script</option>
-                                <option value="Pacifico">Pacifico</option>
-                                <option value="Orbitron">Orbitron</option>
-                                <option value="Indie Flower">Indie Flower</option>
-                                <option value="Tangerine">Tangerine</option>
-                                <option value="Bitter">Bitter</option>
-                                <option value="Cabin">Cabin</option>
-                                <option value="Yellowtail">Yellowtail</option>
-                                <option value="Josefin Sans">Josefin Sans</option>
-                                <option value="Satisfy">Satisfy</option>
-                                <option value="Amatic SC">Amatic SC</option>
-                                <option value="Bree Serif">Bree Serif</option>
-                                <option value="Abril Fatface">Abril Fatface</option>
-                                <option value="Righteous">Righteous</option>
-                                <option value="Shadows Into Light Two">Shadows Into Light Two</option>
-                                <option value="Lobster">Lobster</option>
-                                <option value="Courgette">Courgette</option>
-                                <option value="Arvo">Arvo</option>
-                                <option value="Volkhov">Volkhov</option>
-                                <option value="Libre Baskerville">Libre Baskerville</option>
-                                <option value="Architects Daughter">Architects Daughter</option>
-                                <option value="Acme">Acme</option>
-                                <option value="Permanent Marker">Permanent Marker</option>
-                                <option value="Varela Round">Varela Round</option>
-                                <option value="Libre Barcode 39">Libre Barcode 39</option>
-                                
-
-
-                            </select>
-                    
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
+                    <select class="form-select" id="fontSelect">
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Source Sans Pro">Source Sans Pro</option>
+                        <option value="Oswald">Oswald</option>
+                        <option value="Raleway">Raleway</option>
+                        <option value="Merriweather">Merriweather</option>
+                        <option value="Ubuntu">Ubuntu</option>
+                        <option value="Playfair Display">Playfair Display</option>
+                        <option value="Roboto Slab">Roboto Slab</option>
+                        <option value="Noto Sans">Noto Sans</option>
+                        <option value="Arimo">Arimo</option>
+                        <option value="Nunito">Nunito</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="PT Serif">PT Serif</option>
+                        <option value="Dancing Script">Dancing Script</option>
+                        <option value="Pacifico">Pacifico</option>
+                        <option value="Orbitron">Orbitron</option>
+                        <option value="Indie Flower">Indie Flower</option>
+                        <option value="Tangerine">Tangerine</option>
+                        <option value="Bitter">Bitter</option>
+                        <option value="Cabin">Cabin</option>
+                        <option value="Yellowtail">Yellowtail</option>
+                        <option value="Josefin Sans">Josefin Sans</option>
+                        <option value="Satisfy">Satisfy</option>
+                        <option value="Amatic SC">Amatic SC</option>
+                        <option value="Bree Serif">Bree Serif</option>
+                        <option value="Abril Fatface">Abril Fatface</option>
+                        <option value="Righteous">Righteous</option>
+                        <option value="Shadows Into Light Two">Shadows Into Light Two</option>
+                        <option value="Lobster">Lobster</option>
+                        <option value="Courgette">Courgette</option>
+                        <option value="Arvo">Arvo</option>
+                        <option value="Volkhov">Volkhov</option>
+                        <option value="Libre Baskerville">Libre Baskerville</option>
+                        <option value="Architects Daughter">Architects Daughter</option>
+                        <option value="Acme">Acme</option>
+                        <option value="Permanent Marker">Permanent Marker</option>
+                        <option value="Varela Round">Varela Round</option>
+                        <option value="Libre Barcode 39">Libre Barcode 39</option>
+                    </select> 
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> 
                 </div>
                 <div class="modal-body">
                     <form>
@@ -198,14 +153,9 @@
                     <p id="fontPreview" style="padding: 10px; border: 1px solid #ccc;">The quick brown fox jumps over
                         the lazy dog.</p>
                 </div>
-              
             </div>
         </div>
-    </div>
-
-
-    <script src="scripts.js"></script>
-
-</body>
-
+    </div> 
+    <script src="scripts.js"></script> 
+</body> 
 </html>
