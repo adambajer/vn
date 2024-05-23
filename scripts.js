@@ -1,28 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
-    let userId = localStorage.getItem('userId') || generateUserId();
-    localStorage.setItem('userId', userId);
-    
-    var userIcon = document.getElementById('userIcon');
-    var tooltip = document.getElementById('userTooltip');
-    userIcon.addEventListener('mouseover', function() {
-        var deviceInfo = getDeviceInfo();
-        var infoText = "";  // Initialize an empty string to hold the information.
-        infoText = 'UserId: ' + localStorage.getItem('userId') + "<br>"; 
-        infoText = infoText+ 'ActiveTabUID: ' + localStorage.getItem('activeTabUID') + "<br>";
-        // Iterate over each property in the deviceInfo object
-        for (var key in deviceInfo) {
-            if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
-                infoText += key + ": " + deviceInfo[key] + "<br>";  // Append each key-value pair to the string using <br> for new lines
-            }
-        }
 
-        tooltip.innerHTML = infoText;  // Set the inner HTML of the tooltip to the compiled string
-        tooltip.style.display = 'block';  // Make sure to show the tooltip when hovering
-    });
-
-    userIcon.addEventListener('mouseout', function() {
-        tooltip.style.display = 'none';  // Hide the tooltip
-    });
+    setUpUserTooltip();
 
     initializeFontSettings();
     loadFontPreference();
@@ -32,13 +10,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     const spaceToken = urlParams.get('spaceToken');
 
     if (notebookToken) {
-        console.log("notebookToken"-notebookToken);
+        console.log("notebookToken" - notebookToken);
         accessContentByNotebookToken(notebookToken);
-        
-        
+
+
     } else if (spaceToken) {
         console.log(spaceToken);
-        accessContentBySpaceToken("spaceToken"-spaceToken);
+        accessContentBySpaceToken("spaceToken" - spaceToken);
     } else {
         console.log("No specific token found, loading default user notebooks...");
         loadUserNotebooks();
@@ -46,7 +24,38 @@ document.addEventListener('DOMContentLoaded', async function () {
     setUpNoteInput();
     toggleSpeechKITT();
 });
+function setUpUserTooltip() {
 
+    const userId = document.getElementById('userId');
+    userId.innerHTML = `${localStorage.getItem('userId')}`
+    const userIcon = document.getElementById('userIcon');
+    const tooltip = document.getElementById('userTooltip');
+
+    if (!userIcon || !tooltip) {
+        console.error("Tooltip or User Icon not found in the document.");
+        return;  // Ensures elements are present before adding event listeners
+    }
+
+    userIcon.addEventListener('mouseover', function () {
+        var deviceInfo = getDeviceInfo();
+        var infoText = "";  // Initialize an empty string to hold the information.
+        infoText = '<div class="ones">UserId</div>' + '<div class="twos">' + localStorage.getItem('userId') + '</div>';
+        infoText = infoText + '<div class="ones">ActiveTabUID</div>' + '<div class="twos">' + localStorage.getItem('activeTabUID') + '</div>';
+        // Iterate over each property in the deviceInfo object
+        for (var key in deviceInfo) {
+            if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
+                infoText += '<div class="ones">' + key + '</div><div class="twos">' + deviceInfo[key] + '</div>';
+            }
+        }
+
+        tooltip.innerHTML = infoText;  // Set the inner HTML of the tooltip to the compiled string
+        tooltip.style.display = 'block';  // Make sure to show the tooltip when hovering
+    });
+
+    userIcon.addEventListener('mouseout', function () {
+        tooltip.style.display = 'none';  // Hide the tooltip
+    });
+}
 function accessContentByNotebookToken(token) {
     const mappingRef = firebase.database().ref(`tokens/notebooks/${token}`);
     mappingRef.once('value', snapshot => {
@@ -88,7 +97,7 @@ function setUpNoteInput() {
     noteInput.addEventListener('blur', addNoteFromInput);
     document.getElementById('createNotebookButton').addEventListener('click', createNotebook);
 }
- 
+
 function setFirstTabActive() {
     let firstTabLink = document.querySelector('.nav-link');
     if (firstTabLink) {
@@ -170,7 +179,7 @@ function getTokenForNotebook(notebookId) {
 
 function getTokenForSpace(spaceName) {
     const spaceRef = firebase.database().ref(`spaces/${spaceName}/token`);
-    
+
     // Return a new Promise since Firebase operations are asynchronous
     return new Promise((resolve, reject) => {
         spaceRef.once('value', snapshot => {
@@ -247,7 +256,7 @@ document.addEventListener('input', function (event) {
 function saveActiveTabUID(uid) {
     localStorage.setItem('activeTabUID', uid);
 }
- 
+
 
 
 function saveActiveTabUID(uid) {
@@ -400,7 +409,7 @@ function generateAndSaveToken(notebookId) {
         }
     });
 }
- function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
+function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
     var tab = document.createElement('li');
     tab.className = 'nav-item d-inline-flex justify-content-between'; // Add flexbox layout here
 
@@ -550,7 +559,7 @@ function copyNotebook(notebookId) {
         const newNotebookRef = firebase.database().ref(`users/${userId}/notebooks/${newNotebookId}`);
         newNotebookRef.set(data)
             .then(() => {
-              //  alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
+                //  alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
                 createTab(newNotebookId, true); // Adding new notebook tab to UI
             })
             .catch(error => {
@@ -775,7 +784,7 @@ function exportAllNotebooks() {
             console.log("No notebooks to export.");
             return;
         }
-        
+
         Object.keys(notebooks).forEach(notebookId => {
             const notebookData = notebooks[notebookId];
             exportNotebookAsTxt(notebookId, notebookData);
@@ -807,7 +816,7 @@ function triggerDownload(content, filename) {
     document.body.removeChild(element);
 }
 
- 
+
 function initializeFontSettings() {
     // Attach change event listeners to font selection and size input
     document.getElementById('fontSelect').addEventListener('change', applyFontChange);
@@ -826,9 +835,9 @@ function applyFontChange() {
         google: {
             families: [selectedFont]
         },
-        active: function() {
+        active: function () {
             var noteTextElements = document.querySelectorAll('.note-text');
-            noteTextElements.forEach(function(element) {
+            noteTextElements.forEach(function (element) {
                 element.style.fontFamily = `'${selectedFont}', sans-serif`;
                 element.style.fontSize = `${selectedFontSize}px`;
             });
@@ -906,7 +915,7 @@ function loadFontPreference() {
         console.log('No user ID found, skipping load font preference.');
         return;
     }
-    
+
     firebase.database().ref(`users/${userId}/settings`).once('value').then(snapshot => {
         const settings = snapshot.val();
         if (settings && settings.fontPreference && settings.fontSizePreference) {
@@ -919,7 +928,7 @@ function loadFontPreference() {
     });
 }
 
-document.getElementById('spaceName').addEventListener('focus', function() {
+document.getElementById('spaceName').addEventListener('focus', function () {
     const spaceNameElement = document.getElementById('spaceName');
     if (spaceNameElement.classList.contains('placeholder')) {
         spaceNameElement.textContent = '';  // Clear placeholder text
@@ -927,7 +936,7 @@ document.getElementById('spaceName').addEventListener('focus', function() {
     }
 });
 
-document.getElementById('spaceName').addEventListener('blur', function() {
+document.getElementById('spaceName').addEventListener('blur', function () {
     const spaceNameElement = document.getElementById('spaceName');
     if (!spaceNameElement.textContent.trim()) {
         spaceNameElement.textContent = localStorage.getItem('userId');  // Reset to userId if empty
