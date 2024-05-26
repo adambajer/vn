@@ -67,9 +67,9 @@ async function getNotebookIdByToken(token) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        headerElement.textContent = `Notebook token \\n ${token}`;
+        headerElement.textContent = `Notebook token /\n ${token}`;
     } else {
-        headerElement.textContent = 'Notebook token \\n not found.';
+        headerElement.textContent = 'Notebook token /\n not found.';
     }
 }
 
