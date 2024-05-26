@@ -34,7 +34,8 @@ firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoad
         document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
         
     }
-});async function loadSingleNotebookByToken(token) {
+});
+async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
@@ -62,15 +63,7 @@ async function getNotebookIdByToken(token) {
         return null;
     }
 }
-async function loadSingleNotebookByToken(token) {
-    const notebookId = await getNotebookIdByToken(token);
-    if (notebookId) {
-        console.log("Notebook ID found:", notebookId);
-        loadNotes(notebookId);
-    } else {
-        console.error("Invalid notebookToken. No notebook found.");
-    }
-}
+
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
