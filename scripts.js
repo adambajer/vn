@@ -176,7 +176,23 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 
     return { badge: badge, nameLabel: nameLabel };
 }
+function createDropdownItem(text, action) {
+    var item = document.createElement('a');
+    item.className = 'dropdown-item';
+    item.href = '#';
+    item.textContent = text;
 
+    // Assign additional class based on the action text
+    if (text.toLowerCase() === 'delete') {
+        item.classList.add('dropdown-item-delete');
+    }
+
+    item.onclick = function (event) {
+        event.preventDefault(); // Prevent the link from triggering a page reload
+        action();
+    };
+    return item;
+}
 function shareNotebook(notebookId) {
     const baseUrl = window.location.origin;
     const shareableLink = `${baseUrl}?notebook=${notebookId}`;
