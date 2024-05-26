@@ -723,6 +723,14 @@ function exportAllNotebooks() {
     });
 }
 
+function applyFontToElements(font, fontSize) {
+    const noteTextElements = document.querySelectorAll('.note-text');
+    noteTextElements.forEach(element => {
+        element.style.fontFamily = `'${font}', sans-serif`;
+        element.style.fontSize = `${fontSize}px`;
+    });
+    updatePreview();
+}
 function exportNotebookAsTxt(notebookId, notebookData) {
     const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notesRef.once('value', notesSnapshot => {
