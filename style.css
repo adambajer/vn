@@ -367,3 +367,13 @@ border: 1px solid #ccc;
 .modal-content {
   background:rgba(255,255,255,0.5);      backdrop-filter: blur(4px);
 }
+.status {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: red;
+    background: #ffffff;
+    padding: 13px;
+    border: 1px solid;
+    box-shadow: #ff00006b 0 0 12px 0px;
+}
