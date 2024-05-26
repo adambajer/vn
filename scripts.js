@@ -13,13 +13,18 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (notebookToken) {
         console.log("notebookToken: " + notebookToken);
-        await accessNotebookByToken(notebookToken);
+         loadSingleNotebook(notebookToken);
     } else {
         console.log("No specific token found, loading default notebooks...");
         await loadUserNotebooks();
     }
     setUpNoteInput();
-    toggleSpeechKITT();
+    try {
+        toggleSpeechKITT();
+    } catch (error) {
+        console.error("Speech recognition initialization failed:", error);
+    window.alert("Anynang is not supported in your browser");
+    }
 });
 
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
