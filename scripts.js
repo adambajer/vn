@@ -461,6 +461,8 @@ function loadNotes(notebookId) {
                 tooltipContent += `\nEdited: ${updatedAt}`;
             }
             noteElement.setAttribute('data-title', tooltipContent);
+            var checkboxContainer = document.createElement('label');
+            checkboxContainer.className = 'checkbox-container';
 
             var checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -471,6 +473,13 @@ function loadNotes(notebookId) {
                 noteText.contentEditable = !checkbox.checked;
             };
 
+            var checkmark = document.createElement('span');
+            checkmark.className = 'checkmark';
+
+            checkboxContainer.appendChild(checkbox);
+            checkboxContainer.appendChild(checkmark);
+
+            
             var deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'Delete';
             deleteBtn.className = 'delete-note';
