@@ -78,7 +78,7 @@ async function getNotebookIdByToken(token) {
     return null;
 }
 
-function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
+async function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
     var tab = document.createElement('li');
     tab.className = 'nav-item d-inline-flex justify-content-between';
 
