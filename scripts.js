@@ -199,11 +199,11 @@ function removeTab(notebookId) {
 
 function shareNotebook(notebookId) {
     const baseUrl = window.location.origin;
-    const shareableLink = `${baseUrl}?notebook=${notebookId}`;
+    const shareableLink = `${baseUrl}/Voice-Noter/?notebook=${notebookId}`;
     prompt("Copy this link to share the notebook:", shareableLink);
 }
 function downloadNotebookAsText(notebookId) {
-    const notesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
+    const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notesRef.once('value', snapshot => {
         const notes = snapshot.val();
         const allNotesText = Object.keys(notes).map(key => notes[key].content).join('\n');
