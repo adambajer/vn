@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         await accessOrCreateContentBySpaceToken();
     }
     setUpNoteInput();
-    toggleSpeechKITT();
+    initializeSpeechRecognition();
 });
 
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
@@ -489,9 +489,14 @@ function formatDate(date) {
     let seconds = date.getSeconds().toString().padStart(2, '0'); // Include seconds
 
     return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-}function initializeSpeechRecognition() {
-    if (!checkLibraries()) return;
+}
+function initializeSpeechRecognition() {
+    if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
+        console.error("Annyang or SpeechKITT is not loaded!");
+        return;
+    }
 
+    // Initialize SpeechKITT settings once
     SpeechKITT.annyang();
     annyang.setLanguage('cs'); // Set the desired language
 
@@ -519,6 +524,23 @@ function formatDate(date) {
     });
 
     document.getElementById('voiceButton').addEventListener('click', toggleSpeechKITT);
+}
+function createDropdownItem(text, action) {
+    var item = document.createElement('a');
+    item.className = 'dropdown-item';
+    item.href = '#';
+    item.textContent = text;
+
+    // Assign additional class based on the action text
+    if (text.toLowerCase() === 'delete') {
+        item.classList.add('dropdown-item-delete');
+    }
+
+    item.onclick = function (event) {
+        event.preventDefault(); // Prevent the link from triggering a page reload
+        action();
+    };
+    return item;
 }
 
 function toggleSpeechKITT() {
