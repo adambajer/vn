@@ -270,6 +270,62 @@ function saveActiveTabUID(uid) {
 }
 
 
+function loadNotes(notebookId) {
+    const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
+    notebookNotesRef.on('value', function (snapshot) {
+        const notes = snapshot.val() || {};
+        document.getElementById('notesContainer').innerHTML = '';
+        Object.keys(notes).forEach(noteId => {
+            var noteElement = document.createElement('div');
+            noteElement.className = 'note';
+            noteElement.setAttribute('data-note-id', noteId);
+
+            var noteText = document.createElement('span');
+            noteText.textContent = notes[noteId].content;
+            noteText.className = 'note-text';
+            noteText.contentEditable = !notes[noteId].finished;
+            noteText.setAttribute('data-note-id', noteId);
+            if (notes[noteId].finished) {
+                noteElement.classList.add('finished');
+            }
+
+            noteText.addEventListener('blur', function () {
+                updateNote(notebookId, noteId, noteText.textContent);
+            });
+
+            let createdAt = formatDate(new Date(notes[noteId].createdAt));
+            let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
+            let tooltipContent = `Created: ${createdAt}`;
+            if (createdAt !== updatedAt) {
+                tooltipContent += `\nEdited: ${updatedAt}`;
+            }
+            noteElement.setAttribute('data-title', tooltipContent);
+
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'note-checkbox';
+            checkbox.checked = notes[noteId].finished;
+            checkbox.onchange = function () {
+                toggleNoteFinished(notebookId, noteId, checkbox.checked);
+                noteText.contentEditable = !checkbox.checked;
+            };
+
+            var deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'delete-note';
+            deleteBtn.onclick = function () {
+                deleteNote(notebookId, noteId);
+            };
+
+            noteElement.appendChild(checkbox);
+            noteElement.appendChild(noteText);
+            noteElement.appendChild(deleteBtn);
+
+            document.getElementById('notesContainer').prepend(noteElement);
+        });
+    });
+}
+
 
 
 async function getActiveTabUID() {
