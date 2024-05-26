@@ -489,14 +489,9 @@ function formatDate(date) {
     let seconds = date.getSeconds().toString().padStart(2, '0'); // Include seconds
 
     return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-}
-function initializeSpeechRecognition() {
-    if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
-        console.error("Annyang or SpeechKITT is not loaded!");
-        return;
-    }
+}function initializeSpeechRecognition() {
+    if (!checkLibraries()) return;
 
-    // Initialize SpeechKITT settings once
     SpeechKITT.annyang();
     annyang.setLanguage('cs'); // Set the desired language
 
