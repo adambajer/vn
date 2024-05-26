@@ -51,20 +51,7 @@ async function getNotebookIdByToken(token) {
         return null;
     }
 }
-async function accessOrCreateContentBySpaceToken(spaceToken = null) {
-    if (spaceToken) {
-        console.log("Accessing content with spaceToken:", spaceToken);
-        const notebookId = await getNotebookToken(spaceToken);
-        if (notebookId) {
-            loadSingleNotebook(notebookId);
-        } else {
-            console.error("Invalid spaceToken. No notebook found.");
-        }
-    } else {
-        console.log("No spaceToken provided. Loading user notebooks...");
-        await loadUserNotebooks();
-    }
-}
+
 async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookToken(token);
     if (notebookId) {
@@ -734,30 +721,6 @@ function observeNoteContainerChanges() {
     });
 }
 
-document.getElementById('spaceName').addEventListener('blur', function () {
-    const spaceNameElement = document.getElementById('spaceName');
-    if (!spaceNameElement.textContent.trim()) {
-        spaceNameElement.textContent = localStorage.getItem('userId');  // Reset to userId if empty
-        spaceNameElement.classList.add('placeholder');  // Reapply placeholder style
-    }
-    saveSpaceName();  // Save the space name when focus is lost
-});
-
-function saveSpaceName() {
-    const spaceNameElement = document.getElementById('spaceName');
-    if (!spaceNameElement.classList.contains('placeholder')) {
-        const spaceName = spaceNameElement.textContent;
-        const userId = localStorage.getItem('userId');
-        const spaceRef = firebase.database().ref(`users/${userId}/spaceName`);
-        spaceRef.set(spaceName, error => {
-            if (error) {
-                console.error('Error saving space name:', error);
-            } else {
-                console.log('Space name saved successfully');
-            }
-        });
-    }
-}
 
 function exportAllNotebooks() {
     const userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
