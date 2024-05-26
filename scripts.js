@@ -1,3 +1,8 @@
+const firebaseConfig = {
+    databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
+};
+
+firebase.initializeApp(firebaseConfig);
 document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
@@ -16,11 +21,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     setUpNoteInput();
     toggleSpeechKITT();
 });
-const firebaseConfig = {
-    databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
-};
 
-firebase.initializeApp(firebaseConfig);
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
     if (spaceToken) {
         console.log("Accessing content with spaceToken:", spaceToken);
@@ -81,7 +82,9 @@ async function loadUserNotebooks() {
         }
     }
 }
-
+async function getActiveTabUID() {
+    return localStorage.getItem('activeTabUID');
+}
 function createNotebook(userId) {
     const newNotebookId = generateCustomNotebookId();
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
