@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         await accessOrCreateContentBySpaceToken();
     }
     setUpNoteInput();
-    toggleSpeechKITT();
+    initializeSpeechRecognition();
 });
 
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
@@ -148,7 +148,7 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
     dropdownMenu.className = 'dropdown-menu';
     dropdownMenu.appendChild(createDropdownItem('Rename', () => promptRenameNotebook(notebookId, nameLabel)));
     dropdownMenu.appendChild(createDropdownItem('Share Notebook', () => shareNotebook(notebookId))); // Added share functionality
-    dropdownMenu.appendChild(createDropdownItem('Share Note', () => shareNotePrompt(notebookId))); // Added share note functionality
+    
     dropdownMenu.appendChild(createDropdownItem('Duplicate', () => copyNotebook(notebookId)));
     dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
     dropdownMenu.appendChild(createDropdownItem('Delete', () => deleteNotebook(notebookId)));
@@ -178,16 +178,9 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 }
 
 function shareNotebook(notebookId) {
-    const notebooksRef = firebase.database().ref(`notebooks/${notebookId}`);
-    notebooksRef.once('value', snapshot => {
-        const notebook = snapshot.val();
-        if (notebook && notebook.token) {
-            const shareableLink = `${window.location.origin}?spaceToken=${notebook.token}`;
-            prompt("Copy this link to share the notebook:", shareableLink);
-        } else {
-            console.error('No token found for this notebook');
-        }
-    });
+    const baseUrl = window.location.origin;
+    const shareableLink = `${baseUrl}?notebook=${notebookId}`;
+    prompt("Copy this link to share the notebook:", shareableLink);
 }
 
 function shareNotePrompt(notebookId) {
@@ -428,8 +421,7 @@ function formatDate(date) {
 
     return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
 }
-
-function toggleSpeechKITT() {
+function initializeSpeechRecognition() {
     if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
         console.error("Annyang or SpeechKITT is not loaded!");
         return;
@@ -443,24 +435,15 @@ function toggleSpeechKITT() {
     SpeechKITT.setInstructionsText('Diktuj poznámku...');
     SpeechKITT.displayRecognizedSentence(true);
 
-    // Toggle SpeechKITT and annyang
-    if (!SpeechKITT.isListening()) {
-        SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
-        SpeechKITT.setAbortCommand(() => annyang.abort());
-        SpeechKITT.vroom();
-    } else {
-        if (annyang.isListening()) {
-            SpeechKITT.abortRecognition();
-            document.getElementById('voiceButton').textContent = "Start Voice Recognition";
-        } else {
-            SpeechKITT.startRecognition();
-            document.getElementById('voiceButton').textContent = "Stop Voice Recognition";
-        }
-    }
+    // Set up SpeechKITT commands
+    SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
+    SpeechKITT.setAbortCommand(() => annyang.abort());
+
+    // Display SpeechKITT interface
+    SpeechKITT.vroom();
 
     // Handle voice recognition result
     annyang.addCallback('result', function (phrases) {
-        // Assume the first phrase is the most accurate
         let text = phrases[0];
         const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
         if (notebookId && text.trim() !== "") {
@@ -470,7 +453,20 @@ function toggleSpeechKITT() {
             document.getElementById('voiceButton').textContent = "Start Voice Recognition";
         }
     });
+
+    document.getElementById('voiceButton').addEventListener('click', toggleSpeechKITT);
 }
+
+function toggleSpeechKITT() {
+    if (!SpeechKITT.isListening()) {
+        SpeechKITT.startRecognition();
+        document.getElementById('voiceButton').textContent = "Stop Voice Recognition";
+    } else {
+        SpeechKITT.abortRecognition();
+        document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+    }
+}
+
 
 function initializeFontSettings() {
     // Attach change event listeners to font selection and size input
