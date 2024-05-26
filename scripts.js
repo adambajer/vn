@@ -16,7 +16,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     setUpNoteInput();
     toggleSpeechKITT();
 });
+const firebaseConfig = {
+    databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
+};
 
+firebase.initializeApp(firebaseConfig);
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
     if (spaceToken) {
         console.log("Accessing content with spaceToken:", spaceToken);
