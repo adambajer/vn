@@ -40,13 +40,13 @@ async function loadSingleNotebookByToken(token) {
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
         loadNotes(notebookId);
-        const notebookData = await loadSingleNotebook(notebookId);
+        
         updateHeaderWithNotebookInfo(token); // Update the header
-        createTab(notebookId, true, 0, notebookData.name); // Create and activate the tab for the loaded notebook
+        
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
-}
+} 
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref('notebooks');
     try {
