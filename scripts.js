@@ -1,7 +1,8 @@
 const firebaseConfig = {
     databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
-firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoaded', async function () {
+firebase.initializeApp(firebaseConfig);
+document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
@@ -39,6 +40,7 @@ async function loadSingleNotebookByToken(token) {
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
         loadNotes(notebookId);
+        createTab(notebookId, true, 0, "Loaded Notebook"); // Create and activate the tab for the loaded notebook
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
@@ -49,7 +51,7 @@ async function getNotebookIdByToken(token) {
         const snapshot = await notebooksRef.once('value');
         const notebooks = snapshot.val() || {};
         for (let notebookId in notebooks) {
-            if (notebooks[notebookId].token === token) {
+            if (notebooks[notebookId] && notebooks[notebookId].token === token) {
                 return notebookId;
             }
         }
@@ -60,8 +62,9 @@ async function getNotebookIdByToken(token) {
     }
 }
 async function loadSingleNotebookByToken(token) {
-    const notebookId = await getNotebookToken(token);
+    const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
+        console.log("Notebook ID found:", notebookId);
         loadNotes(notebookId);
     } else {
         console.error("Invalid notebookToken. No notebook found.");
@@ -130,42 +133,44 @@ function assignNotebookToUser(userId, notebookId) {
         }
     });
 }
-
 function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
-    var tab = document.createElement('li');
+    const tab = document.createElement('li');
     tab.className = 'nav-item d-inline-flex justify-content-between';
 
-    var link = document.createElement('a');
+    const link = document.createElement('a');
     link.className = 'nav-link';
     link.href = '#';
     link.dataset.notebookId = notebookId;
-    link.setAttribute('title', notebookId);
+    link.setAttribute('title', `ID: ${notebookId}`);
 
-    var img = document.createElement('img');
+    const img = document.createElement('img');
     img.src = "note.svg";
     img.alt = "Note Icon";
     img.className = 'ms-2';
     img.style.width = "24px";
     img.style.height = "24px";
 
-    var nameLabel = document.createElement('span');
+    const nameLabel = document.createElement('span');
     nameLabel.className = 'notebook-name m-2';
     nameLabel.textContent = notebookName;
 
-    var badge = document.createElement('span');
+    const badge = document.createElement('span');
     badge.className = 'badge bg-primary m-2';
     badge.textContent = noteCount;
 
-    var dropdownBtn = document.createElement('button');
+    const dropdownBtn = document.createElement('button');
     dropdownBtn.className = 'btn';
     dropdownBtn.setAttribute('data-bs-toggle', 'dropdown');
     dropdownBtn.ariaExpanded = false;
     dropdownBtn.innerHTML = '⋮';
 
-    var dropdownMenu = document.createElement('div');
+    const dropdownMenu = document.createElement('div');
     dropdownMenu.className = 'dropdown-menu';
     dropdownMenu.appendChild(createDropdownItem('Rename', () => promptRenameNotebook(notebookId, nameLabel)));
-    dropdownMenu.appendChild(createDropdownItem('Share Notebook', () => shareNotebook(notebookId))); // Added share functionality
+
+    // Initially, don't pass the token here
+    const shareNotebookItem = createDropdownItem('Share Notebook', () => shareNotebook(notebookId, null));
+    dropdownMenu.appendChild(shareNotebookItem); // Added share functionality
 
     dropdownMenu.appendChild(createDropdownItem('Duplicate', () => copyNotebook(notebookId)));
     dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
@@ -186,6 +191,17 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
         saveActiveTabUID(notebookId);
     };
 
+    // Fetch and display the token in the title attribute and update the shareNotebook function
+    getNotebookToken(notebookId).then(token => {
+        link.setAttribute('title', `ID: ${notebookId}\nToken: ${token}`);
+        shareNotebookItem.onclick = function (event) {
+            event.preventDefault();
+            shareNotebook(notebookId, token);
+        };
+    }).catch(error => {
+        console.error('Error retrieving token:', error);
+    });
+
     document.getElementById('notebookTabs').appendChild(tab);
 
     if (setActive) {
@@ -194,6 +210,27 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 
     return { badge: badge, nameLabel: nameLabel };
 }
+
+function shareNotebook(notebookId, token) {
+    if (token) {
+        const baseUrl = window.location.origin;
+        const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
+        prompt("Copy this link to share the notebook:", shareableLink);
+    } else {
+        getNotebookToken(notebookId).then(token => {
+            if (token) {
+                const baseUrl = window.location.origin;
+                const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
+                prompt("Copy this link to share the notebook:", shareableLink);
+            } else {
+                console.error('No token found for this notebook');
+            }
+        }).catch(error => {
+            console.error('Error generating shareable link:', error);
+        });
+    }
+}
+
 
 function deleteNotebook(notebookId) {
     const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
@@ -215,19 +252,6 @@ function removeTab(notebookId) {
     }
 }
 
-function shareNotebook(notebookId) {
-    const baseUrl = window.location.origin;
-    getNotebookToken(notebookId).then(token => {
-        if (token) {
-            const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
-            prompt("Copy this link to share the notebook:", shareableLink);
-        } else {
-            console.error("Token not found for sharing the notebook.");
-        }
-    }).catch(error => {
-        console.error('Error generating shareable link:', error);
-    });
-}
 
 
 async function getNotebookToken(notebookId) {
@@ -398,12 +422,12 @@ function addNote(content, notebookId) {
         }
     });
 }
+
 function loadNotes(notebookId) {
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notebookNotesRef.on('value', function (snapshot) {
         const notes = snapshot.val() || {};
-        const notesContainer = document.getElementById('notesContainer');
-        notesContainer.innerHTML = '';
+        document.getElementById('notesContainer').innerHTML = '';
         Object.keys(notes).forEach(noteId => {
             var noteElement = document.createElement('div');
             noteElement.className = 'note';
@@ -450,7 +474,7 @@ function loadNotes(notebookId) {
             noteElement.appendChild(noteText);
             noteElement.appendChild(deleteBtn);
 
-            notesContainer.prepend(noteElement);
+            document.getElementById('notesContainer').prepend(noteElement);
         });
     });
 }
