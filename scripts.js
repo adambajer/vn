@@ -13,7 +13,7 @@ firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoad
     const createNotebookButton = document.getElementById('createNotebookButton');
 
     if (notebookToken) {
-        console.log("notebookToken " + notebookToken);
+        console.log("notebookToken: " + notebookToken);
         await loadSingleNotebookByToken(notebookToken);
         if (createNotebookButton) {
             createNotebookButton.style.display = 'none'; // Hide the button
@@ -31,22 +31,22 @@ firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoad
         toggleSpeechKITT();
     } catch (error) {
         console.error("Speech recognition initialization failed:", error);
-        document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
-        document.querySelector(".status").classList.toggle("active");
+        window.alert("Anynang is not supported in your browser");
     }
 });
+
 async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
+        activeNotebookId = notebookId; // Set the active notebook ID globally
         loadNotes(notebookId);
-        
         updateHeaderWithNotebookInfo(token); // Update the header
-        
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
-} 
+}
+
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref('notebooks');
     try {
@@ -398,7 +398,7 @@ function loadSingleNotebook(notebookId) {
 
 function addNoteFromInput() {
     const noteContent = document.getElementById('noteInput').value;
-    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+    const notebookId = activeNotebookId; // Use the global variable
     if (noteContent && notebookId) {
         addNote(noteContent, notebookId);
         document.getElementById('noteInput').value = ''; // Clear the input after adding a note
@@ -424,8 +424,8 @@ function addNote(content, notebookId) {
         }
     });
 }
-
 function loadNotes(notebookId) {
+    activeNotebookId = notebookId; // Set the active notebook ID globally
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notebookNotesRef.on('value', function (snapshot) {
         const notes = snapshot.val() || {};
@@ -480,6 +480,7 @@ function loadNotes(notebookId) {
         });
     });
 }
+
 
 function updateNoteCount(notebookId, increment) {
     const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
