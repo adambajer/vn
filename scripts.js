@@ -40,7 +40,7 @@ firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoad
         console.log("Notebook ID found:", notebookId);
         loadNotes(notebookId);
         const notebookData = await loadSingleNotebook(notebookId);
-        updateHeaderWithNotebookInfo(notebookData); // Update the header
+        updateHeaderWithNotebookInfo(token); // Update the header
         createTab(notebookId, true, 0, notebookData.name); // Create and activate the tab for the loaded notebook
     } else {
         console.error("Invalid notebookToken. No notebook found.");
@@ -71,12 +71,12 @@ async function loadSingleNotebookByToken(token) {
         console.error("Invalid notebookToken. No notebook found.");
     }
 }
-function updateHeaderWithNotebookInfo(notebookData) {
+function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
-    if (notebookData) {
-        headerElement.textContent = `Notebook: ${notebookData.name || 'Unnamed Notebook'} - Created At: ${formatDate(new Date(notebookData.createdAt))}`;
+    if (token) {
+        headerElement.textContent = `Notebook token: ${token}`;
     } else {
-        headerElement.textContent = 'Notebook not found.';
+        headerElement.textContent = 'Notebook token not found.';
     }
 }
 
