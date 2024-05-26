@@ -13,7 +13,7 @@ firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoad
     const createNotebookButton = document.getElementById('createNotebookButton');
 
     if (notebookToken) {
-        console.log("notebookToken: " + notebookToken);
+        console.log("notebookToken " + notebookToken);
         await loadSingleNotebookByToken(notebookToken);
         if (createNotebookButton) {
             createNotebookButton.style.display = 'none'; // Hide the button
@@ -67,9 +67,9 @@ async function getNotebookIdByToken(token) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        headerElement.textContent = `Notebook token: ${token}`;
+        headerElement.textContent = `Notebook token <br> ${token}`;
     } else {
-        headerElement.textContent = 'Notebook token not found.';
+        headerElement.textContent = 'Notebook token <br> not found.';
     }
 }
 
