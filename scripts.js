@@ -36,16 +36,7 @@ async function accessOrCreateContentBySpaceToken(spaceToken = null) {
         await loadUserNotebooks();
     }
 }
-const urlParams = new URLSearchParams(window.location.search);
-const notebookToken = urlParams.get('notebookToken');
-
-if (notebookToken) {
-    console.log("notebookToken: " + notebookToken);
-    await accessNotebookByToken(notebookToken);
-} else {
-    console.log("No specific token found, loading default notebooks...");
-    await loadUserNotebooks();
-}async function getNotebookIdByToken(token) {
+async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref(`notebooks`);
     let snapshot = await notebooksRef.once('value');
     const notebooks = snapshot.val() || {};
