@@ -217,13 +217,13 @@ function shareNotebook(notebookId, token) {
     if (token) {
         const baseUrl = window.location.origin;
         const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
-        prompt("Copy this link to share the notebook:", shareableLink);
+        redirectToSharePage(shareableLink);
     } else {
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
                 const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
-                prompt("Copy this link to share the notebook:", shareableLink);
+                redirectToSharePage(shareableLink);
             } else {
                 console.error('No token found for this notebook');
             }
@@ -232,6 +232,12 @@ function shareNotebook(notebookId, token) {
         });
     }
 }
+
+function redirectToSharePage(shareableLink) {
+    const sharePageUrl = `${window.location.origin}/share.html?link=${encodeURIComponent(shareableLink)}`;
+    window.location.href = sharePageUrl;
+}
+
 
 
 function deleteNotebook(notebookId) {
