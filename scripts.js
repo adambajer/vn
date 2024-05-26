@@ -199,9 +199,28 @@ function removeTab(notebookId) {
 
 function shareNotebook(notebookId) {
     const baseUrl = window.location.origin;
-    const shareableLink = `${baseUrl}/Voice-Noter/?notebook=${notebookId}`;
-    prompt("Copy this link to share the notebook:", shareableLink);
+    getNotebookToken(notebookId).then(token => {
+        const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
+        prompt("Copy this link to share the notebook:", shareableLink);
+    }).catch(error => {
+        console.error('Error generating shareable link:', error);
+    });
 }
+
+function getNotebookToken(notebookId) {
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
+    return notebookRef.once('value').then(snapshot => {
+        const notebook = snapshot.val();
+        if (notebook && notebook.token) {
+            return notebook.token;
+        } else {
+            // Generate a new token if not existing
+            const newToken = btoa(Math.random()).substring(0, 12);
+            return notebookRef.update({ token: newToken }).then(() => newToken);
+        }
+    });
+}
+
 function downloadNotebookAsText(notebookId) {
     const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notesRef.once('value', snapshot => {
