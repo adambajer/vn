@@ -521,7 +521,6 @@ function deleteNote(notebookId, noteId) {
             console.error('Failed to delete note:', error);
         });
 }
-
 function toggleNoteFinished(notebookId, noteId, isFinished) {
     var noteRef = firebase.database().ref(`notebooks/${notebookId}/notes/${noteId}`);
     noteRef.update({
@@ -534,14 +533,15 @@ function toggleNoteFinished(notebookId, noteId, isFinished) {
             var noteElement = document.querySelector(`div[data-note-id="${noteId}"]`);
             if (isFinished) {
                 noteElement.classList.add('finished');
-                noteElement.contentEditable = false;
+                noteElement.querySelector('.note-text').contentEditable = 'false';
             } else {
                 noteElement.classList.remove('finished');
-                noteElement.contentEditable = true;
+                noteElement.querySelector('.note-text').contentEditable = 'true';
             }
         }
     });
 }
+
 function promptRenameNotebook(notebookId, nameLabel) {
     const currentName = nameLabel.textContent;
     const newName = prompt("Please enter a new name for the notebook:", currentName);
