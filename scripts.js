@@ -1,8 +1,7 @@
 const firebaseConfig = {
     databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
-firebase.initializeApp(firebaseConfig);
-document.addEventListener('DOMContentLoaded', async function () {
+firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
@@ -34,13 +33,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error("Speech recognition initialization failed:", error);
         window.alert("Annyang is not supported in your browser");
     }
-});
-async function loadSingleNotebookByToken(token) {
+});async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
         loadNotes(notebookId);
-        createTab(notebookId, true, 0, "Loaded Notebook"); // Create and activate the tab for the loaded notebook
+        const notebookData = await loadSingleNotebook(notebookId);
+        updateHeaderWithNotebookInfo(notebookData); // Update the header
+        createTab(notebookId, true, 0, notebookData.name); // Create and activate the tab for the loaded notebook
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
@@ -68,6 +68,14 @@ async function loadSingleNotebookByToken(token) {
         loadNotes(notebookId);
     } else {
         console.error("Invalid notebookToken. No notebook found.");
+    }
+}
+function updateHeaderWithNotebookInfo(notebookData) {
+    const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
+    if (notebookData) {
+        headerElement.textContent = `Notebook: ${notebookData.name || 'Unnamed Notebook'} - Created At: ${formatDate(new Date(notebookData.createdAt))}`;
+    } else {
+        headerElement.textContent = 'Notebook not found.';
     }
 }
 
