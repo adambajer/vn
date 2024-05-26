@@ -77,6 +77,70 @@ async function getNotebookIdByToken(token) {
     }
     return null;
 }
+
+function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
+    var tab = document.createElement('li');
+    tab.className = 'nav-item d-inline-flex justify-content-between';
+
+    var link = document.createElement('a');
+    link.className = 'nav-link';
+    link.href = '#';
+    link.dataset.notebookId = notebookId;
+    link.setAttribute('title', notebookId);
+
+    var img = document.createElement('img');
+    img.src = "note.svg";
+    img.alt = "Note Icon";
+    img.className = 'ms-2';
+    img.style.width = "24px";
+    img.style.height = "24px";
+
+    var nameLabel = document.createElement('span');
+    nameLabel.className = 'notebook-name m-2';
+    nameLabel.textContent = notebookName;
+
+    var badge = document.createElement('span');
+    badge.className = 'badge bg-primary m-2';
+    badge.textContent = noteCount;
+
+    var dropdownBtn = document.createElement('button');
+    dropdownBtn.className = 'btn';
+    dropdownBtn.setAttribute('data-bs-toggle', 'dropdown');
+    dropdownBtn.ariaExpanded = false;
+    dropdownBtn.innerHTML = '⋮';
+
+    var dropdownMenu = document.createElement('div');
+    dropdownMenu.className = 'dropdown-menu';
+    dropdownMenu.appendChild(createDropdownItem('Rename', () => promptRenameNotebook(notebookId, nameLabel)));
+    dropdownMenu.appendChild(createDropdownItem('Share Notebook', () => shareNotebook(notebookId))); // Added share functionality
+    dropdownMenu.appendChild(createDropdownItem('Share Note', () => shareNotePrompt(notebookId))); // Added share note functionality
+    dropdownMenu.appendChild(createDropdownItem('Duplicate', () => copyNotebook(notebookId)));
+    dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
+    dropdownMenu.appendChild(createDropdownItem('Delete', () => deleteNotebook(notebookId)));
+
+    link.appendChild(img);
+    link.appendChild(nameLabel);
+    link.appendChild(badge);
+    link.appendChild(dropdownBtn);
+    link.appendChild(dropdownMenu);
+    tab.appendChild(link);
+
+    link.onclick = function (event) {
+        event.preventDefault();
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        loadNotes(notebookId);
+        saveActiveTabUID(notebookId);
+    };
+
+    document.getElementById('notebookTabs').appendChild(tab);
+
+    if (setActive) {
+        link.click();
+    }
+
+    return { badge: badge, nameLabel: nameLabel };
+}
 function setUpUserTooltip() {
     const userId = document.getElementById('userId');
     userId.innerHTML = `${localStorage.getItem('userId')}`;
