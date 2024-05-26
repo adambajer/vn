@@ -1,36 +1,45 @@
 const firebaseConfig = {
     databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
-
-firebase.initializeApp(firebaseConfig);
 document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
     observeNoteContainerChanges();
+
     const urlParams = new URLSearchParams(window.location.search);
     const notebookToken = urlParams.get('notebookToken');
 
     if (notebookToken) {
         console.log("notebookToken: " + notebookToken);
-         loadSingleNotebook(notebookToken);
+        await loadSingleNotebookByToken(notebookToken);
     } else {
         console.log("No specific token found, loading default notebooks...");
         await loadUserNotebooks();
     }
     setUpNoteInput();
+
     try {
         toggleSpeechKITT();
     } catch (error) {
         console.error("Speech recognition initialization failed:", error);
-    window.alert("Anynang is not supported in your browser");
+        window.alert("Anynang is not supported in your browser");
     }
 });
+async function loadSingleNotebookByToken(token) {
+    const notebookId = await getNotebookToken(token);
+    if (notebookId) {
+        loadNotes(notebookId);
+    } else {
+        console.error("Invalid notebookToken. No notebook found.");
+    }
+}
+
 
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
     if (spaceToken) {
         console.log("Accessing content with spaceToken:", spaceToken);
-        const notebookId = await getNotebookIdByToken(spaceToken);
+        const notebookId = await getNotebookToken(spaceToken);
         if (notebookId) {
             loadSingleNotebook(notebookId);
         } else {
@@ -41,18 +50,15 @@ async function accessOrCreateContentBySpaceToken(spaceToken = null) {
         await loadUserNotebooks();
     }
 }
-async function getNotebookIdByToken(token) {
-    const notebooksRef = firebase.database().ref(`notebooks`);
-    let snapshot = await notebooksRef.once('value');
-    const notebooks = snapshot.val() || {};
-
-    for (let notebookId in notebooks) {
-        if (notebooks[notebookId].token === token) {
-            return notebookId;
-        }
+async function loadSingleNotebookByToken(token) {
+    const notebookId = await getNotebookToken(token);
+    if (notebookId) {
+        loadNotes(notebookId);
+    } else {
+        console.error("Invalid notebookToken. No notebook found.");
     }
-    return null;
 }
+
 async function loadUserNotebooks() {
     const userId = localStorage.getItem('userId');
     const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
@@ -151,7 +157,7 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
     dropdownMenu.className = 'dropdown-menu';
     dropdownMenu.appendChild(createDropdownItem('Rename', () => promptRenameNotebook(notebookId, nameLabel)));
     dropdownMenu.appendChild(createDropdownItem('Share Notebook', () => shareNotebook(notebookId))); // Added share functionality
-    
+
     dropdownMenu.appendChild(createDropdownItem('Duplicate', () => copyNotebook(notebookId)));
     dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
     dropdownMenu.appendChild(createDropdownItem('Delete', () => deleteNotebook(notebookId)));
