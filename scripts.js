@@ -32,7 +32,7 @@ firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoad
     } catch (error) {
         console.error("Speech recognition initialization failed:", error);
         document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
-        
+        document.querySelector(".status").classList.toggle("active");
     }
 });
 async function loadSingleNotebookByToken(token) {

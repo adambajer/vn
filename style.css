@@ -369,8 +369,10 @@ border: 1px solid #ccc;
 }
 .status {
     position: absolute;
+    
     bottom: 20px;
     left: 20px;
+}.status.active {
     color: red;
     background: #ffffff;
     padding: 13px;
