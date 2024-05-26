@@ -487,7 +487,7 @@ function loadNotes(notebookId) {
                 deleteNote(notebookId, noteId);
             };
 
-            noteElement.appendChild(checkbox);
+            noteElement.appendChild(checkboxContainer);
             noteElement.appendChild(noteText);
             noteElement.appendChild(deleteBtn);
 
