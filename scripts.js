@@ -8,19 +8,33 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (spaceToken) {
         console.log("spaceToken: " + spaceToken);
-        accessContentBySpaceToken(spaceToken);
+        accessOrCreateContentBySpaceToken(spaceToken);
     } else {
         console.log("No specific token found, loading default notebooks...");
-        loadUserNotebooks(); // Function name remains, but it loads general notebooks
+        accessOrCreateContentBySpaceToken(); // Function name updated to handle both cases
     }
     setUpNoteInput();
     toggleSpeechKITT();
 });
+async function accessOrCreateContentBySpaceToken(spaceToken = null) {
+    if (spaceToken) {
+        console.log("Accessing content with spaceToken:", spaceToken);
+        const notebookId = await getNotebookIdByToken(spaceToken);
+        if (notebookId) {
+            loadSingleNotebook(notebookId);
+        } else {
+            console.error("Invalid spaceToken. No notebook found.");
+        }
+    } else {
+        console.log("No spaceToken provided. Loading user notebooks...");
+        await loadUserNotebooks();
+    }
+}
+
 
 function setUpUserTooltip() {
-
     const userId = document.getElementById('userId');
-    userId.innerHTML = `${localStorage.getItem('userId')}`
+    userId.innerHTML = `${localStorage.getItem('userId')}`;
     const userIcon = document.getElementById('userIcon');
     const tooltip = document.getElementById('userTooltip');
 
@@ -48,9 +62,7 @@ function setUpUserTooltip() {
     userIcon.addEventListener('mouseout', function () {
         tooltip.style.display = 'none';  // Hide the tooltip
     });
-} 
-
-
+}
 
 function setUpNoteInput() {
     const noteInput = document.getElementById('noteInput');
@@ -69,7 +81,8 @@ function setFirstTabActive() {
     if (firstTabLink) {
         firstTabLink.click();
     }
-} function loadSingleNotebook(notebookId) {
+
+     function loadSingleNotebook(notebookId) {
     const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
     notebookRef.once('value', snapshot => {
         if (snapshot.exists()) {
@@ -106,8 +119,7 @@ function getTokenForNotebook(notebookId) {
             }
         });
     });
-}
-async function loadUserNotebooks() {
+}async function loadUserNotebooks() {
     const notebooksRef = firebase.database().ref(`notebooks`);
     let snapshot = await notebooksRef.once('value');
     const notebooks = snapshot.val() || {};
@@ -132,7 +144,6 @@ async function loadUserNotebooks() {
         }
     }
 }
-
 
 
 function setActiveTab(notebookId) {
@@ -250,7 +261,6 @@ function addNoteFromInput() {
         document.getElementById('noteInput').value = ''; // Clear the input after adding a note
     }
 }
-
 function createNotebook() {
     const newNotebookId = generateCustomNotebookId();
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
@@ -268,6 +278,7 @@ function createNotebook() {
         }
     });
 }
+
 function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
     var tab = document.createElement('li');
     tab.className = 'nav-item d-inline-flex justify-content-between';
@@ -302,7 +313,7 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
     var dropdownMenu = document.createElement('div');
     dropdownMenu.className = 'dropdown-menu';
     dropdownMenu.appendChild(createDropdownItem('Rename', () => promptRenameNotebook(notebookId, nameLabel)));
-    dropdownMenu.appendChild(createDropdownItem('Share', () => shareNotebook(notebookId)));
+    dropdownMenu.appendChild(createDropdownItem('Share', () => shareNotebook(notebookId))); // Added share functionality
     dropdownMenu.appendChild(createDropdownItem('Duplicate', () => copyNotebook(notebookId)));
     dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
     dropdownMenu.appendChild(createDropdownItem('Delete', () => deleteNotebook(notebookId)));
@@ -330,9 +341,11 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 
     return { badge: badge, nameLabel: nameLabel };
 }
-
-
-
+function shareNotebook(notebookId) {
+    const baseUrl = window.location.origin;
+    const shareableLink = `${baseUrl}?spaceToken=${btoa(Math.random()).substring(0, 12)}`;
+    prompt("Copy this link to share the notebook:", shareableLink);
+}
 
 function promptRenameNotebook(notebookId, nameLabel) {
     const currentName = nameLabel.textContent;

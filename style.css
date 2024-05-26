@@ -226,8 +226,8 @@ margin-right: 10px; /* Adjust the margin size as needed */
 .delete-note {
 position: absolute;
 right: 0px;
-font-size: 0.75rem;
-padding: 2px 5px;
+font-size: 1rem;
+padding: 1rem 1rem;
 margin-left: 10px; 
 color: red;
     border:1px solid red;
