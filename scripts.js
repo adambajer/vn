@@ -32,6 +32,39 @@ async function accessOrCreateContentBySpaceToken(spaceToken = null) {
     }
 }
 
+
+async function loadUserNotebooks() {
+    const userId = localStorage.getItem('userId');
+    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
+    let snapshot = await userNotebooksRef.once('value');
+    const userNotebooks = snapshot.val() || {};
+
+    const notebooksRef = firebase.database().ref(`notebooks`);
+    let notebooksSnapshot = await notebooksRef.once('value');
+    const notebooks = notebooksSnapshot.val() || {};
+
+    if (Object.keys(userNotebooks).length === 0) {
+        console.log("No notebooks found, creating one...");
+        createNotebook(userId);
+    } else {
+        let activeTabUID = await getActiveTabUID();
+        let foundActiveTab = false;
+
+        Object.keys(userNotebooks).forEach((notebookId, index) => {
+            if (notebooks[notebookId]) {
+                let notebookData = notebooks[notebookId];
+                let shouldSetActive = notebookId === activeTabUID || (!foundActiveTab && index === 0 && !activeTabUID);
+                createTab(notebookId, shouldSetActive, notebookData.notes ? Object.keys(notebookData.notes).length : 0, notebookData.name);
+                if (shouldSetActive) foundActiveTab = true;
+            }
+        });
+
+        if (!foundActiveTab && activeTabUID) {
+            console.log("Stored active tab ID not found among current notebooks.");
+            setFirstTabActive();
+        }
+    }
+}
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref(`notebooks`);
     let snapshot = await notebooksRef.once('value');
@@ -111,7 +144,7 @@ function loadSingleNotebook(notebookId) {
 
 const baseUrl = '';  // Replace this with the actual base URL of your application
 
- 
+
 
 
 function getTokenForNotebook(notebookId) {
@@ -173,7 +206,7 @@ function saveActiveTabUID(uid) {
 }
 
 
- 
+
 
 async function getActiveTabUID() {
     return localStorage.getItem('activeTabUID');
@@ -711,7 +744,7 @@ function loadFontPreference() {
     });
 }
 
- 
+
 
 document.getElementById('spaceName').addEventListener('blur', function () {
     const spaceNameElement = document.getElementById('spaceName');
@@ -736,4 +769,3 @@ function saveSpaceName() {
         });
     }
 }
-
