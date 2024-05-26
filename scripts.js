@@ -9,14 +9,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     loadFontPreference();
     observeNoteContainerChanges();
     const urlParams = new URLSearchParams(window.location.search);
-    const spaceToken = urlParams.get('spaceToken');
+    const notebookToken = urlParams.get('notebookToken');
 
-    if (spaceToken) {
-        console.log("spaceToken: " + spaceToken);
-        await accessOrCreateContentBySpaceToken(spaceToken);
+    if (notebookToken) {
+        console.log("notebookToken: " + notebookToken);
+        await accessNotebookByToken(notebookToken);
     } else {
         console.log("No specific token found, loading default notebooks...");
-        await accessOrCreateContentBySpaceToken();
+        await loadUserNotebooks();
     }
     setUpNoteInput();
     toggleSpeechKITT();
@@ -36,8 +36,16 @@ async function accessOrCreateContentBySpaceToken(spaceToken = null) {
         await loadUserNotebooks();
     }
 }
+const urlParams = new URLSearchParams(window.location.search);
+const notebookToken = urlParams.get('notebookToken');
 
-async function getNotebookIdByToken(token) {
+if (notebookToken) {
+    console.log("notebookToken: " + notebookToken);
+    await accessNotebookByToken(notebookToken);
+} else {
+    console.log("No specific token found, loading default notebooks...");
+    await loadUserNotebooks();
+}async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref(`notebooks`);
     let snapshot = await notebooksRef.once('value');
     const notebooks = snapshot.val() || {};
@@ -49,7 +57,6 @@ async function getNotebookIdByToken(token) {
     }
     return null;
 }
-
 async function loadUserNotebooks() {
     const userId = localStorage.getItem('userId');
     const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
