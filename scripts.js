@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         await accessOrCreateContentBySpaceToken();
     }
     setUpNoteInput();
-    initializeSpeechRecognition();
+    toggleSpeechKITT();
 });
 
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
@@ -176,27 +176,64 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 
     return { badge: badge, nameLabel: nameLabel };
 }
-function createDropdownItem(text, action) {
-    var item = document.createElement('a');
-    item.className = 'dropdown-item';
-    item.href = '#';
-    item.textContent = text;
 
-    // Assign additional class based on the action text
-    if (text.toLowerCase() === 'delete') {
-        item.classList.add('dropdown-item-delete');
-    }
-
-    item.onclick = function (event) {
-        event.preventDefault(); // Prevent the link from triggering a page reload
-        action();
-    };
-    return item;
+function deleteNotebook(notebookId) {
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
+    notebookRef.remove()
+        .then(() => {
+            //alert('Notebook successfully deleted.');
+            // Remove the tab from the UI
+            removeTab(notebookId);
+        })
+        .catch(error => {
+            console.error('Error deleting notebook:', error);
+            alert('Failed to delete notebook: ' + error);
+        });
 }
+function removeTab(notebookId) {
+    const tabElement = document.querySelector(`a[data-notebook-id="${notebookId}"]`).parentNode;
+    if (tabElement) {
+        tabElement.parentNode.removeChild(tabElement);
+    }
+}
+
 function shareNotebook(notebookId) {
     const baseUrl = window.location.origin;
     const shareableLink = `${baseUrl}?notebook=${notebookId}`;
     prompt("Copy this link to share the notebook:", shareableLink);
+}
+function downloadNotebookAsText(notebookId) {
+    const notesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
+    notesRef.once('value', snapshot => {
+        const notes = snapshot.val();
+        const allNotesText = Object.keys(notes).map(key => notes[key].content).join('\n');
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(allNotesText));
+        element.setAttribute('download', `notebook-${notebookId}.txt`);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    })
+        .catch(err => {
+            alert('Error downloading the notebook: ' + err);
+        });
+}
+function copyNotebook(notebookId) {
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
+    notebookRef.once('value', snapshot => {
+        const data = snapshot.val();
+        const newNotebookId = generateCustomNotebookId(); // Assuming you have a function to generate IDs
+        const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
+        newNotebookRef.set(data)
+            .then(() => {
+                //  alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
+                createTab(newNotebookId, true); // Adding new notebook tab to UI
+            })
+            .catch(error => {
+                alert('Failed to copy notebook: ' + error);
+            });
+    });
 }
 
 function shareNotePrompt(notebookId) {
@@ -426,6 +463,22 @@ function toggleNoteFinished(notebookId, noteId, isFinished) {
         }
     });
 }
+function promptRenameNotebook(notebookId, nameLabel) {
+    const currentName = nameLabel.textContent;
+    const newName = prompt("Please enter a new name for the notebook:", currentName);
+    if (newName && newName.trim() !== "" && newName !== currentName) {
+        renameNotebook(notebookId, newName.trim(), nameLabel);
+    }
+}
+function renameNotebook(notebookId, newName, nameLabel) {
+    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
+    notebookRef.update({ name: newName }).then(() => {
+        nameLabel.textContent = newName; // Update the notebook name in the UI
+        console.log("Notebook renamed successfully");
+    }).catch(error => {
+        console.error("Error renaming notebook:", error);
+    });
+}
 
 function formatDate(date) {
     let day = date.getDate().toString().padStart(2, '0');
@@ -474,13 +527,46 @@ function initializeSpeechRecognition() {
 }
 
 function toggleSpeechKITT() {
-    if (!SpeechKITT.isListening()) {
-        SpeechKITT.startRecognition();
-        document.getElementById('voiceButton').textContent = "Stop Voice Recognition";
-    } else {
-        SpeechKITT.abortRecognition();
-        document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+    if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
+        console.error("Annyang or SpeechKITT is not loaded!");
+        return;
     }
+
+    // Initialize SpeechKITT settings once
+    SpeechKITT.annyang();
+    annyang.setLanguage('cs'); // Set the desired language
+
+    SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css');
+    SpeechKITT.setInstructionsText('Diktuj poznámku...');
+    SpeechKITT.displayRecognizedSentence(true);
+
+    // Toggle SpeechKITT and annyang
+    if (!SpeechKITT.isListening()) {
+        SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
+        SpeechKITT.setAbortCommand(() => annyang.abort());
+        SpeechKITT.vroom();
+    } else {
+        if (annyang.isListening()) {
+            SpeechKITT.abortRecognition();
+            document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+        } else {
+            SpeechKITT.startRecognition();
+            document.getElementById('voiceButton').textContent = "Stop Voice Recognition";
+        }
+    }
+
+    // Handle voice recognition result
+    annyang.addCallback('result', function (phrases) {
+        // Assume the first phrase is the most accurate
+        let text = phrases[0];
+        const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+        if (notebookId && text.trim() !== "") {
+            addNote(text, notebookId);
+            console.log("Added note: ", text);
+            SpeechKITT.abortRecognition();
+            document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+        }
+    });
 }
 
 
