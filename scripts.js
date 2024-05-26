@@ -80,7 +80,7 @@ function setFirstTabActive() {
     let firstTabLink = document.querySelector('.nav-link');
     if (firstTabLink) {
         firstTabLink.click();
-    }
+    }}
 
      function loadSingleNotebook(notebookId) {
     const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
