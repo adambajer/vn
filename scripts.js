@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("spaceToken: " + spaceToken);
         await accessOrCreateContentBySpaceToken(spaceToken);
     } else {
-        console.log("No spaceToken provided. Loading user notebooks...");
+        console.log("No specific token found, loading default notebooks...");
         await accessOrCreateContentBySpaceToken();
     }
     setUpNoteInput();
@@ -82,9 +82,7 @@ async function loadUserNotebooks() {
         }
     }
 }
-async function getActiveTabUID() {
-    return localStorage.getItem('activeTabUID');
-}
+
 function createNotebook(userId) {
     const newNotebookId = generateCustomNotebookId();
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
@@ -632,4 +630,68 @@ function triggerDownload(content, filename) {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+}
+
+// Utility functions
+
+function getDeviceInfo() {
+    var navigatorData = window.navigator;
+    var screenData = window.screen;
+    var deviceInfo = {
+        platform: navigatorData.platform,
+        userAgent: navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
+        language: navigatorData.language,
+        resolution: `${screenData.width} x ${screenData.height}`,
+        colorDepth: `${screenData.colorDepth}-bit`,
+        timezoneOffset: `UTC ${new Date().getTimezoneOffset() / 60}`
+    };
+    return deviceInfo;
+}
+
+function generateUserId() {
+    function getDeviceFingerprint() {
+        var navigatorData = window.navigator;
+        var screenData = window.screen;
+        var fingerprint = [
+            navigatorData.platform,
+            navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
+            navigatorData.language,
+            screenData.height,
+            screenData.width,
+            screenData.colorDepth,
+            new Date().getTimezoneOffset()
+        ].join('|');
+        return fingerprint;
+    }
+
+    function hashString(str) {
+        // Simple hash function for illustration
+        var hash = 0, i, chr;
+        for (i = 0; i < str.length; i++) {
+            chr = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return hash;
+    }
+
+    const fingerprint = getDeviceFingerprint();
+    const hashedFingerprint = hashString(fingerprint).toString(16); // Convert to hex
+    const shortId = hashedFingerprint.substr(0, 8); // Take first 8 characters
+
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId === shortId) {
+        return storedUserId;
+    } else {
+        localStorage.setItem('userId', shortId);
+        return shortId;
+    }
+}
+
+async function getActiveTabUID() {
+    return localStorage.getItem('activeTabUID');
+}
+
+function saveActiveTabUID(uid) {
+    localStorage.setItem('activeTabUID', uid);
 }
