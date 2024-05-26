@@ -1,7 +1,7 @@
 const firebaseConfig = {
     databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
-firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoaded', async function () {
+firebase.initializeApp(firebaseConfig); document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
@@ -569,34 +569,40 @@ function initializeSpeechRecognition() {
         return;
     }
 
-    // Initialize SpeechKITT settings once
-    SpeechKITT.annyang();
-    annyang.setLanguage('cs'); // Set the desired language
+    try {
+        // Initialize SpeechKITT settings once
+        SpeechKITT.annyang();
+        annyang.setLanguage('cs'); // Set the desired language
 
-    SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css');
-    SpeechKITT.setInstructionsText('Diktuj poznámku...');
-    SpeechKITT.displayRecognizedSentence(true);
+        SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css');
+        SpeechKITT.setInstructionsText('Diktuj poznámku...');
+        SpeechKITT.displayRecognizedSentence(true);
 
-    // Set up SpeechKITT commands
-    SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
-    SpeechKITT.setAbortCommand(() => annyang.abort());
+        // Set up SpeechKITT commands
+        SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
+        SpeechKITT.setAbortCommand(() => annyang.abort());
 
-    // Display SpeechKITT interface
-    SpeechKITT.vroom();
+        // Display SpeechKITT interface
+        SpeechKITT.vroom();
 
-    // Handle voice recognition result
-    annyang.addCallback('result', function (phrases) {
-        let text = phrases[0];
-        const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
-        if (notebookId && text.trim() !== "") {
-            addNote(text, notebookId);
-            console.log("Added note: ", text);
-            SpeechKITT.abortRecognition();
-            document.getElementById('voiceButton').textContent = "Start Voice Recognition";
-        }
-    });
+        // Handle voice recognition result
+        annyang.addCallback('result', function (phrases) {
+            let text = phrases[0];
+            const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+            if (notebookId && text.trim() !== "") {
+                addNote(text, notebookId);
+                console.log("Added note: ", text);
+                SpeechKITT.abortRecognition();
+                document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+            }
+        });
 
-    document.getElementById('voiceButton').addEventListener('click', toggleSpeechKITT);
+        document.getElementById('voiceButton').addEventListener('click', toggleSpeechKITT);
+    } catch (error) {
+        console.error("Speech recognition initialization failed:", error);
+        window.alert("Anynang is not supported in your browser");
+    }
+
 }
 function createDropdownItem(text, action) {
     var item = document.createElement('a');
