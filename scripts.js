@@ -24,19 +24,33 @@ document.addEventListener('DOMContentLoaded', async function () {
         toggleSpeechKITT();
     } catch (error) {
         console.error("Speech recognition initialization failed:", error);
-        window.alert("Anynang is not supported in your browser");
+        window.alert("Annyang is not supported in your browser");
     }
 });
 async function loadSingleNotebookByToken(token) {
-    const notebookId = await getNotebookToken(token);
+    const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
-        loadNotes(notebookId);
+        loadSingleNotebook(notebookId);
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
 }
-
-
+async function getNotebookIdByToken(token) {
+    const notebooksRef = firebase.database().ref('notebooks');
+    try {
+        const snapshot = await notebooksRef.once('value');
+        const notebooks = snapshot.val() || {};
+        for (let notebookId in notebooks) {
+            if (notebooks[notebookId].token === token) {
+                return notebookId;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error("Error retrieving notebook by token:", error);
+        return null;
+    }
+}
 async function accessOrCreateContentBySpaceToken(spaceToken = null) {
     if (spaceToken) {
         console.log("Accessing content with spaceToken:", spaceToken);
@@ -210,25 +224,34 @@ function removeTab(notebookId) {
 function shareNotebook(notebookId) {
     const baseUrl = window.location.origin;
     getNotebookToken(notebookId).then(token => {
-        const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
-        prompt("Copy this link to share the notebook:", shareableLink);
+        if (token) {
+            const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
+            prompt("Copy this link to share the notebook:", shareableLink);
+        } else {
+            console.error("Token not found for sharing the notebook.");
+        }
     }).catch(error => {
         console.error('Error generating shareable link:', error);
     });
 }
 
-function getNotebookToken(notebookId) {
+
+async function getNotebookToken(notebookId) {
     const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
-    return notebookRef.once('value').then(snapshot => {
+    try {
+        const snapshot = await notebookRef.once('value');
         const notebook = snapshot.val();
         if (notebook && notebook.token) {
+            console.log("Existing token found:", notebook.token);
             return notebook.token;
         } else {
-            // Generate a new token if not existing
-            const newToken = btoa(Math.random()).substring(0, 12);
-            return notebookRef.update({ token: newToken }).then(() => newToken);
+            console.error("Token not found for notebook:", notebookId);
+            return null;
         }
-    });
+    } catch (error) {
+        console.error("Error retrieving token:", error);
+        return null;
+    }
 }
 
 function downloadNotebookAsText(notebookId) {
