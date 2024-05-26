@@ -1,8 +1,7 @@
 const firebaseConfig = {
     databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
-firebase.initializeApp(firebaseConfig);
-document.addEventListener('DOMContentLoaded', async function () {
+firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
@@ -11,12 +10,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const notebookToken = urlParams.get('notebookToken');
 
+    const createNotebookButton = document.getElementById('createNotebookButton');
+
     if (notebookToken) {
         console.log("notebookToken: " + notebookToken);
         await loadSingleNotebookByToken(notebookToken);
+        if (createNotebookButton) {
+            createNotebookButton.style.display = 'none'; // Hide the button
+        }
     } else {
         console.log("No specific token found, loading default notebooks...");
         await loadUserNotebooks();
+        if (createNotebookButton) {
+            createNotebookButton.style.display = 'block'; // Show the button
+        }
     }
     setUpNoteInput();
 
@@ -30,7 +37,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
-        loadSingleNotebook(notebookId);
+        console.log("Notebook ID found:", notebookId);
+        loadNotes(notebookId);
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
@@ -51,7 +59,6 @@ async function getNotebookIdByToken(token) {
         return null;
     }
 }
-
 async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookToken(token);
     if (notebookId) {
@@ -391,12 +398,12 @@ function addNote(content, notebookId) {
         }
     });
 }
-
 function loadNotes(notebookId) {
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notebookNotesRef.on('value', function (snapshot) {
         const notes = snapshot.val() || {};
-        document.getElementById('notesContainer').innerHTML = '';
+        const notesContainer = document.getElementById('notesContainer');
+        notesContainer.innerHTML = '';
         Object.keys(notes).forEach(noteId => {
             var noteElement = document.createElement('div');
             noteElement.className = 'note';
@@ -443,7 +450,7 @@ function loadNotes(notebookId) {
             noteElement.appendChild(noteText);
             noteElement.appendChild(deleteBtn);
 
-            document.getElementById('notesContainer').prepend(noteElement);
+            notesContainer.prepend(noteElement);
         });
     });
 }
