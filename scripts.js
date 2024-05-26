@@ -234,7 +234,7 @@ function shareNotebook(notebookId, token) {
 }
 
 function redirectToSharePage(shareableLink) {
-    const sharePageUrl = `${window.location.origin}/share.html?link=${encodeURIComponent(shareableLink)}`;
+    const sharePageUrl = `${shareableLink}`;
     window.location.href = sharePageUrl;
 }
 
