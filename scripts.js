@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (spaceToken) {
         console.log("spaceToken: " + spaceToken);
-        accessOrCreateContentBySpaceToken(spaceToken);
+        await accessOrCreateContentBySpaceToken(spaceToken);
     } else {
-        console.log("No specific token found, loading default notebooks...");
-        accessOrCreateContentBySpaceToken(); // Function name updated to handle both cases
+        console.log("No spaceToken provided. Loading user notebooks...");
+        await accessOrCreateContentBySpaceToken();
     }
     setUpNoteInput();
     toggleSpeechKITT();
@@ -32,6 +32,18 @@ async function accessOrCreateContentBySpaceToken(spaceToken = null) {
     }
 }
 
+async function getNotebookIdByToken(token) {
+    const notebooksRef = firebase.database().ref(`notebooks`);
+    let snapshot = await notebooksRef.once('value');
+    const notebooks = snapshot.val() || {};
+
+    for (let notebookId in notebooks) {
+        if (notebooks[notebookId].token === token) {
+            return notebookId;
+        }
+    }
+    return null;
+}
 
 async function loadUserNotebooks() {
     const userId = localStorage.getItem('userId');
@@ -65,20 +77,38 @@ async function loadUserNotebooks() {
         }
     }
 }
-async function getNotebookIdByToken(token) {
-    const notebooksRef = firebase.database().ref(`notebooks`);
-    let snapshot = await notebooksRef.once('value');
-    const notebooks = snapshot.val() || {};
 
-    for (let notebookId in notebooks) {
-        if (notebooks[notebookId].token === token) {
-            return notebookId;
+function createNotebook(userId) {
+    const newNotebookId = generateCustomNotebookId();
+    const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
+
+    const notebookData = {
+        createdAt: Date.now(),
+        token: btoa(Math.random()).substring(0, 12)
+    };
+
+    newNotebookRef.set(notebookData, error => {
+        if (!error) {
+            assignNotebookToUser(userId, newNotebookId);
+            createTab(newNotebookId, true);
+        } else {
+            console.error('Error creating notebook:', error);
         }
-    }
-    return null;
+    });
 }
 
-async function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
+function assignNotebookToUser(userId, notebookId) {
+    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
+    userNotebooksRef.set({ id: notebookId }, error => {
+        if (error) {
+            console.error('Error assigning notebook to user:', error);
+        } else {
+            console.log('Notebook assigned to user successfully');
+        }
+    });
+}
+
+function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
     var tab = document.createElement('li');
     tab.className = 'nav-item d-inline-flex justify-content-between';
 
@@ -141,6 +171,44 @@ async function createTab(notebookId, setActive = false, noteCount = 0, notebookN
 
     return { badge: badge, nameLabel: nameLabel };
 }
+
+function shareNotebook(notebookId) {
+    const notebooksRef = firebase.database().ref(`notebooks/${notebookId}`);
+    notebooksRef.once('value', snapshot => {
+        const notebook = snapshot.val();
+        if (notebook && notebook.token) {
+            const shareableLink = `${window.location.origin}?spaceToken=${notebook.token}`;
+            prompt("Copy this link to share the notebook:", shareableLink);
+        } else {
+            console.error('No token found for this notebook');
+        }
+    });
+}
+
+function shareNotePrompt(notebookId) {
+    const noteId = prompt("Enter the note ID to share:");
+    if (noteId) {
+        shareNoteToken(notebookId, noteId);
+    }
+}
+
+function shareNoteToken(notebookId, noteId) {
+    const noteRef = firebase.database().ref(`notebooks/${notebookId}/notes/${noteId}`);
+    noteRef.once('value', snapshot => {
+        const note = snapshot.val();
+        if (note && note.token) {
+            const shareableLink = `${window.location.origin}?noteToken=${note.token}`;
+            prompt("Copy this link to share the note:", shareableLink);
+        } else {
+            console.error('No token found for this note');
+        }
+    });
+}
+
+function generateCustomNotebookId() {
+    return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
+}
+
 function setUpUserTooltip() {
     const userId = document.getElementById('userId');
     userId.innerHTML = `${localStorage.getItem('userId')}`;
@@ -185,7 +253,6 @@ function setUpNoteInput() {
     document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
 }
 
-
 function setFirstTabActive() {
     let firstTabLink = document.querySelector('.nav-link');
     if (firstTabLink) {
@@ -206,69 +273,34 @@ function loadSingleNotebook(notebookId) {
     });
 }
 
-const baseUrl = '';  // Replace this with the actual base URL of your application
-
-
-
-
-function getTokenForNotebook(notebookId) {
-    const notebookRef = firebase.database().ref(`notebooks/${notebookId}/token`);
-    return new Promise((resolve, reject) => {
-        notebookRef.once('value', snapshot => {
-            if (snapshot.exists()) {
-                resolve(snapshot.val()); // Token already exists, use it
-            } else {
-                // Token does not exist, generate a new one and save it
-                const newToken = btoa(Math.random()).substring(0, 12); // Simple token generation
-                notebookRef.set(newToken, error => {
-                    if (error) {
-                        reject(error);  // Handle possible write error
-                    } else {
-                        resolve(newToken);  // Resolve with the new token after saving
-                    }
-                });
-            }
-        });
-    });
-}
-
-async function getNotebookIdByToken(token) {
-    const notebooksRef = firebase.database().ref(`notebooks`);
-    let snapshot = await notebooksRef.once('value');
-    const notebooks = snapshot.val() || {};
-
-    for (let notebookId in notebooks) {
-        if (notebooks[notebookId].token === token) {
-            return notebookId;
-        }
+function addNoteFromInput() {
+    const noteContent = document.getElementById('noteInput').value;
+    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+    if (noteContent && notebookId) {
+        addNote(noteContent, notebookId);
+        document.getElementById('noteInput').value = ''; // Clear the input after adding a note
     }
-    return null;
 }
 
-function setActiveTab(notebookId) {
-    const notebookTabs = document.querySelectorAll('.nav-link');
-    notebookTabs.forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.dataset.notebookId === notebookId) {
-            tab.classList.add('active');
+function addNote(content, notebookId) {
+    const newNoteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
+    const now = Date.now();
+    const noteData = {
+        content: content,
+        createdAt: now,
+        updatedAt: now,
+        token: btoa(Math.random()).substring(0, 12) // Generate a token for the note
+    };
+
+    newNoteRef.set(noteData, error => {
+        if (error) {
+            console.error('Failed to add note:', error);
+        } else {
+            console.log('Note added successfully');
+            updateNoteCount(notebookId, 1);
         }
     });
-    saveActiveTabUID(notebookId);
 }
-document.addEventListener('input', function (event) {
-    if (event.target.matches('.note[contenteditable]')) {
-        const noteId = event.target.getAttribute('data-note-id');
-        const notebookId = document.querySelector('.nav-link.active').dataset.notebookId;
-        const newContent = event.target.textContent;
-        console.log(event);
-        updateNote(notebookId, noteId, newContent);
-    }
-});
-
-function saveActiveTabUID(uid) {
-    localStorage.setItem('activeTabUID', uid);
-}
-
 
 function loadNotes(notebookId) {
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
@@ -326,278 +358,12 @@ function loadNotes(notebookId) {
     });
 }
 
-
-
-async function getActiveTabUID() {
-    return localStorage.getItem('activeTabUID');
-}
-const firebaseConfig = {
-    databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
-};
-
-firebase.initializeApp(firebaseConfig);
-let userId = sessionStorage.getItem('userId') || generateUserId();
-
-function generateUserId() {
-    function getDeviceFingerprint() {
-        var navigatorData = window.navigator;
-        var screenData = window.screen;
-        var fingerprint = [
-            navigatorData.platform,
-            navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
-            navigatorData.language,
-            screenData.height,
-            screenData.width,
-            screenData.colorDepth,
-            new Date().getTimezoneOffset()
-        ].join('|');
-        return fingerprint;
-    }
-
-    function hashString(str) {
-        // Simple hash function for illustration
-        var hash = 0, i, chr;
-        for (i = 0; i < str.length; i++) {
-            chr = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; // Convert to 32bit integer
-        }
-        return hash;
-    }
-
-    const fingerprint = getDeviceFingerprint();
-    const hashedFingerprint = hashString(fingerprint).toString(16); // Convert to hex
-    const shortId = hashedFingerprint.substr(0, 8); // Take first 8 characters
-
-    const storedUserId = localStorage.getItem('userId');
-    if (storedUserId === shortId) {
-        return storedUserId;
-    } else {
-        localStorage.setItem('userId', shortId);
-        return shortId;
-    }
-}
-function getDeviceInfo() {
-    var navigatorData = window.navigator;
-    var screenData = window.screen;
-    var deviceInfo = {
-        platform: navigatorData.platform,
-        userAgent: navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
-        language: navigatorData.language,
-        resolution: `${screenData.width} x ${screenData.height}`,
-        colorDepth: `${screenData.colorDepth}-bit`,
-        timezoneOffset: `UTC ${new Date().getTimezoneOffset() / 60}`
-    };
-    return deviceInfo;
+function updateNoteCount(notebookId, increment) {
+    const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
+    let count = parseInt(badge.textContent) || 0;
+    badge.textContent = count + increment;
 }
 
-function getNotebookIdFromPath() {
-    // Example URL: "https://adambajer.github.io/Voice-Noter/notebooks/-NxLpMKvPUyhOnM50UvE"
-    // Splitting by '/' gives us: ["https:", "", "adambajer.github.io", "Voice-Noter", "notebooks", "-NxLpMKvPUyhOnM50UvE"]
-    const pathSegments = window.location.pathname.split('/');
-    // Notebook ID is expected to be after 'notebooks', adjust the index accordingly.
-    const notebookIndex = pathSegments.indexOf('notebooks');
-    if (notebookIndex !== -1 && notebookIndex + 1 < pathSegments.length) {
-        return pathSegments[notebookIndex + 1];
-    }
-    return null; // Return null if no notebook ID is found
-}
-function generateCustomNotebookId() {
-    // Generates a random 16-character alphanumeric string
-    return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
-}
-
-function addNoteFromInput() {
-    const noteContent = document.getElementById('noteInput').value;
-    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
-    if (noteContent && notebookId) {
-        addNote(noteContent, notebookId);
-        document.getElementById('noteInput').value = ''; // Clear the input after adding a note
-    }
-}
-
-
-function createNotebook(userId) {
-    const newNotebookId = generateCustomNotebookId();
-    const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
-
-    const notebookData = {
-        createdAt: Date.now(),
-        token: btoa(Math.random()).substring(0, 12)
-    };
-
-    newNotebookRef.set(notebookData, error => {
-        if (!error) {
-            assignNotebookToUser(userId, newNotebookId);
-            createTab(newNotebookId, true);
-        } else {
-            console.error('Error creating notebook:', error);
-        }
-    });
-}
-
-function assignNotebookToUser(userId, notebookId) {
-    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
-    userNotebooksRef.set({ id: notebookId }, error => {
-        if (error) {
-            console.error('Error assigning notebook to user:', error);
-        } else {
-            console.log('Notebook assigned to user successfully');
-        }
-    });
-}
-function assignNotebookToUser(userId, notebookId) {
-    const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}`);
-    userNotebooksRef.set({ id: notebookId }, error => {
-        if (error) {
-            console.error('Error assigning notebook to user:', error);
-        } else {
-            console.log('Notebook assigned to user successfully');
-        }
-    });
-}
-
-function promptRenameNotebook(notebookId, nameLabel) {
-    const currentName = nameLabel.textContent;
-    const newName = prompt("Please enter a new name for the notebook:", currentName);
-    if (newName && newName.trim() !== "" && newName !== currentName) {
-        renameNotebook(notebookId, newName.trim(), nameLabel);
-    }
-}
-
-function renameNotebook(notebookId, newName, nameLabel) {
-    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
-    notebookRef.update({ name: newName }).then(() => {
-        nameLabel.textContent = newName; // Update the notebook name in the UI
-        console.log("Notebook renamed successfully");
-    }).catch(error => {
-        console.error("Error renaming notebook:", error);
-    });
-}
-
-
-
-function createDropdownItem(text, action) {
-    var item = document.createElement('a');
-    item.className = 'dropdown-item';
-    item.href = '#';
-    item.textContent = text;
-
-    // Assign additional class based on the action text
-    if (text.toLowerCase() === 'delete') {
-        item.classList.add('dropdown-item-delete');
-    }
-
-    item.onclick = function (event) {
-        event.preventDefault(); // Prevent the link from triggering a page reload
-        action();
-    };
-    return item;
-}
-
-
-
-function deleteNotebook(notebookId) {
-    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
-    notebookRef.remove()
-        .then(() => {
-            //alert('Notebook successfully deleted.');
-            // Remove the tab from the UI
-            removeTab(notebookId);
-        })
-        .catch(error => {
-            console.error('Error deleting notebook:', error);
-            alert('Failed to delete notebook: ' + error);
-        });
-}
-
-function removeTab(notebookId) {
-    const tabElement = document.querySelector(`a[data-notebook-id="${notebookId}"]`).parentNode;
-    if (tabElement) {
-        tabElement.parentNode.removeChild(tabElement);
-    }
-}
-
-
-function copyNotebook(notebookId) {
-    const notebookRef = firebase.database().ref(`notebooks/${notebookId}`);
-    notebookRef.once('value', snapshot => {
-        const data = snapshot.val();
-        const newNotebookId = generateCustomNotebookId(); // Assuming you have a function to generate IDs
-        const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
-        newNotebookRef.set(data)
-            .then(() => {
-                //  alert('Notebook copied successfully, new notebook ID: ' + newNotebookId);
-                createTab(newNotebookId, true); // Adding new notebook tab to UI
-            })
-            .catch(error => {
-                alert('Failed to copy notebook: ' + error);
-            });
-    });
-}
-
-function downloadNotebookAsText(notebookId) {
-    const notesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
-    notesRef.once('value', snapshot => {
-        const notes = snapshot.val();
-        const allNotesText = Object.keys(notes).map(key => notes[key].content).join('\n');
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(allNotesText));
-        element.setAttribute('download', `notebook-${notebookId}.txt`);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-    })
-        .catch(err => {
-            alert('Error downloading the notebook: ' + err);
-        });
-}
-
-function addNote(content, notebookId) {
-    const newNoteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
-    const now = Date.now();
-    const noteData = {
-        content: content,
-        createdAt: now,
-        updatedAt: now,
-        token: btoa(Math.random()).substring(0, 12) // Generate a token for the note
-    };
-
-    newNoteRef.set(noteData, error => {
-        if (error) {
-            console.error('Failed to add note:', error);
-        } else {
-            console.log('Note added successfully');
-            updateNoteCount(notebookId, 1);
-        }
-    });
-}
-
-
-
-
-
-
-function addNote(content, notebookId) {
-    const newNoteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
-    const now = Date.now();
-    const noteData = {
-        content: content,
-        createdAt: now,
-        updatedAt: now,
-        token: btoa(Math.random()).substring(0, 12) // Generate a token for the note
-    };
-
-    newNoteRef.set(noteData, error => {
-        if (error) {
-            console.error('Failed to add note:', error);
-        } else {
-            console.log('Note added successfully');
-            updateNoteCount(notebookId, 1);
-        }
-    });
-}
 function updateNote(notebookId, noteId, content) {
     var noteRef = firebase.database().ref(`notebooks/${notebookId}/notes/${noteId}`);
     noteRef.update({
@@ -608,12 +374,6 @@ function updateNote(notebookId, noteId, content) {
     }).catch(error => {
         console.error('Failed to update note:', error);
     });
-}
-
-function updateNoteCount(notebookId, increment) {
-    const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
-    let count = parseInt(badge.textContent) || 0;
-    badge.textContent = count + increment;
 }
 
 function deleteNote(notebookId, noteId) {
@@ -631,7 +391,6 @@ function deleteNote(notebookId, noteId) {
             console.error('Failed to delete note:', error);
         });
 }
-
 
 function toggleNoteFinished(notebookId, noteId, isFinished) {
     var noteRef = firebase.database().ref(`notebooks/${notebookId}/notes/${noteId}`);
@@ -654,7 +413,6 @@ function toggleNoteFinished(notebookId, noteId, isFinished) {
     });
 }
 
-
 function formatDate(date) {
     let day = date.getDate().toString().padStart(2, '0');
     let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months start at 0!
@@ -665,8 +423,6 @@ function formatDate(date) {
 
     return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
 }
-
-
 
 function toggleSpeechKITT() {
     if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
@@ -710,48 +466,6 @@ function toggleSpeechKITT() {
         }
     });
 }
-function exportAllNotebooks() {
-    const userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
-    const userNotebooksRef = firebase.database().ref(`notebooks`);
-
-    userNotebooksRef.once('value', snapshot => {
-        const notebooks = snapshot.val();
-        if (!notebooks) {
-            console.log("No notebooks to export.");
-            return;
-        }
-
-        Object.keys(notebooks).forEach(notebookId => {
-            const notebookData = notebooks[notebookId];
-            exportNotebookAsTxt(notebookId, notebookData);
-        });
-    });
-}
-
-function exportNotebookAsTxt(notebookId, notebookData) {
-    const notesRef = firebase.database().ref(`users/${userId}/notebooks/${notebookId}/notes`);
-    notesRef.once('value', notesSnapshot => {
-        const notes = notesSnapshot.val();
-        let notesContent = `Notebook: ${notebookData.name || 'Unnamed Notebook'}\n\n`;
-
-        Object.keys(notes).forEach(noteId => {
-            const note = notes[noteId];
-            notesContent += `${formatDate(new Date(note.createdAt))}\n${note.content}\n\n`;
-        });
-
-        triggerDownload(notesContent, `${notebookData.name || 'Unnamed_Notebook'}-${notebookId}.txt`);
-    });
-}
-
-function triggerDownload(content, filename) {
-    const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-    element.setAttribute('download', filename);
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-}
-
 
 function initializeFontSettings() {
     // Attach change event listeners to font selection and size input
@@ -787,7 +501,6 @@ function applyFontChange() {
     });
 }
 
-
 function updatePreview() {
     const previewFont = document.getElementById('fontSelect').value;
     const previewSize = document.getElementById('fontSizeInput').value;
@@ -796,41 +509,6 @@ function updatePreview() {
     preview.style.fontSize = `${previewSize}px`;
 }
 
-
-function applyFontToElements(font, fontSize) {
-    const noteTextElements = document.querySelectorAll('.note-text');
-    noteTextElements.forEach(element => {
-        element.style.fontFamily = `'${font}', sans-serif`;
-        element.style.fontSize = `${fontSize}px`;
-    });
-    updatePreview();
-}
-
-function observeNoteContainerChanges() {
-    const container = document.getElementById('notesContainer');
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList') {
-                const currentFont = document.getElementById('fontSelect').value;
-                const currentFontSize = document.getElementById('fontSizeInput').value;
-                applyFontToElements(currentFont, currentFontSize);
-            }
-        });
-    });
-
-    observer.observe(container, {
-        childList: true, // observe direct children additions or removals
-        subtree: true // observe all descendants
-    });
-}
-
-function updatePreview() {
-    const previewFont = document.getElementById('fontSelect').value;
-    const previewSize = document.getElementById('fontSizeInput').value;
-    const preview = document.getElementById('fontPreview');
-    preview.style.fontFamily = `'${previewFont}', sans-serif`;
-    preview.style.fontSize = `${previewSize}px`;
-}
 function saveFontPreference(font, fontSize) {
     const userId = localStorage.getItem('userId');
     firebase.database().ref(`users/${userId}/settings`).update({
@@ -864,7 +542,23 @@ function loadFontPreference() {
     });
 }
 
+function observeNoteContainerChanges() {
+    const container = document.getElementById('notesContainer');
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                const currentFont = document.getElementById('fontSelect').value;
+                const currentFontSize = document.getElementById('fontSizeInput').value;
+                applyFontToElements(currentFont, currentFontSize);
+            }
+        });
+    });
 
+    observer.observe(container, {
+        childList: true, // observe direct children additions or removals
+        subtree: true // observe all descendants
+    });
+}
 
 document.getElementById('spaceName').addEventListener('blur', function () {
     const spaceNameElement = document.getElementById('spaceName');
@@ -874,6 +568,7 @@ document.getElementById('spaceName').addEventListener('blur', function () {
     }
     saveSpaceName();  // Save the space name when focus is lost
 });
+
 function saveSpaceName() {
     const spaceNameElement = document.getElementById('spaceName');
     if (!spaceNameElement.classList.contains('placeholder')) {
@@ -888,4 +583,46 @@ function saveSpaceName() {
             }
         });
     }
+}
+
+function exportAllNotebooks() {
+    const userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
+    const userNotebooksRef = firebase.database().ref(`notebooks`);
+
+    userNotebooksRef.once('value', snapshot => {
+        const notebooks = snapshot.val();
+        if (!notebooks) {
+            console.log("No notebooks to export.");
+            return;
+        }
+
+        Object.keys(notebooks).forEach(notebookId => {
+            const notebookData = notebooks[notebookId];
+            exportNotebookAsTxt(notebookId, notebookData);
+        });
+    });
+}
+
+function exportNotebookAsTxt(notebookId, notebookData) {
+    const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
+    notesRef.once('value', notesSnapshot => {
+        const notes = notesSnapshot.val();
+        let notesContent = `Notebook: ${notebookData.name || 'Unnamed Notebook'}\n\n`;
+
+        Object.keys(notes).forEach(noteId => {
+            const note = notes[noteId];
+            notesContent += `${formatDate(new Date(note.createdAt))}\n${note.content}\n\n`;
+        });
+
+        triggerDownload(notesContent, `${notebookData.name || 'Unnamed_Notebook'}-${notebookId}.txt`);
+    });
+}
+
+function triggerDownload(content, filename) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('download', filename);
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
 }
