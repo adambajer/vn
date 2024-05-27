@@ -51,7 +51,7 @@ async function loadSingleNotebookByToken(token) {
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
         activeNotebookId = notebookId; // Set the active notebook ID globally
-        loadNotes(notebookId);
+        loadNotes(notebookId, 'tokenLoad'); // Pass the source to loadNotes
         updateHeaderWithNotebookInfo(token); // Update the header
     } else {
         console.error("Invalid notebookToken. No notebook found.");
@@ -428,7 +428,7 @@ function addNoteFromInput() {
     }
 }
 
-function addNote(content, notebookId) {
+function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '') {
     const newNoteRef = firebase.database().ref(`notebooks/${notebookId}/notes`).push();
     const now = Date.now();
     const noteData = {
@@ -443,11 +443,15 @@ function addNote(content, notebookId) {
             console.error('Failed to add note:', error);
         } else {
             console.log('Note added successfully');
-            updateNoteCount(notebookId, 1);
+            if (shouldUpdateNoteCount && source !== 'tokenLoad') {
+                updateNoteCount(notebookId, 1);
+            }
+            console.log(`Note added from: ${source}`);
         }
     });
 }
-function loadNotes(notebookId) {
+
+function loadNotes(notebookId, source = '') {
     activeNotebookId = notebookId; // Set the active notebook ID globally
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notebookNotesRef.on('value', function (snapshot) {
