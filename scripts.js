@@ -3,13 +3,21 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 let activeNotebookId = null;
-
+let userId = null;
 document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
     observeNoteContainerChanges();
-
+// Check if userId is present in localStorage
+if (localStorage.getItem('userId') !== null) {
+    // Retrieve userId from localStorage
+     userId = localStorage.getItem('userId');
+} else {
+    // Generate a new userId if not present
+    generateUserId();
+}
+   
     const urlParams = new URLSearchParams(window.location.search);
     const notebookToken = urlParams.get('notebookToken');
 
@@ -78,7 +86,6 @@ function updateHeaderWithNotebookInfo(token) {
 
 
 async function loadUserNotebooks() {
-    const userId = localStorage.getItem('userId');
     const userNotebooksRef = firebase.database().ref(`users/${userId}/notebooks`);
     let snapshot = await userNotebooksRef.once('value');
     const userNotebooks = snapshot.val() || {};
@@ -111,6 +118,13 @@ async function loadUserNotebooks() {
 }
 
 function createNotebook(userId) {
+    // Check the current number of tabs
+    const currentTabCount = document.querySelectorAll('#notebookTabs .nav-item').length;
+    if (currentTabCount >= 10) {
+        alert('You have reached the maximum number of notebooks (10). Please delete an existing notebook before creating a new one.');
+        return;
+    }
+
     const newNotebookId = generateCustomNotebookId();
     const newNotebookRef = firebase.database().ref(`notebooks/${newNotebookId}`);
 
@@ -343,7 +357,7 @@ function generateCustomNotebookId() {
 }
 
 function setUpUserTooltip() {
-    const userId = document.getElementById('userId');
+     userId = document.getElementById('userId');
     userId.innerHTML = `${localStorage.getItem('userId')}`;
     const userIcon = document.getElementById('userIcon');
     const tooltip = document.getElementById('userTooltip');
@@ -729,7 +743,7 @@ function updatePreview() {
 }
 
 function saveFontPreference(font, fontSize) {
-    const userId = localStorage.getItem('userId');
+     userId = localStorage.getItem('userId');
     firebase.database().ref(`users/${userId}/settings`).update({
         fontPreference: font,
         fontSizePreference: fontSize
@@ -743,7 +757,7 @@ function saveFontPreference(font, fontSize) {
 }
 
 function loadFontPreference() {
-    const userId = localStorage.getItem('userId');
+     userId = localStorage.getItem('userId');
     if (!userId) {
         console.log('No user ID found, skipping load font preference.');
         return;
@@ -781,7 +795,7 @@ function observeNoteContainerChanges() {
 
 
 function exportAllNotebooks() {
-    const userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
+     userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
     const userNotebooksRef = firebase.database().ref(`notebooks`);
 
     userNotebooksRef.once('value', snapshot => {
@@ -850,7 +864,7 @@ function generateUserId() {
     function getDeviceFingerprint() {
         var navigatorData = window.navigator;
         var screenData = window.screen;
-        var fingerprint = [
+        var userId = [
             navigatorData.platform,
             navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
             navigatorData.language,
@@ -859,7 +873,7 @@ function generateUserId() {
             screenData.colorDepth,
             new Date().getTimezoneOffset()
         ].join('|');
-        return fingerprint;
+        return userId;
     }
 
     function hashString(str) {
