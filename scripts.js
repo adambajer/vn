@@ -1,5 +1,5 @@
 const firebaseConfig = {
-    databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.appx",
+    databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
 firebase.initializeApp(firebaseConfig);
 let activeNotebookId = null;
