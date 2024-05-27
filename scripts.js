@@ -49,6 +49,7 @@ if (localStorage.getItem('userId') !== null) {
     if (storedTheme) {
         setTheme(storedTheme);
     }
+    document.getElementById('randomThemeButton').addEventListener('click', generateRandomTheme);
 
     // Add event listener for theme switcher
     document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
@@ -67,6 +68,30 @@ function toggleTheme() {
     setTheme(newTheme);
 }
 
+function generateRandomTheme() {
+    const themeStylesheet = document.getElementById('themeStylesheet');
+    themeStylesheet.href = 'base-theme.css';
+    localStorage.setItem('theme', theme);
+
+    const root = document.documentElement;
+
+    const randomColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    const randomShadow = () => `0 ${Math.floor(Math.random() * 5) + 1}px ${Math.floor(Math.random() * 10) + 5}px rgba(0, 0, 0, 0.1)`;
+
+    root.style.setProperty('--background-color', randomColor());
+    root.style.setProperty('--note-background-color', randomColor());
+    root.style.setProperty('--note-border-color', randomColor());
+    root.style.setProperty('--note-text-color', randomColor());
+    root.style.setProperty('--note-shadow', randomShadow());
+    root.style.setProperty('--note-border-radius', `${Math.floor(Math.random() * 15) + 5}px`);
+    root.style.setProperty('--navbar-background-color', randomColor());
+    root.style.setProperty('--navbar-text-color', randomColor());
+    root.style.setProperty('--button-background-color', randomColor());
+    root.style.setProperty('--button-text-color', randomColor());
+    root.style.setProperty('--checkbox-color', randomColor());
+
+    localStorage.setItem('theme', 'random');
+}
 function setTheme(theme) {
     const themeStylesheet = document.getElementById('themeStylesheet');
     if (theme === 'mac-glass') {
