@@ -11,22 +11,21 @@ body {
 #notebookTabs {}
 
 #noteInput {
-    background: transparent;
+    background: white;
     border: 0px;
-    position: relative;
-    border-top-right-radius: 5px;
+    position: relative; 
     flex-wrap: wrap;
     display: flex;
-  
-    border-bottom-right-radius: 0px;
-    margin-bottom: 0.4vh;
-    color: hsl(235, 100%, 18%);
-    border-radius: 0px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border: 1px solid #eaeaea;
     
-    margin: 0px;margin-bottom: 5px;
+    color: hsl(235, 100%, 18%); 
+  flex-direction: row;
+  align-items: center;
+  padding: 5px;
+  border-radius: 0px;
+  padding-right: 3px;
+  margin-left: 0px; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  margin-bottom: 5px;
 
     
 }
@@ -56,7 +55,7 @@ body {
   }
 .note-text { 
     width: 100%;
-    margin-left: 2.5rem; 
+    margin-left:1.75rem; 
     font-family: 'Roboto', sans-serif;
     font-size: 0.8rem;
 
@@ -101,11 +100,11 @@ body {
 }
 
 #bartabs {
-    background: #eaeaea;
+    background: white;
 }
 
 .nav-item {
-    border-right: 1px solid #ccc;
+    border-right: 1px solid #eaeaea;
 }
 
 .navbar {
@@ -154,7 +153,7 @@ body {
 
 .nav-pills .nav-link.active,
 .nav-pills .show>.nav-link {
-    background-color: white;
+    background-color: #eaeaea;
     border-bottom: 1px solid transparent;
 }
 
@@ -175,7 +174,7 @@ body {
     cursor: pointer;
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
-    padding: 5px;    background-color:#eaeaea;
+    padding: 5px;    background-color:white;
 }
 
 #userIcon:hover {
@@ -279,7 +278,7 @@ body {
 }
 
 .nav-link {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #eaeaea;
 }
 
 #notebookTabs {
@@ -291,7 +290,7 @@ body {
 
 .custom-tooltip {
     position: absolute;
-    border: 1px solid #ccc;
+    border: 1px solid #eaeaea;
     background-color: #fff;
     right: 0;
     top: 2.75rem;
