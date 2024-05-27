@@ -53,6 +53,21 @@ if (localStorage.getItem('userId') !== null) {
     // Add event listener for theme switcher
     document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
 });
+function toggleTheme() {
+    const currentTheme = localStorage.getItem('theme') || 'default';
+    const newTheme = currentTheme === 'default' ? 'google-plus' : 'default';
+    setTheme(newTheme);
+}
+
+function setTheme(theme) {
+    const themeStylesheet = document.getElementById('themeStylesheet');
+    if (theme === 'google-plus') {
+        themeStylesheet.href = 'google-plus-theme.css';
+    } else {
+        themeStylesheet.href = 'default-theme.css';
+    }
+    localStorage.setItem('theme', theme);
+}
 async function loadSingleNotebookByToken(token) {
     notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
