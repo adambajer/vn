@@ -45,6 +45,13 @@ if (localStorage.getItem('userId') !== null) {
         document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
         document.querySelector(".status").classList.toggle("active");
     }
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+        setTheme(storedTheme);
+    }
+
+    // Add event listener for theme switcher
+    document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
 });
 async function loadSingleNotebookByToken(token) {
     notebookId = await getNotebookIdByToken(token);
