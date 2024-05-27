@@ -81,7 +81,7 @@ body {
 
         border-bottom: 1px solid #ccc;
   width:-webkit-fill-available;
-
+  margin-left: 2rem;
   padding: 5px;
  }
 /* Optionally style the title attribute tooltip */

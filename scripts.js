@@ -1,7 +1,10 @@
 const firebaseConfig = {
     databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
-firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoaded', async function () {
+firebase.initializeApp(firebaseConfig);
+let activeNotebookId = null;
+
+document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
@@ -36,7 +39,7 @@ firebase.initializeApp(firebaseConfig);document.addEventListener('DOMContentLoad
     }
 });
 async function loadSingleNotebookByToken(token) {
-    const notebookId = await getNotebookIdByToken(token);
+    notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
         activeNotebookId = notebookId; // Set the active notebook ID globally
@@ -67,11 +70,12 @@ async function getNotebookIdByToken(token) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        headerElement.textContent = `Notebook token /\n ${token}`;
+        headerElement.innerHTML = `Notebook token <br> ${token}`;
     } else {
-        headerElement.textContent = 'Notebook token /\n not found.';
+        headerElement.innerHTML = 'Notebook token <br> not found.';
     }
 }
+
 
 async function loadUserNotebooks() {
     const userId = localStorage.getItem('userId');
@@ -404,7 +408,7 @@ function loadSingleNotebook(notebookId) {
 
 function addNoteFromInput() {
     const noteContent = document.getElementById('noteInput').value;
-    const notebookId = activeNotebookId; // Use the global variable
+    notebookId = activeNotebookId; // Use the global variable
     if (noteContent && notebookId) {
         addNote(noteContent, notebookId);
         document.getElementById('noteInput').value = ''; // Clear the input after adding a note
@@ -603,7 +607,7 @@ function initializeSpeechRecognition() {
     // Handle voice recognition result
     annyang.addCallback('result', function (phrases) {
         let text = phrases[0];
-        const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+        //const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
         if (notebookId && text.trim() !== "") {
             addNote(text, notebookId);
             console.log("Added note: ", text);
@@ -671,7 +675,7 @@ function toggleSpeechKITT() {
     annyang.addCallback('result', function (phrases) {
         // Assume the first phrase is the most accurate
         let text = phrases[0];
-        const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+    //    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
         if (notebookId && text.trim() !== "") {
             addNote(text, notebookId);
             console.log("Added note: ", text);
