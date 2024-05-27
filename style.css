@@ -378,14 +378,11 @@ border: 1px solid #ccc;
     padding: 13px;
     border: 1px solid;
     box-shadow: #ff00006b 0 0 12px 0px;
-}
-/* Add this CSS to your project's stylesheet */
-
-.checkbox-container {
+}.checkbox-container {
     display: inline-block;
     position: relative;
     cursor: pointer;
-    font-size: 22px;
+    font-size: 1rem; /* Adjusted font size for relative scaling */
     user-select: none;
 }
 
@@ -401,10 +398,11 @@ border: 1px solid #ccc;
     position: absolute;
     top: 0;
     left: 0;
-    height: 25px;
-    width: 25px;
+    height: 1.25em; /* Adjusted for relative sizing */
+    width: 1.25em; /* Adjusted for relative sizing */
     background-color: #eee;
-    border-radius: 5px;
+    border-radius: 0.25em; /* Adjusted for relative sizing */
+    transition: background-color 0.3s;
 }
 
 .checkbox-container input:checked ~ .checkmark {
@@ -422,11 +420,11 @@ border: 1px solid #ccc;
 }
 
 .checkbox-container .checkmark:after {
-    left: 9px;
-    top: 5px;
-    width: 5px;
-    height: 10px;
+    left: 0.45em; /* Adjusted for relative sizing */
+    top: 0.25em; /* Adjusted for relative sizing */
+    width: 0.5em; /* Adjusted for relative sizing */
+    height: 0.75em; /* Adjusted for relative sizing */
     border: solid white;
-    border-width: 0 3px 3px 0;
+    border-width: 0 0.15em 0.15em 0; /* Adjusted for relative sizing */
     transform: rotate(45deg);
 }

@@ -357,8 +357,7 @@ function generateCustomNotebookId() {
 }
 
 function setUpUserTooltip() {
-     userId = document.getElementById('userId');
-    userId.innerHTML = `${localStorage.getItem('userId')}`;
+    
     const userIcon = document.getElementById('userIcon');
     const tooltip = document.getElementById('userTooltip');
 
@@ -595,47 +594,7 @@ function formatDate(date) {
     let seconds = date.getSeconds().toString().padStart(2, '0'); // Include seconds
 
     return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-}
-function initializeSpeechRecognition() {
-    if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
-        console.error("Annyang or SpeechKITT is not loaded!");
-        return;
-    }
-    try {
-        
-    // Initialize SpeechKITT settings once
-    SpeechKITT.annyang();
-    annyang.setLanguage('cs'); // Set the desired language
-
-    SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css');
-    SpeechKITT.setInstructionsText('Diktuj poznámku...');
-    SpeechKITT.displayRecognizedSentence(true);
-
-    // Set up SpeechKITT commands
-    SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
-    SpeechKITT.setAbortCommand(() => annyang.abort());
-
-    // Display SpeechKITT interface
-    SpeechKITT.vroom();
-
-    // Handle voice recognition result
-    annyang.addCallback('result', function (phrases) {
-        let text = phrases[0];
-        //const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
-        if (notebookId && text.trim() !== "") {
-            addNote(text, notebookId);
-            console.log("Added note: ", text);
-            SpeechKITT.abortRecognition();
-            document.getElementById('voiceButton').textContent = "Start Voice Recognition";
-        }
-    });
-
-    document.getElementById('voiceButton').addEventListener('click', toggleSpeechKITT);
-    } catch (error) {
-        console.error("Speech recognition initialization failed:", error);
-       
-    }
-}
+} 
 function createDropdownItem(text, action) {
     var item = document.createElement('a');
     item.className = 'dropdown-item';
@@ -665,8 +624,7 @@ function toggleSpeechKITT() {
     // Initialize SpeechKITT settings once
     SpeechKITT.annyang();
     annyang.setLanguage('cs'); // Set the desired language
-
-    SpeechKITT.setStylesheet('https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css');
+ 
     SpeechKITT.setInstructionsText('Diktuj poznámku...');
     SpeechKITT.displayRecognizedSentence(true);
 
