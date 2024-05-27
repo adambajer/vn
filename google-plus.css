@@ -58,7 +58,7 @@ body {
     margin-left:1.75rem; 
     font-family: 'Roboto', sans-serif;
     font-size: 0.8rem;
-
+padding-left: 0.5rem;
     color: #333;
 }
 
@@ -67,15 +67,18 @@ body {
     position: absolute;
     left: 1rem;
     top: 100%;
-    white-space: nowrap;
+    white-space: wrap;
     z-index: 20;
     background-color: #fff;
     padding: 8px 10px;
-    max-width: 200px;
+    max-width: 188px;
     text-align: left;
     color: #333;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
     font-size: 0.75rem;
+    left: 0px;
+    display: inline-flex;
+    flex-wrap: wrap;
 }
 
 .shareicon {
@@ -385,7 +388,7 @@ body {
 }
 
 .checkbox-container input:checked ~ .checkmark {
-    background-color: #2196F3;
+    background-color: #0d6efd;
 }
 
 .checkmark:after {
