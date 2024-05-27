@@ -55,13 +55,23 @@ if (localStorage.getItem('userId') !== null) {
 });
 function toggleTheme() {
     const currentTheme = localStorage.getItem('theme') || 'style';
-    const newTheme = currentTheme === 'style' ? 'google-plus' : 'style';
+    let newTheme;
+    if (currentTheme === 'style') {
+        newTheme = 'google-plus';
+    } else if (currentTheme === 'google-plus') {
+        newTheme = 'mac-glass';
+    } else {
+        newTheme = 'style';
+    }
+
     setTheme(newTheme);
 }
 
 function setTheme(theme) {
     const themeStylesheet = document.getElementById('themeStylesheet');
-    if (theme === 'google-plus') {
+    if (theme === 'mac-glass') {
+        themeStylesheet.href = 'mac-glass.css';
+    } else if (theme === 'google-plus') {
         themeStylesheet.href = 'google-plus.css';
     } else {
         themeStylesheet.href = 'style.css';
