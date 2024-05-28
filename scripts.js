@@ -744,7 +744,7 @@ function toggleSpeechKITT() {
     annyang.addCallback('result', function (phrases) {
         // Assume the first phrase is the most accurate
         let text = phrases[0];
-    //    const notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
+    notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
         if (notebookId && text.trim() !== "") {
             addNote(text, notebookId);
             console.log("Added note: ", text);
