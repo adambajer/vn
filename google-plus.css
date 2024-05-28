@@ -51,8 +51,12 @@ body {
     background: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
     min-width: 12rem;
-    margin-right: 5px;
-  }
+  
+    margin: 0px 5px 5px 0px;
+}
+
+
+  
 .note-text { 
     width: 100%;
     margin-left:1.75rem; 
@@ -383,7 +387,7 @@ padding-left: 0.5rem;
     height: 1.7rem;
     width: 1.75rem;
     background-color: white;
-    border-right: 1px solid #ccc;
+    border: 1px solid #ccc;
     transition: background-color 0.3s;
 }
 

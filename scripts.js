@@ -603,10 +603,19 @@ function loadNotes(notebookId, source = '') {
 
 
 function updateNoteCount(notebookId, increment) {
-    const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
-    let count = parseInt(badge.textContent) || 0;
-    badge.textContent = count + increment;
+    try {
+        const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
+        if (badge) {
+            let count = parseInt(badge.textContent) || 0;
+            badge.textContent = count + increment;
+        } else {
+            console.error(`Badge for notebook ID ${notebookId} not found.`);
+        }
+    } catch (error) {
+        console.error('Failed to update note count:', error);
+    }
 }
+
 
 function updateNote(notebookId, noteId, content) {
     var noteRef = firebase.database().ref(`notebooks/${notebookId}/notes/${noteId}`);
