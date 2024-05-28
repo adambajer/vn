@@ -70,6 +70,10 @@ function toggleTheme() {
 
 
 function generateRandomTheme() {
+    
+    const themeStylesheet = document.getElementById('themeStylesheet');
+    
+    themeStylesheet.href = 'base-theme.css';
     const root = document.documentElement;
     const baseColor = generateRandomColor();
     const accentColor = getHighContrastColor(baseColor);
