@@ -2,25 +2,23 @@ const firebaseConfig = {
     databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
 };
 firebase.initializeApp(firebaseConfig);
-let activeNotebookId = null;
-let userId = null;
+let activeNotebookId;
+let userId;
 document.addEventListener('DOMContentLoaded', async function () {
+    userId = localStorage.getItem('userId');
+    if (!userId) {
+        // Generate a new userId if not present
+        userId = generateUserId();
+        console.log("Generated new User ID:", userId);
+    }
+
     setUpUserTooltip();
     initializeFontSettings();
     loadFontPreference();
     observeNoteContainerChanges();
-// Check if userId is present in localStorage
-if (localStorage.getItem('userId') !== null) {
-    // Retrieve userId from localStorage
-     userId = localStorage.getItem('userId');
-} else {
-    // Generate a new userId if not present
-    generateUserId();
-}
-   
+
     const urlParams = new URLSearchParams(window.location.search);
     const notebookToken = urlParams.get('notebookToken');
-
     const createNotebookButton = document.getElementById('createNotebookButton');
 
     if (notebookToken) {
@@ -31,11 +29,12 @@ if (localStorage.getItem('userId') !== null) {
         }
     } else {
         console.log("No specific token found, loading default notebooks...");
-        await loadUserNotebooks();
+        loadUserNotebooks();
         if (createNotebookButton) {
             createNotebookButton.style.display = 'block'; // Show the button
         }
     }
+
     setUpNoteInput();
 
     try {
@@ -45,15 +44,49 @@ if (localStorage.getItem('userId') !== null) {
         document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
         document.querySelector(".status").classList.toggle("active");
     }
+
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme) {
         setTheme(storedTheme);
     }
     document.getElementById('randomThemeButton').addEventListener('click', generateRandomTheme);
-
-    // Add event listener for theme switcher
     document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
 });
+
+function generateUserId() {
+    function getDeviceFingerprint() {
+        var navigatorData = window.navigator;
+        var screenData = window.screen;
+        var userId = [
+            navigatorData.platform,
+            navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
+            navigatorData.language,
+            screenData.height,
+            screenData.width,
+            screenData.colorDepth,
+            new Date().getTimezoneOffset()
+        ].join('|');
+        return userId;
+    }
+
+    function hashString(str) {
+        // Simple hash function for illustration
+        var hash = 0, i, chr;
+        for (i = 0; i < str.length; i++) {
+            chr = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return hash;
+    }
+
+    const fingerprint = getDeviceFingerprint();
+    const hashedFingerprint = hashString(fingerprint).toString(16); // Convert to hex
+    const shortId = hashedFingerprint.substr(0, 8); // Take first 8 characters
+
+    localStorage.setItem('userId', shortId);
+    return shortId;
+}
 function toggleTheme() {
     const currentTheme = localStorage.getItem('theme') || 'style';
     let newTheme;
@@ -70,9 +103,9 @@ function toggleTheme() {
 
 
 function generateRandomTheme() {
-    
+
     const themeStylesheet = document.getElementById('themeStylesheet');
-    
+
     themeStylesheet.href = 'base-theme.css';
     const root = document.documentElement;
     const baseColor = generateRandomColor();
@@ -131,7 +164,7 @@ function setTheme(theme) {
     localStorage.setItem('theme', theme);
 }
 async function loadSingleNotebookByToken(token) {
-    notebookId = await getNotebookIdByToken(token);
+    const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
         console.log("Notebook ID found:", notebookId);
         activeNotebookId = notebookId; // Set the active notebook ID globally
@@ -141,6 +174,7 @@ async function loadSingleNotebookByToken(token) {
         console.error("Invalid notebookToken. No notebook found.");
     }
 }
+
 
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref('notebooks');
@@ -318,13 +352,13 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 function shareNotebook(notebookId, token) {
     if (token) {
         const baseUrl = window.location.origin;
-        const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
+        const shareableLink = `?notebookToken=${token}`;
         redirectToSharePage(shareableLink);
     } else {
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
-                const shareableLink = `${baseUrl}/Voice-Noter/?notebookToken=${token}`;
+                const shareableLink = `?notebookToken=${token}`;
                 redirectToSharePage(shareableLink);
             } else {
                 console.error('No token found for this notebook');
@@ -441,7 +475,7 @@ function generateCustomNotebookId() {
 }
 
 function setUpUserTooltip() {
-    
+
     const userIcon = document.getElementById('userIcon');
     const tooltip = document.getElementById('userTooltip');
 
@@ -470,7 +504,6 @@ function setUpUserTooltip() {
         tooltip.style.display = 'none';  // Hide the tooltip
     });
 }
-
 function setUpNoteInput() {
     const noteInput = document.getElementById('noteInput');
     noteInput.addEventListener('keydown', function (event) {
@@ -482,6 +515,7 @@ function setUpNoteInput() {
     noteInput.addEventListener('blur', addNoteFromInput);
     document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
 }
+
 
 function setFirstTabActive() {
     let firstTabLink = document.querySelector('.nav-link');
@@ -505,9 +539,8 @@ function loadSingleNotebook(notebookId) {
 
 function addNoteFromInput() {
     const noteContent = document.getElementById('noteInput').value;
-    notebookId = activeNotebookId; // Use the global variable
-    if (noteContent && notebookId) {
-        addNote(noteContent, notebookId);
+    if (noteContent && activeNotebookId) { // Use the global activeNotebookId
+        addNote(noteContent, activeNotebookId);
         document.getElementById('noteInput').value = ''; // Clear the input after adding a note
     }
 }
@@ -534,7 +567,6 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
         }
     });
 }
-
 function loadNotes(notebookId, source = '') {
     activeNotebookId = notebookId; // Set the active notebook ID globally
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
@@ -584,7 +616,7 @@ function loadNotes(notebookId, source = '') {
             checkboxContainer.appendChild(checkbox);
             checkboxContainer.appendChild(checkmark);
 
-            
+
             var deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'Delete';
             deleteBtn.className = 'delete-note';
@@ -691,7 +723,7 @@ function formatDate(date) {
     let seconds = date.getSeconds().toString().padStart(2, '0'); // Include seconds
 
     return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-} 
+}
 function createDropdownItem(text, action) {
     var item = document.createElement('a');
     item.className = 'dropdown-item';
@@ -721,7 +753,7 @@ function toggleSpeechKITT() {
     // Initialize SpeechKITT settings once
     SpeechKITT.annyang();
     annyang.setLanguage('cs'); // Set the desired language
- 
+
     SpeechKITT.setInstructionsText('Diktuj poznámku...');
     SpeechKITT.displayRecognizedSentence(true);
 
@@ -744,12 +776,10 @@ function toggleSpeechKITT() {
     annyang.addCallback('result', function (phrases) {
         // Assume the first phrase is the most accurate
         let text = phrases[0];
-    notebookId = document.querySelector('.nav-link.active')?.dataset.notebookId;
-        if (notebookId && text.trim() !== "") {
-            addNote(text, notebookId);
+        if (activeNotebookId && text.trim() !== "") {
+            addNote(text, activeNotebookId);
             console.log("Added note: ", text);
             SpeechKITT.abortRecognition();
-            document.getElementById('voiceButton').textContent = "Start Voice Recognition";
         }
     });
 }
@@ -798,7 +828,7 @@ function updatePreview() {
 }
 
 function saveFontPreference(font, fontSize) {
-     userId = localStorage.getItem('userId');
+    userId = localStorage.getItem('userId');
     firebase.database().ref(`users/${userId}/settings`).update({
         fontPreference: font,
         fontSizePreference: fontSize
@@ -812,7 +842,7 @@ function saveFontPreference(font, fontSize) {
 }
 
 function loadFontPreference() {
-     userId = localStorage.getItem('userId');
+    userId = localStorage.getItem('userId');
     if (!userId) {
         console.log('No user ID found, skipping load font preference.');
         return;
@@ -850,7 +880,7 @@ function observeNoteContainerChanges() {
 
 
 function exportAllNotebooks() {
-     userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
+    userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
     const userNotebooksRef = firebase.database().ref(`notebooks`);
 
     userNotebooksRef.once('value', snapshot => {
@@ -915,45 +945,6 @@ function getDeviceInfo() {
     return deviceInfo;
 }
 
-function generateUserId() {
-    function getDeviceFingerprint() {
-        var navigatorData = window.navigator;
-        var screenData = window.screen;
-        var userId = [
-            navigatorData.platform,
-            navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
-            navigatorData.language,
-            screenData.height,
-            screenData.width,
-            screenData.colorDepth,
-            new Date().getTimezoneOffset()
-        ].join('|');
-        return userId;
-    }
-
-    function hashString(str) {
-        // Simple hash function for illustration
-        var hash = 0, i, chr;
-        for (i = 0; i < str.length; i++) {
-            chr = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; // Convert to 32bit integer
-        }
-        return hash;
-    }
-
-    const fingerprint = getDeviceFingerprint();
-    const hashedFingerprint = hashString(fingerprint).toString(16); // Convert to hex
-    const shortId = hashedFingerprint.substr(0, 8); // Take first 8 characters
-
-    const storedUserId = localStorage.getItem('userId');
-    if (storedUserId === shortId) {
-        return storedUserId;
-    } else {
-        localStorage.setItem('userId', shortId);
-        return shortId;
-    }
-}
 
 async function getActiveTabUID() {
     return localStorage.getItem('activeTabUID');
