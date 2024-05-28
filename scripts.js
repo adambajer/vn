@@ -73,7 +73,9 @@ function generateRandomTheme() {
     const root = document.documentElement;
     const baseColor = generateRandomColor();
     const accentColor = getHighContrastColor(baseColor);
+    const lightBackgroundColor = tinycolor(baseColor).lighten(30).toString();
 
+    root.style.setProperty('--background-color', lightBackgroundColor);
     root.style.setProperty('--note-border-color', accentColor);
     root.style.setProperty('--note-text-color', accentColor);
     root.style.setProperty('--button-background-color', accentColor);
@@ -86,12 +88,7 @@ function generateRandomTheme() {
 }
 
 function generateRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+    return tinycolor.random().toHexString();
 }
 
 function getHighContrastColor(color) {
