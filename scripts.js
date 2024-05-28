@@ -87,8 +87,24 @@ function generateRandomTheme() {
     root.style.setProperty('--checkbox-color', accentColor);
     root.style.setProperty('--navbar-background-color', accentColor);
     root.style.setProperty('--navbar-text-color', getContrastingTextColor(accentColor));
+    updateBootstrapPrimaryColor(baseColor);
 
     localStorage.setItem('theme', 'random');
+}
+function updateBootstrapPrimaryColor(color) {
+    const css = `
+        .bg-primary,.btn-primary  {
+            background-color: ${tinycolor(color).toRgbString()} !important;
+            border:0px solid;
+        }
+    `;
+    let styleSheet = document.getElementById('bootstrap-theme-override');
+    if (!styleSheet) {
+        styleSheet = document.createElement('style');
+        styleSheet.id = 'bootstrap-theme-override';
+        document.head.appendChild(styleSheet);
+    }
+    styleSheet.innerHTML = css;
 }
 
 function generateRandomColor() {
