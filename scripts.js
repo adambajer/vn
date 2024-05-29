@@ -880,12 +880,6 @@ function applyFontToElements(font, fontSize) {
     document.body.style.fontFamily = `'${font}', sans-serif`;
     document.body.style.fontSize = `${fontSize}px`;
 
-    // Optionally, apply specific styles to the notes if needed
-    const noteTextElements = document.querySelectorAll('.note-text');
-    noteTextElements.forEach(element => {
-        element.style.fontFamily = `'${font}', sans-serif`;
-        element.style.fontSize = `${fontSize}px`;
-    });
 }
 function exportAllNotebooks() {
     userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
