@@ -918,7 +918,7 @@ function updateFontSize(size) {
 }
 
 // Event listener for font size input
-document.getElementById('font-size').addEventListener('change', function() {
+document.getElementById('fontSizeInput').addEventListener('change', function() {
     updateFontSize(this.value);
 });
 
