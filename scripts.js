@@ -793,7 +793,6 @@ function initializeFontSettings() {
     // Load the initial preview when font settings are first set up
     updatePreview();
 }
-
 function applyFontChange() {
     var selectedFont = document.getElementById('fontSelect').value;
     var selectedFontSize = document.getElementById('fontSizeInput').value;
@@ -804,14 +803,12 @@ function applyFontChange() {
             families: [selectedFont]
         },
         active: function () {
-            var noteTextElements = document.querySelectorAll('.note-text');
-            noteTextElements.forEach(function (element) {
-                element.style.fontFamily = `'${selectedFont}', sans-serif`;
-                element.style.fontSize = `${selectedFontSize}px`;
-            });
+            // Apply the font and size to the entire document
+            document.body.style.fontFamily = `'${selectedFont}', sans-serif`;
+            document.body.style.fontSize = `${selectedFontSize}px`;
 
             // Save the user's font and font size preference
-            saveFontPreference(selectedFont, selectedFontSize);  // This function call saves to Firebase
+            saveFontPreference(selectedFont, selectedFontSize);
 
             // Update the preview as well
             updatePreview();
@@ -878,7 +875,18 @@ function observeNoteContainerChanges() {
     });
 }
 
+function applyFontToElements(font, fontSize) {
+    // Apply the font settings to the entire document
+    document.body.style.fontFamily = `'${font}', sans-serif`;
+    document.body.style.fontSize = `${fontSize}px`;
 
+    // Optionally, apply specific styles to the notes if needed
+    const noteTextElements = document.querySelectorAll('.note-text');
+    noteTextElements.forEach(element => {
+        element.style.fontFamily = `'${font}', sans-serif`;
+        element.style.fontSize = `${fontSize}px`;
+    });
+}
 function exportAllNotebooks() {
     userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
     const userNotebooksRef = firebase.database().ref(`notebooks`);
