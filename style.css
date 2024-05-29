@@ -2,7 +2,35 @@
 body {
     background:#fdfde8;
 }
+:root {
+    --note-font-family: 'Arial, sans-serif';
+    --note-font-size: 16px;
+    --base-font-size: 16px;
+    --base-margin: 1.25rem;
+    --base-padding: 1rem;
+    --bootstrap-primary-color: #0d6efd; /* Bootstrap primary color */
+    --background-color: #fdfde8; /* Default light background color */
+    
+    --note-background-color: white;
+    --note-border-color: #ccc;
+    --note-text-color: #00085c;
+    --note-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --note-border-radius: 5px;
+    --navbar-background-color: #fff;
+    --navbar-text-color: #333;
+    --button-background-color: #0d6efd;
+    --button-text-color: #fff;
+    --checkbox-color: #0d6efd;
+}
 
+body {
+    font-size: var(--base-font-size);
+    margin: var(--base-margin);
+    padding: var(--base-padding);
+    background: var(--background-color);
+    font-family: 'Roboto', sans-serif;
+    color: var(--note-text-color);
+}
 #notesContainer2 {
     padding: 1rem;
  }
@@ -69,7 +97,7 @@ body {
     flex-direction: row;
     align-items: center;
     width: auto;
-    padding: 5px;
+    padding:var(--base-padding);
     width: 100%;
 
 
@@ -82,7 +110,7 @@ body {
         border-bottom: 1px solid #ccc;
   width:-webkit-fill-available;
   margin-left: 2rem;
-  padding: 5px;
+  padding:var(--base-padding);
  }
 /* Optionally style the title attribute tooltip */
 /* Optionally style the title attribute tooltip */
@@ -94,14 +122,15 @@ top: 100%;
 white-space: wrap;
 z-index: 20;
 background-color: #f5f5f5;
-padding: 4px 8px;
+
 max-width: 200px;
 text-align: left;
-padding: 8px 10px;
+padding:var(--base-padding);
 color: #333;
 background-color: #fff;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-font-size: 0.75rem;
+font-size: var(--note-font-size);
+
 }
 
 .shareicon {
@@ -157,8 +186,7 @@ border-right: 1px solid #ccc;
 .dropdownBtn   {
     display: inline-block;
   background-color: transparent;border-right:1px solid #ccc;
-   padding: 0.5rem;
-   padding-left: 0px;
+  padding:var(--base-padding);
   border-radius: 0px;
   margin-left: 0.5rem;
 }
@@ -188,7 +216,7 @@ background-color: white;
 cursor: pointer;
 border-top-right-radius: 5px;
 border-top-left-radius: 5px; 
-padding: 5px;
+padding:var(--base-padding);
 } #userIcon:hover {
 background-color: white;
 }
@@ -225,9 +253,8 @@ margin-right: 10px; /* Adjust the margin size as needed */
 }
 .delete-note {
 position: absolute;
-right: 0px;
-font-size: 1rem;
-padding: 1rem 1rem;
+right: 0px;    font-size: var(--note-font-size);
+padding:var(--base-padding);
 margin-left: 10px; 
 color: red;
     border:1px solid red;
@@ -242,8 +269,8 @@ visibility: visible;
 }
 .logo {
 text-decoration: none;
-color: black;
-font-size: 1.5rem;
+color: black;    font-size: var(--note-font-size);
+
 vertical-align: middle;
 display: flex;
 flex-direction: row;
@@ -280,8 +307,7 @@ margin-right: 10px; /* Adjust spacing on smaller screens */
 /* Flexbox setup for note items */
 .note-item {
 display: flex;
-align-items: center;
-padding: 5px;
+align-items: center;padding:var(--base-padding);
 }
 .nav-link {
      border-bottom: 1px solid #ccc;
@@ -343,9 +369,8 @@ right: 0px;
 }
 #spaceName {
 border: 1px solid #ccc; 
-    font-size: 1.5rem;
-    padding-left: 2rem;
-    padding-right: 2rem; 
+font-size: var(--note-font-size);
+padding:var(--base-padding);
     display: inline-block;
     text-transform: uppercase;
     font-weight: bold;
@@ -374,8 +399,7 @@ border: 1px solid #ccc;
     left: 20px;
 }.status.active {
     color: red;
-    background: #ffffff;
-    padding: 13px;
+    background: #ffffff;padding:var(--base-padding);
     border: 1px solid;
     box-shadow: #ff00006b 0 0 12px 0px;
 }
