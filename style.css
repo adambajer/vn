@@ -382,29 +382,22 @@ border: 1px solid #ccc;
 /* Add this CSS to your project's stylesheet */
 
 .checkbox-container {
-    display: inline-block;
-    position: relative;
-    cursor: pointer;
-    font-size: 22px;
-    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Makes sure the checkbox container scales with the note */
 }
 
-.checkbox-container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
+.checkbox-container input[type="checkbox"] {
+    width: 1em;
+    height: 1em;
+}/* Additional styling for checkmark */
+.checkbox-container .checkmark {
+    width: 1em;
+    height: 1em;
 }
-
 .checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 25px;
-    width: 25px;
-    background-color: #eee;
-    border-radius: 5px;
+   position: absolute;
 }
 
 .checkbox-container input:checked ~ .checkmark {
@@ -422,11 +415,6 @@ border: 1px solid #ccc;
 }
 
 .checkbox-container .checkmark:after {
-    left: 9px;
-    top: 5px;
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 3px 3px 0;
-    transform: rotate(45deg);
+   left: 0;
+    top: 50%; 
 }
