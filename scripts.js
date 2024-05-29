@@ -793,6 +793,7 @@ function initializeFontSettings() {
     // Load the initial preview when font settings are first set up
     updatePreview();
 }
+
 function applyFontChange() {
     var selectedFont = document.getElementById('fontSelect').value;
     var selectedFontSize = document.getElementById('fontSizeInput').value;
@@ -803,9 +804,9 @@ function applyFontChange() {
             families: [selectedFont]
         },
         active: function () {
-            // Apply the font and size to the entire document
-            document.body.style.fontFamily = `'${selectedFont}', sans-serif`;
-            document.body.style.fontSize = `${selectedFontSize}px`;
+            // Update the CSS variables
+            document.documentElement.style.setProperty('--note-font-family', `'${selectedFont}', sans-serif`);
+            document.documentElement.style.setProperty('--note-font-size', `${selectedFontSize}px`);
 
             // Save the user's font and font size preference
             saveFontPreference(selectedFont, selectedFontSize);
@@ -823,7 +824,6 @@ function updatePreview() {
     preview.style.fontFamily = `'${previewFont}', sans-serif`;
     preview.style.fontSize = `${previewSize}px`;
 }
-
 function saveFontPreference(font, fontSize) {
     userId = localStorage.getItem('userId');
     firebase.database().ref(`users/${userId}/settings`).update({
@@ -837,7 +837,6 @@ function saveFontPreference(font, fontSize) {
         }
     });
 }
-
 function loadFontPreference() {
     userId = localStorage.getItem('userId');
     if (!userId) {
@@ -875,6 +874,7 @@ function observeNoteContainerChanges() {
     });
 }
 
+
 function applyFontToElements(font, fontSize) {
     // Apply the font settings to the entire document
     document.body.style.fontFamily = `'${font}', sans-serif`;
@@ -900,13 +900,28 @@ function exportAllNotebooks() {
 }
 
 function applyFontToElements(font, fontSize) {
-    const noteTextElements = document.querySelectorAll('.note-text');
-    noteTextElements.forEach(element => {
-        element.style.fontFamily = `'${font}', sans-serif`;
-        element.style.fontSize = `${fontSize}px`;
-    });
+    // Update the CSS variables
+    document.documentElement.style.setProperty('--note-font-family', `'${font}', sans-serif`);
+    document.documentElement.style.setProperty('--note-font-size', `${fontSize}px`);
     updatePreview();
 }
+
+// Adjust the base font size and related variables
+function adjustBaseFontSize(newSize) {
+    document.documentElement.style.setProperty('--base-font-size', newSize + 'px');
+    document.documentElement.style.setProperty('--base-margin', (newSize * 1.25 / 16) + 'rem');
+    document.documentElement.style.setProperty('--base-padding', (newSize * 1 / 16) + 'rem');
+}
+
+function updateFontSize(size) {
+    adjustBaseFontSize(size);
+}
+
+// Event listener for font size input
+document.getElementById('font-size').addEventListener('change', function() {
+    updateFontSize(this.value);
+});
+
 function exportNotebookAsTxt(notebookId, notebookData) {
     const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notesRef.once('value', notesSnapshot => {

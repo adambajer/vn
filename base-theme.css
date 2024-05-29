@@ -1,4 +1,9 @@
 :root {
+    --note-font-family: 'Arial, sans-serif';
+    --note-font-size: 16px;
+    --base-font-size: 16px;
+    --base-margin: 1.25rem;
+    --base-padding: 1rem;
     --bootstrap-primary-color: #0d6efd; /* Bootstrap primary color */
     --background-color: #fdfde8; /* Default light background color */
     
@@ -15,11 +20,18 @@
 }
 
 body {
+    font-size: var(--base-font-size);
+    margin: var(--base-margin);
+    padding: var(--base-padding);
     background: var(--background-color);
     font-family: 'Roboto', sans-serif;
     color: var(--note-text-color);
 }
-
+.note-text {
+    font-family: var(--note-font-family);
+    font-size: var(--note-font-size);
+}
+ 
 #notesContainer2 {
     padding: 1rem;
 }
@@ -39,13 +51,7 @@ body {
     border: 1px solid var(--note-border-color);
     box-shadow: var(--note-shadow);
 }
-
-.note-text {
-    border-bottom: 1px solid var(--note-border-color);
-    width: -webkit-fill-available;
-    margin-left: 2rem;
-    padding: 5px;
-}
+ 
 
 .navbar {
     background: var(--navbar-background-color);
