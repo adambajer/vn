@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme) {
-        setTheme(storedTheme);
+        setTheme();
     }
     document.getElementById('randomThemeButton').addEventListener('click', generateRandomTheme);
     document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
@@ -98,7 +98,7 @@ function toggleTheme() {
         newTheme = 'style';
     }
 
-    setTheme(newTheme);
+    setTheme();
 }
 
 
@@ -152,16 +152,8 @@ function getHighContrastColor(color) {
 function getContrastingTextColor(color) {
     return tinycolor(color).isLight() ? '#000' : '#FFF';
 }
-function setTheme(theme) {
-    const themeStylesheet = document.getElementById('themeStylesheet');
-    if (theme === 'mac-glass') {
-        themeStylesheet.href = 'mac-glass.css';
-    } else if (theme === 'google-plus') {
-        themeStylesheet.href = 'google-plus.css';
-    } else {
-        themeStylesheet.href = 'style.css';
-    }
-    localStorage.setItem('theme', theme);
+function setTheme() { 
+        themeStylesheet.href = 'google-plus.css'; 
 }
 async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookIdByToken(token);
