@@ -49,8 +49,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (storedTheme) {
         setTheme();
     }
-    document.getElementById('randomThemeButton').addEventListener('click', generateRandomTheme);
-    document.getElementById('themeSwitcher').addEventListener('click', toggleTheme);
+ 
 });
 
 function generateUserId() {
@@ -102,56 +101,9 @@ function toggleTheme() {
 }
 
 
-function generateRandomTheme() {
-
-    const themeStylesheet = document.getElementById('themeStylesheet');
-
-    themeStylesheet.href = 'base-theme.css';
-    const root = document.documentElement;
-    const baseColor = generateRandomColor();
-    const accentColor = getHighContrastColor(baseColor);
-    const lightBackgroundColor = tinycolor(baseColor).lighten(30).toString();
-
-    root.style.setProperty('--background-color', lightBackgroundColor);
-    root.style.setProperty('--note-border-color', accentColor);
-    root.style.setProperty('--note-text-color', accentColor);
-    root.style.setProperty('--button-background-color', accentColor);
-    root.style.setProperty('--button-text-color', getContrastingTextColor(accentColor));
-    root.style.setProperty('--checkbox-color', accentColor);
-    root.style.setProperty('--navbar-background-color', accentColor);
-    root.style.setProperty('--navbar-text-color', getContrastingTextColor(accentColor));
-    updateBootstrapPrimaryColor(baseColor);
-
-    localStorage.setItem('theme', 'random');
-}
-function updateBootstrapPrimaryColor(color) {
-    const css = `
-        .bg-primary,.btn-primary  {
-            background-color: ${tinycolor(color).toRgbString()} !important;
-            border:0px solid;
-        }
-    `;
-    let styleSheet = document.getElementById('bootstrap-theme-override');
-    if (!styleSheet) {
-        styleSheet = document.createElement('style');
-        styleSheet.id = 'bootstrap-theme-override';
-        document.head.appendChild(styleSheet);
-    }
-    styleSheet.innerHTML = css;
-}
-
-function generateRandomColor() {
-    return tinycolor.random().toHexString();
-}
-
-function getHighContrastColor(color) {
-    // Generate a high contrast color
-    return tinycolor(color).darken(20).toString();
-}
-
-function getContrastingTextColor(color) {
-    return tinycolor(color).isLight() ? '#000' : '#FFF';
-}
+ 
+ 
+ 
 function setTheme() { 
         themeStylesheet.href = 'google-plus.css'; 
 }
