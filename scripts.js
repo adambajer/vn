@@ -139,11 +139,17 @@ async function getNotebookIdByToken(token) {
     }
 }
 
+
+
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        const qrCodeHtml = generateQRCodeHtml(token); // Generate QR code HTML
-        headerElement.innerHTML = `Notebook token <br> ${token} <br> ${qrCodeHtml}`;
+        const qrCodeContainer = document.createElement('div');
+        qrCodeContainer.id = 'qrCodeContainer';
+        generateQRCode(token, qrCodeContainer).then(() => {
+            headerElement.innerHTML = `Notebook token <br> ${token}`;
+            headerElement.appendChild(qrCodeContainer);
+        });
     } else {
         headerElement.innerHTML = 'Notebook token <br> not found.';
     }
