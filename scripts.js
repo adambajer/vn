@@ -317,18 +317,27 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 
     return { badge: badge, nameLabel: nameLabel };
 }
-
 function shareNotebook(notebookId, token) {
     if (token) {
         const baseUrl = window.location.origin;
         const shareableLink = `?notebookToken=${token}`;
-        redirectToSharePage(shareableLink);
+        const qrCodeContainer = document.createElement('div');
+        qrCodeContainer.id = 'qrCodeContainer';
+        generateQRCode(token, qrCodeContainer).then(() => {
+            document.body.appendChild(qrCodeContainer);
+            redirectToSharePage(shareableLink);
+        });
     } else {
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
                 const shareableLink = `?notebookToken=${token}`;
-                redirectToSharePage(shareableLink);
+                const qrCodeContainer = document.createElement('div');
+                qrCodeContainer.id = 'qrCodeContainer';
+                generateQRCode(token, qrCodeContainer).then(() => {
+                    document.body.appendChild(qrCodeContainer);
+                    redirectToSharePage(shareableLink);
+                });
             } else {
                 console.error('No token found for this notebook');
             }
