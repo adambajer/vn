@@ -114,11 +114,27 @@ async function loadSingleNotebookByToken(token) {
         activeNotebookId = notebookId; // Set the active notebook ID globally
         loadNotes(notebookId, 'tokenLoad'); // Pass the source to loadNotes
         updateHeaderWithNotebookInfo(token); // Update the header
+                generateQRCode(token); // Generate QR code for sharing
+
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
 }
 
+function generateQRCode(token) {
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
+    if (!qrCodeContainer) {
+        console.error('QR Code container element not found.');
+        return;
+    }
+    const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
+    qrCodeContainer.innerHTML = ''; // Clear previous QR code if any
+    new QRCode(qrCodeContainer, {
+        text: qrCodeUrl,
+        width: 128,
+        height: 128
+    });
+}
 
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref('notebooks');
