@@ -149,17 +149,21 @@ function updateHeaderWithNotebookInfo(token) {
     }
 }
 
-function generateQRCodeHtml(token) {
-    const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
-    const qrCodeContainer = document.createElement('div');
-    qrCodeContainer.id = 'qrCodeContainer';
-    new QRCode(qrCodeContainer, {
-        text: qrCodeUrl,
-        width: 128,
-        height: 128
+async function generateQRCode(token, container) {
+    return new Promise((resolve) => {
+        const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
+        new QRCode(container, {
+            text: qrCodeUrl,
+            width: 128,
+            height: 128,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H,
+            callback: () => resolve()
+        });
     });
-    return qrCodeContainer.outerHTML;
 }
+
 
 
 async function loadUserNotebooks() {
