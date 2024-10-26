@@ -298,7 +298,7 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 function shareNotebook(notebookId, token) {
     if (token) {
         const baseUrl = window.location.origin;
-        const shareableLink = ?notebookToken=${token};
+           const shareableLink = `?notebookToken=${token}`;
         redirectToSharePage(shareableLink);
     } else {
         getNotebookToken(notebookId).then(token => {
