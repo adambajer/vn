@@ -418,7 +418,7 @@ padding-left: 0.5rem;
 width:30px;
     
 }
-#qrCodeContainer img:hover {
+#bar:hover #qrCodeContainer img {
 width:100%;
     
 }
