@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     setUpUserTooltip();
-    initializeFontSettings();
-    loadFontPreference();
+ 
     observeNoteContainerChanges();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -44,11 +43,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
         document.querySelector(".status").classList.toggle("active");
     }
-
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme) {
-        setTheme();
-    }
+ 
  
 });
 
@@ -86,27 +81,11 @@ function generateUserId() {
     localStorage.setItem('userId', shortId);
     return shortId;
 }
-function toggleTheme() {
-    const currentTheme = localStorage.getItem('theme') || 'style';
-    let newTheme;
-    if (currentTheme === 'style') {
-        newTheme = 'google-plus';
-    } else if (currentTheme === 'google-plus') {
-        newTheme = 'mac-glass';
-    } else {
-        newTheme = 'style';
-    }
-
-    setTheme();
-}
-
+ 
 
  
  
  
-function setTheme() { 
-        themeStylesheet.href = 'google-plus.css'; 
-}
 async function loadSingleNotebookByToken(token) {
     const notebookId = await getNotebookIdByToken(token);
     if (notebookId) {
@@ -720,7 +699,7 @@ function toggleSpeechKITT() {
     SpeechKITT.annyang();
     annyang.setLanguage('cs'); // Set the desired language
 
-    SpeechKITT.setInstructionsText('Diktuj poznámku...');
+    SpeechKITT.setInstructionsText('Mluv...');
     SpeechKITT.displayRecognizedSentence(true);
 
     // Toggle SpeechKITT and annyang
@@ -751,85 +730,14 @@ function toggleSpeechKITT() {
 }
 
 
-function initializeFontSettings() {
-    // Attach change event listeners to font selection and size input
-    document.getElementById('fontSelect').addEventListener('change', applyFontChange);
-    document.getElementById('fontSizeInput').addEventListener('input', applyFontChange);
-
-    // Load the initial preview when font settings are first set up
-    updatePreview();
-}
-
-function applyFontChange() {
-    var selectedFont = document.getElementById('fontSelect').value;
-    var selectedFontSize = document.getElementById('fontSizeInput').value;
-
-    // Ensure fonts are loaded from Google Fonts
-    WebFont.load({
-        google: {
-            families: [selectedFont]
-        },
-        active: function () {
-            // Update the CSS variables
-            document.documentElement.style.setProperty('--note-font-family', `'${selectedFont}', sans-serif`);
-            document.documentElement.style.setProperty('--note-font-size', `${selectedFontSize}px`);
-
-            // Save the user's font and font size preference
-            saveFontPreference(selectedFont, selectedFontSize);
-
-            // Update the preview as well
-            updatePreview();
-        }
-    });
-}
-
-function updatePreview() {
-    const previewFont = document.getElementById('fontSelect').value;
-    const previewSize = document.getElementById('fontSizeInput').value;
-    const preview = document.getElementById('fontPreview');
-    preview.style.fontFamily = `'${previewFont}', sans-serif`;
-    preview.style.fontSize = `${previewSize}px`;
-}
-function saveFontPreference(font, fontSize) {
-    userId = localStorage.getItem('userId');
-    firebase.database().ref(`users/${userId}/settings`).update({
-        fontPreference: font,
-        fontSizePreference: fontSize
-    }, (error) => {
-        if (error) {
-            console.error('Saving font settings failed: ', error);
-        } else {
-            console.log('Font settings saved successfully');
-        }
-    });
-}
-function loadFontPreference() {
-    userId = localStorage.getItem('userId');
-    if (!userId) {
-        console.log('No user ID found, skipping load font preference.');
-        return;
-    }
-
-    firebase.database().ref(`users/${userId}/settings`).once('value').then(snapshot => {
-        const settings = snapshot.val();
-        if (settings && settings.fontPreference && settings.fontSizePreference) {
-            document.getElementById('fontSelect').value = settings.fontPreference;
-            document.getElementById('fontSizeInput').value = settings.fontSizePreference;
-            applyFontChange();
-        }
-    }).catch(error => {
-        console.error('Failed to load font settings:', error);
-    });
-}
-
+ 
+ 
 function observeNoteContainerChanges() {
     const container = document.getElementById('notesContainer');
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'childList') {
-                const currentFont = document.getElementById('fontSelect').value;
-                const currentFontSize = document.getElementById('fontSizeInput').value;
-                applyFontToElements(currentFont, currentFontSize);
+         
             }
         });
     });
@@ -841,12 +749,7 @@ function observeNoteContainerChanges() {
 }
 
 
-function applyFontToElements(font, fontSize) {
-    // Apply the font settings to the entire document
-    document.body.style.fontFamily = `'${font}', sans-serif`;
-    document.body.style.fontSize = `${fontSize}px`;
-
-}
+ 
 function exportAllNotebooks() {
     userId = localStorage.getItem('userId'); // Ensure you have the userId stored in local storage
     const userNotebooksRef = firebase.database().ref(`notebooks`);
@@ -864,30 +767,9 @@ function exportAllNotebooks() {
         });
     });
 }
-
-function applyFontToElements(font, fontSize) {
-    // Update the CSS variables
-    document.documentElement.style.setProperty('--note-font-family', `'${font}', sans-serif`);
-    document.documentElement.style.setProperty('--note-font-size', `${fontSize}px`);
-    updatePreview();
-}
-
-// Adjust the base font size and related variables
-function adjustBaseFontSize(newSize) {
-    document.documentElement.style.setProperty('--base-font-size', newSize + 'px');
-    document.documentElement.style.setProperty('--base-margin', (newSize * 1.25 / 16) + 'rem');
-    document.documentElement.style.setProperty('--base-padding', (newSize * 1 / 16) + 'rem');
-}
-
-function updateFontSize(size) {
-    adjustBaseFontSize(size);
-}
-
-// Event listener for font size input
-document.getElementById('fontSizeInput').addEventListener('change', function() {
-    updateFontSize(this.value);
-});
-
+ 
+ 
+ 
 function exportNotebookAsTxt(notebookId, notebookData) {
     const notesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notesRef.once('value', notesSnapshot => {
