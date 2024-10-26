@@ -413,6 +413,7 @@ padding:var(--base-padding);
     padding: 5px; /* Optional padding for overall container */
 }
 /* Add this CSS to your project's stylesheet */
+/* Add this CSS to your project's stylesheet */
 
 .checkbox-container {
     display: inline-flex;
@@ -424,7 +425,7 @@ padding:var(--base-padding);
 }
 
 .checkbox-container input[type="checkbox"] {
-    width: 1.25em; /* Slightly increase checkbox size for better visibility */
+    width: 1.25em; /* Set size to match checkmark */
     height: 1.25em;
     cursor: pointer;
     appearance: none; /* Remove default checkbox styling */
@@ -436,7 +437,7 @@ padding:var(--base-padding);
 
 /* Additional styling for custom checkmark */
 .checkmark {
-    width: 1.25em;
+    width: 1.25em; /* Match size to input checkbox */
     height: 1.25em;
     position: absolute;
     top: 0;
@@ -470,6 +471,7 @@ padding:var(--base-padding);
 .checkbox-container input[type="checkbox"]:checked + .checkmark:after {
     display: block;
 }
+
 
 .text-input:focus {
     outline: none;
