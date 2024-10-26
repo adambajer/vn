@@ -119,8 +119,19 @@ async function loadSingleNotebookByToken(token) {
         console.error("Invalid notebookToken. No notebook found.");
     }
 }
-
+function updateHeaderWithNotebookInfo(token) {
+    const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
+    if (token) {
+          const qrCodeContainer = document.createElement('div');
+        qrCodeContainer.id = 'qrCodeContainer';
+        generateQRCode(token, qrCodeContainer).then(() => {
+            headerElement.body.appendChild(qrCodeContainer);
+         });
+    } else {
+        headerElement.innerHTML = 'Notebook token <br> not found.';
+    }
  
+}
 
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref('notebooks');
@@ -141,19 +152,7 @@ async function getNotebookIdByToken(token) {
 
 
 
-function updateHeaderWithNotebookInfo(token) {
-    const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
-    if (token) {
-        const qrCodeContainer = document.createElement('div');
-        qrCodeContainer.id = 'qrCodeContainer';
-        generateQRCode(token, qrCodeContainer).then(() => {
-            headerElement.innerHTML = `Notebook token <br> ${token}`;
-            headerElement.appendChild(qrCodeContainer);
-        });
-    } else {
-        headerElement.innerHTML = 'Notebook token <br> not found.';
-    }
-}
+
 
 async function generateQRCode(token, container) {
     return new Promise((resolve) => {
@@ -316,32 +315,18 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
     }
 
     return { badge: badge, nameLabel: nameLabel };
-}
+} 
 function shareNotebook(notebookId, token) {
-    console.log("1");
-    console.log(token);
     if (token) {
-        console.log("2");
         const baseUrl = window.location.origin;
-        const shareableLink = `?notebookToken=${token}`;
-        const qrCodeContainer = document.createElement('div');
-        qrCodeContainer.id = 'qrCodeContainer';
-        generateQRCode(token, qrCodeContainer).then(() => {
-            document.body.appendChild(qrCodeContainer);
-            redirectToSharePage(shareableLink);
-        });
+        const shareableLink = ?notebookToken=${token};
+        redirectToSharePage(shareableLink);
     } else {
-        console.log("3");
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
-                const shareableLink = `?notebookToken=${token}`;
-                const qrCodeContainer = document.createElement('div');
-                qrCodeContainer.id = 'qrCodeContainer';
-                generateQRCode(token, qrCodeContainer).then(() => {
-                    document.body.appendChild(qrCodeContainer);
-                    redirectToSharePage(shareableLink);
-                });
+                const shareableLink = ?notebookToken=${token};
+                redirectToSharePage(shareableLink);
             } else {
                 console.error('No token found for this notebook');
             }
@@ -350,7 +335,6 @@ function shareNotebook(notebookId, token) {
         });
     }
 }
-
 function redirectToSharePage(shareableLink) {
     const sharePageUrl = `${shareableLink}`;
     window.location.href = sharePageUrl;
