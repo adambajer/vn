@@ -405,43 +405,61 @@ padding:var(--base-padding);
 }
 /* Add this CSS to your project's stylesheet */
 
+./* Flex container to align checkbox and text input */
+.flex-container {
+    display: flex;
+    align-items: center; /* Vertically align items */
+    gap: 10px; /* Space between checkbox and input */
+    padding: 5px; /* Optional padding for overall container */
+}
+
+/* Checkbox container */
 .checkbox-container {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%; /* Makes sure the checkbox container scales with the note */
+    height: 2.5em; /* Set consistent height */
+    margin-right: 10px; /* Adjust spacing if needed */
+    position: relative;
 }
 
+/* Checkbox styling */
 .checkbox-container input[type="checkbox"] {
-    width: 1em;
-    height: 1em;
-}/* Additional styling for checkmark */
-.checkbox-container .checkmark {
-    width: 1em;
-    height: 1em;
+    width: 1.5em; /* Adjust size if necessary */
+    height: 1.5em;
+    cursor: pointer;
 }
+
+/* Checkmark styling for customization */
 .checkmark {
-   position: absolute;
-}
-
-.checkbox-container input:checked ~ .checkmark {
-    background-color: #2196F3;
-}
-
-.checkmark:after {
-    content: "";
     position: absolute;
-    display: none;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
 }
 
-.checkbox-container input:checked ~ .checkmark:after {
-    display: block;
+/* Text input styling */
+.text-input {
+    height: 2.5em; /* Same height as the checkbox container */
+    padding: 5px; /* Padding for a better look */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex-grow: 1; /* Expand to fill the remaining space */
+    font-size: 1rem;
 }
 
-.checkbox-container .checkmark:after {
-   left: 0;
-    top: 50%; 
+/* Optional hover styles for better visual cues */
+.checkbox-container input[type="checkbox"]:hover {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
+
+.text-input:focus {
+    outline: none;
+    border-color: var(--bootstrap-primary-color);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
 div#qrCodeContainer img {
     width: 30px;
 }
