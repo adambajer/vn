@@ -479,9 +479,9 @@ padding:var(--base-padding);
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-div#qrCodeContainer img {
-    width: 30px;
+#qrCodeContainer img {
+    width: 30px !important;
 }
 div#qrCodeContainer:hover img {
-    width: 100%;
+    width: 100% !important;
 }
