@@ -318,7 +318,10 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
     return { badge: badge, nameLabel: nameLabel };
 }
 function shareNotebook(notebookId, token) {
+    console.log("1");
+    console.log(token);
     if (token) {
+        console.log("2");
         const baseUrl = window.location.origin;
         const shareableLink = `?notebookToken=${token}`;
         const qrCodeContainer = document.createElement('div');
@@ -328,6 +331,7 @@ function shareNotebook(notebookId, token) {
             redirectToSharePage(shareableLink);
         });
     } else {
+        console.log("3");
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
