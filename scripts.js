@@ -101,11 +101,21 @@ async function loadSingleNotebookByToken(token) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-          const qrCodeContainer = document.createElement('div');
-        qrCodeContainer.id = 'qrCodeContainer';
-        generateQRCode(token, qrCodeContainer).then(() => {
-            headerElement.innerHTML(qrCodeContainer+'<div>Token '+token+'</div>');
-         });
+          headerElement.innerHTML('<div>Token '+token+'</div>');
+
+          const qrCodeContainer = document.getElementById('qrCodeContainer');
+        
+         const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
+        new QRCode(qrCodeContainer, {
+            text: qrCodeUrl,
+            width: 128,
+            height: 128,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H,
+            callback: () => resolve()
+        });
+          
     } else {
         headerElement.innerHTML = 'Notebook token <br> not found.';
     }
@@ -132,22 +142,7 @@ async function getNotebookIdByToken(token) {
 
 
 
-
-async function generateQRCode(token, container) {
-    return new Promise((resolve) => {
-        const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
-        new QRCode(container, {
-            text: qrCodeUrl,
-            width: 128,
-            height: 128,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H,
-            callback: () => resolve()
-        });
-    });
-}
-
+ 
 
 
 async function loadUserNotebooks() {
