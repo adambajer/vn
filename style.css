@@ -442,3 +442,9 @@ padding:var(--base-padding);
    left: 0;
     top: 50%; 
 }
+div#qrCodeContainer img {
+    width: 30px;
+}
+div#qrCodeContainer:hover img {
+    width: 100%;
+}
