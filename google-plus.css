@@ -414,3 +414,11 @@ padding-left: 0.5rem;
     border-width: 0 0.15em 0.15em 0;
     transform: rotate(45deg);
 }
+#qrCodeContainer img {
+width:30px;
+    
+}
+#qrCodeContainer img:hover {
+width:100%;
+    
+}
