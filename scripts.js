@@ -104,7 +104,7 @@ function updateHeaderWithNotebookInfo(token) {
           const qrCodeContainer = document.createElement('div');
         qrCodeContainer.id = 'qrCodeContainer';
         generateQRCode(token, qrCodeContainer).then(() => {
-            headerElement.innerHTML(qrCodeContainer+'<div>Token '+token+'</div>';
+            headerElement.innerHTML(qrCodeContainer+'<div>Token '+token+'</div>');
          });
     } else {
         headerElement.innerHTML = 'Notebook token <br> not found.';
