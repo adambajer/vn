@@ -101,7 +101,7 @@ async function loadSingleNotebookByToken(token) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        headerElement.innerHTML = `<div>Token ${token}</div>`;
+        headerElement.innerHTML = `<div>${token}</div>`;
 
         let qrCodeContainer = document.getElementById('qrCodeContainer');
         if (!qrCodeContainer) {
