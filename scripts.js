@@ -540,27 +540,43 @@ function loadNotes(notebookId, source = '') {
                 tooltipContent += `\nEdited: ${updatedAt}`;
             }
             noteElement.setAttribute('data-title', tooltipContent);
-            var checkboxContainer = document.createElement('label');
-            checkboxContainer.className = 'checkbox-container';
+    var flexContainer = document.createElement('div');
+        flexContainer.className = 'flex-container'; // Add a container to align checkbox and text input
+        
+        var checkboxContainer = document.createElement('label');
+        checkboxContainer.className = 'checkbox-container';
+        
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'note-checkbox';
+        checkbox.checked = notes[noteId].finished;
+        checkbox.onchange = function () {
+            toggleNoteFinished(notebookId, noteId, checkbox.checked);
+            noteText.contentEditable = !checkbox.checked;
+        };
+        
+        var checkmark = document.createElement('span');
+        checkmark.className = 'checkmark';
+        
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(checkmark);
+        
+        // Create text input dynamically
+        var noteText = document.createElement('input');
+        noteText.type = 'text';
+        noteText.className = 'text-input'; // Add a class for styling
+        noteText.value = notes[noteId].text;
+        noteText.contentEditable = !checkbox.checked;
+        
+        flexContainer.appendChild(checkboxContainer);
+        flexContainer.appendChild(noteText);
 
-            var checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'note-checkbox';
-            checkbox.checked = notes[noteId].finished;
-            checkbox.onchange = function () {
-                toggleNoteFinished(notebookId, noteId, checkbox.checked);
-                noteText.contentEditable = !checkbox.checked;
-            };
+        document.getElementById('your-container-id').appendChild(flexContainer);
 
-            var checkmark = document.createElement('span');
-            checkmark.className = 'checkmark';
-
-            checkboxContainer.appendChild(checkbox);
-            checkboxContainer.appendChild(checkmark);
 
 
             var deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'Delete';
+            deleteBtn.textContent = 'D';
             deleteBtn.className = 'delete-note';
             deleteBtn.onclick = function () {
                 deleteNote(notebookId, noteId);
