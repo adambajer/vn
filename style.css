@@ -482,6 +482,6 @@ padding:var(--base-padding);
 #qrCodeContainer img {
     width: 30px !important;
 }
-div#qrCodeContainer:hover img {
+#qrCodeContainer:hover img {
     width: 100% !important;
 }
