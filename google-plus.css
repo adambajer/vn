@@ -360,60 +360,65 @@ padding-left: 0.5rem;
     border: 1px solid;
     box-shadow: #ff00006b 0 0 12px 0px;
 }
+/* Add this CSS to your project's stylesheet */
 
 .checkbox-container {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: auto; /* Set height to auto to better fit content */
+    position: relative; /* Ensure position for custom checkmark alignment */
+    gap: 5px; /* Add space between checkbox and label (if any) */
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 1.25em; /* Set size to match checkmark */
+    height: 1.25em;
+    cursor: pointer;
+    appearance: none; /* Remove default checkbox styling */
+    border: 2px solid #ccc; /* Add border to indicate the checkbox area */
+    border-radius: 4px; /* Optional: Make the checkbox corners rounded */
+    background-color: #fff;
     position: relative;
-    cursor: pointer;
-    font-size: 1rem;
-    user-select: none;
-    position: absolute;
-    top: 0px;
-    left: 0px;
 }
 
-.checkbox-container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-}
-
+/* Additional styling for custom checkmark */
 .checkmark {
+    width: 1.25em; /* Match size to input checkbox */
+    height: 1.25em;
     position: absolute;
     top: 0;
     left: 0;
-    height: 1.7rem;
-    width: 1.75rem;
-    background-color: white;
+    border-radius: 4px;
     border: 1px solid #ccc;
-    transition: background-color 0.3s;
+    pointer-events: none;
 }
 
-.checkbox-container input:checked ~ .checkmark {
-    background-color: #0d6efd;
+/* Change background color when checkbox is checked */
+.checkbox-container input[type="checkbox"]:checked + .checkmark {
+    background-color: #2196F3;
+    border-color: #2196F3;
 }
 
+/* Add checkmark symbol when checked */
 .checkmark:after {
     content: "";
     position: absolute;
-    display: none;
-}
-
-.checkbox-container input:checked ~ .checkmark:after {
-    display: block;
-}
-
-.checkbox-container .checkmark:after {
-    left: 0.55em;
-    top: 0.4em;
-    width: 0.5em;
-    height: 0.75em;
+    left: 0.35em;
+    top: 0.15em;
+    width: 0.25em;
+    height: 0.6em;
     border: solid white;
     border-width: 0 0.15em 0.15em 0;
     transform: rotate(45deg);
+    display: none;
 }
+
+/* Display checkmark symbol when checkbox is checked */
+.checkbox-container input[type="checkbox"]:checked + .checkmark:after {
+    display: block;
+}
+
 #qrCodeContainer img {
 width:30px;
     
