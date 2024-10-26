@@ -412,46 +412,63 @@ padding:var(--base-padding);
     gap: 10px; /* Space between checkbox and input */
     padding: 5px; /* Optional padding for overall container */
 }
+/* Add this CSS to your project's stylesheet */
 
-/* Checkbox container */
 .checkbox-container {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 2.5em; /* Set consistent height */
-    margin-right: 10px; /* Adjust spacing if needed */
+    height: auto; /* Set height to auto to better fit content */
+    position: relative; /* Ensure position for custom checkmark alignment */
+    gap: 5px; /* Add space between checkbox and label (if any) */
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 1.25em; /* Slightly increase checkbox size for better visibility */
+    height: 1.25em;
+    cursor: pointer;
+    appearance: none; /* Remove default checkbox styling */
+    border: 2px solid #ccc; /* Add border to indicate the checkbox area */
+    border-radius: 4px; /* Optional: Make the checkbox corners rounded */
+    background-color: #fff;
     position: relative;
 }
 
-/* Checkbox styling */
-.checkbox-container input[type="checkbox"] {
-    width: 1.5em; /* Adjust size if necessary */
-    height: 1.5em;
-    cursor: pointer;
-}
-
-/* Checkmark styling for customization */
+/* Additional styling for custom checkmark */
 .checkmark {
+    width: 1.25em;
+    height: 1.25em;
     position: absolute;
-    width: 1.5em;
-    height: 1.5em;
+    top: 0;
+    left: 0;
     border-radius: 4px;
     border: 1px solid #ccc;
+    pointer-events: none;
 }
 
-/* Text input styling */
-.text-input {
-    height: 2.5em; /* Same height as the checkbox container */
-    padding: 5px; /* Padding for a better look */
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    flex-grow: 1; /* Expand to fill the remaining space */
-    font-size: 1rem;
+/* Change background color when checkbox is checked */
+.checkbox-container input[type="checkbox"]:checked + .checkmark {
+    background-color: #2196F3;
+    border-color: #2196F3;
 }
 
-/* Optional hover styles for better visual cues */
-.checkbox-container input[type="checkbox"]:hover {
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+/* Add checkmark symbol when checked */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    left: 0.35em;
+    top: 0.15em;
+    width: 0.25em;
+    height: 0.6em;
+    border: solid white;
+    border-width: 0 0.15em 0.15em 0;
+    transform: rotate(45deg);
+    display: none;
+}
+
+/* Display checkmark symbol when checkbox is checked */
+.checkbox-container input[type="checkbox"]:checked + .checkmark:after {
+    display: block;
 }
 
 .text-input:focus {
