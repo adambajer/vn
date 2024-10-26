@@ -106,15 +106,15 @@ function updateHeaderWithNotebookInfo(token) {
           const qrCodeContainer = document.getElementById('qrCodeContainer');
         
          const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
-        new QRCode(qrCodeContainer, {
-            text: qrCodeUrl,
-            width: 128,
-            height: 128,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H,
-            callback: () => resolve()
-        });
+new QRCode(qrCodeContainer, {
+    text: qrCodeUrl,
+    width: 128,
+    height: 128,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+});
+
           
     } else {
         headerElement.innerHTML = 'Notebook token <br> not found.';
