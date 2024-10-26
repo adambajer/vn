@@ -101,27 +101,29 @@ async function loadSingleNotebookByToken(token) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-          headerElement.innerHTML('<div>Token '+token+'</div>');
+        headerElement.innerHTML = `<div>Token ${token}</div>`;
 
-          const qrCodeContainer = document.getElementById('qrCodeContainer');
-        
-         const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
-new QRCode(qrCodeContainer, {
-    text: qrCodeUrl,
-    width: 128,
-    height: 128,
-    colorDark: "#000000",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H
-});
+        let qrCodeContainer = document.getElementById('qrCodeContainer');
+        if (!qrCodeContainer) {
+            qrCodeContainer = document.createElement('div');
+            qrCodeContainer.id = 'qrCodeContainer';
+            headerElement.appendChild(qrCodeContainer);
+        }
 
-          
+        const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
+        new QRCode(qrCodeContainer, {
+            text: qrCodeUrl,
+            width: 128,
+            height: 128,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
     } else {
         headerElement.innerHTML = 'Notebook token <br> not found.';
     }
- 
 }
-
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref('notebooks');
     try {
