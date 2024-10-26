@@ -570,8 +570,7 @@ function loadNotes(notebookId, source = '') {
         
         flexContainer.appendChild(checkboxContainer);
         flexContainer.appendChild(noteText);
-
-        document.getElementById('your-container-id').appendChild(flexContainer);
+ 
 
 
 
