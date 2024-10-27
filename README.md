@@ -3,11 +3,14 @@ VNOTE is a dynamic note-taking tool that allows users to capture and organize th
 VNOTE 0.1
 
 Contact
+
 Adam Bajer
 adam.bajer@gmail.com
 
 Source
+
 https://github.com/adambajer/vn/
 
 Demo
+
 https://adambajer.github.io/vn/
