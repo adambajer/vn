@@ -111,27 +111,24 @@ function updateHeaderWithNotebookInfo(token) {
         }
 
         const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
-        new QRCode(qrCodeContainer, {
-            text: qrCodeUrl,
-            width: 128,
-            height: 128,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        qrCodeContainer.innerHTML = '<span class="material-symbols-outlined">qr_code</span>';
+
 
         // Add click event to show QR code in a modal when generated
         qrCodeContainer.addEventListener('click', function() {
-            const qrCodeElement = qrCodeContainer.querySelector('img');
-            if (qrCodeElement) {
+         
                 const qrModalBody = document.getElementById('qrModalBody');
                 qrModalBody.innerHTML = '';
 
-                // Clone the QR code to the modal
-                const qrClone = qrCodeElement.cloneNode(true);
-                qrClone.style.width = '128px';
-                qrClone.style.height = '128px';
-                qrModalBody.appendChild(qrClone);
+                new QRCode(qrModalBody, {
+                    text: qrCodeUrl,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+    
 
                 // Add the shared URL and copy button
                 const urlElement = document.createElement('div');
@@ -178,7 +175,7 @@ function updateHeaderWithNotebookInfo(token) {
                 const modalElement = document.getElementById('qrmodal');
                 modalElement.querySelector('.modal-title').innerText = token;
                 new bootstrap.Modal(modalElement).show();
-            }
+        
         });
     } else {
         headerElement.innerHTML = 'Notebook token <br> nenalezen.';

@@ -6,8 +6,14 @@ body {
 * {
     
     font-family: 'Roboto', sans-serif;
-}
-
+} 
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
+} 
 #notesContainer2 {
     padding: 1rem;
 }
@@ -49,7 +55,7 @@ padding: 2px;
     background: #fff; 
     min-width: 12rem;
     outline: none !important;
-    width: 100%;
+    margin-right: 1rem;
    
 }
 .note:active,.note:hover,.note:focus,.note:focus-visible     {
@@ -331,7 +337,7 @@ padding: 2px;
 }
 /* Add this CSS to your project's stylesheet */
 .modal-dialog {
-    min-width: 700px;
+    min-width: 90%;
 }
 .checkbox-container {
     display: inline-flex;
@@ -388,7 +394,9 @@ padding: 2px;
     display: block;
 }
 
-#qrCodeContainer img {
-width:30px;
+#qrCodeContainer  { 
+    display: block;
+    width: 2rem;
+    height: 2rem;
     cursor: pointer;
 } 
