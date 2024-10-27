@@ -38,8 +38,8 @@
                             <li class="nav-item dropdown">
                                 <button class="btn menu-icon" data-bs-toggle="dropdown" aria-expanded="false">☰</button>
                                 <ul class="dropdown-menu dropdown-menu-light"> 
-                                     <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Export All</a></li>
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutAppModal">About</a></li>
+                                     <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Exportuj vše</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutAppModal">O aplikaci</a></li>
                                  </ul>
                             </li>
                         </ul> 
@@ -61,13 +61,13 @@
             <!-- Title of the app added here -->
             <div class="scrollable-nav">
                 <ul id="notebookTabs" class="nav nav-pills"</ul>
-                <button id="createNotebookButton" class="btn btn-primary  rounded-0" title="New notebook">New
+                <button id="createNotebookButton" class="btn btn-primary  rounded-0" title="New notebook">NOVÝ     
                 </button>
             </div>
         </div>
         <div id="notesContainer2">
             <div class="d-inline-flex w-100 justify-content-end">
-                <input type="text" id="noteInput" class="form-control" placeholder="Add new note...">
+                <input type="text" id="noteInput" class="form-control" placeholder="Piš...">
             </div>
             <div id="notesContainer" class=""></div>
         </div>
@@ -95,68 +95,34 @@
             </div>
         </div>
     </div>
-    <!-- Font Settings Modal -->
-    <div id="fontSettingsModal" class="modal fade" tabindex="-1" aria-labelledby="fontSettingsModalLabel" aria-hidden="true">
+    <div id="qrmodal" class="modal fade" tabindex="-1" aria-labelledby="qrmodal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <select class="form-select" id="fontSelect">
-                        <option value="Open Sans">Open Sans</option>
-                        <option value="Roboto">Roboto</option>
-                        <option value="Lato">Lato</option>
-                        <option value="Montserrat">Montserrat</option>
-                        <option value="Source Sans Pro">Source Sans Pro</option>
-                        <option value="Oswald">Oswald</option>
-                        <option value="Raleway">Raleway</option>
-                        <option value="Merriweather">Merriweather</option>
-                        <option value="Ubuntu">Ubuntu</option>
-                        <option value="Playfair Display">Playfair Display</option>
-                        <option value="Roboto Slab">Roboto Slab</option>
-                        <option value="Noto Sans">Noto Sans</option>
-                        <option value="Arimo">Arimo</option>
-                        <option value="Nunito">Nunito</option>
-                        <option value="Poppins">Poppins</option>
-                        <option value="PT Serif">PT Serif</option>
-                        <option value="Dancing Script">Dancing Script</option>
-                        <option value="Pacifico">Pacifico</option>
-                        <option value="Orbitron">Orbitron</option>
-                        <option value="Indie Flower">Indie Flower</option>
-                        <option value="Tangerine">Tangerine</option>
-                        <option value="Bitter">Bitter</option>
-                        <option value="Cabin">Cabin</option>
-                        <option value="Yellowtail">Yellowtail</option>
-                        <option value="Josefin Sans">Josefin Sans</option>
-                        <option value="Satisfy">Satisfy</option>
-                        <option value="Amatic SC">Amatic SC</option>
-                        <option value="Bree Serif">Bree Serif</option>
-                        <option value="Abril Fatface">Abril Fatface</option>
-                        <option value="Righteous">Righteous</option>
-                        <option value="Shadows Into Light Two">Shadows Into Light Two</option>
-                        <option value="Lobster">Lobster</option>
-                        <option value="Courgette">Courgette</option>
-                        <option value="Arvo">Arvo</option>
-                        <option value="Volkhov">Volkhov</option>
-                        <option value="Libre Baskerville">Libre Baskerville</option>
-                        <option value="Architects Daughter">Architects Daughter</option>
-                        <option value="Acme">Acme</option>
-                        <option value="Permanent Marker">Permanent Marker</option>
-                        <option value="Varela Round">Varela Round</option>
-                        <option value="Libre Barcode 39">Libre Barcode 39</option>
-                    </select> 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> 
+                    <h5 class="modal-title">QR Code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <input type="range" class="form-range" min="12" max="60" id="fontSizeInput">
-                        </div>
-                    </form>
-                    <p id="fontPreview" style="padding: 10px; border: 1px solid #ccc;">The quick brown fox jumps over
-                        the lazy dog.</p>
+                <div class="modal-body" id="qrModalBody">
+                    <!-- QR code will be dynamically inserted here -->
                 </div>
             </div>
         </div>
-    </div>  
+    </div>
+    <!-- User Information Modal -->
+<div id="usermodal" class="modal fade" tabindex="-1" aria-labelledby="usermodalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="userModalBody">
+                <!-- User information will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="status"></div>
     <script src="scripts.js" defer></script>
 </body> 

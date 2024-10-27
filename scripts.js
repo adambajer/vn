@@ -120,10 +120,71 @@ function updateHeaderWithNotebookInfo(token) {
             correctLevel: QRCode.CorrectLevel.H
         });
 
+        // Add click event to show QR code in a modal when generated
+        qrCodeContainer.addEventListener('click', function() {
+            const qrCodeElement = qrCodeContainer.querySelector('img');
+            if (qrCodeElement) {
+                const qrModalBody = document.getElementById('qrModalBody');
+                qrModalBody.innerHTML = '';
+
+                // Clone the QR code to the modal
+                const qrClone = qrCodeElement.cloneNode(true);
+                qrClone.style.width = '128px';
+                qrClone.style.height = '128px';
+                qrModalBody.appendChild(qrClone);
+
+                // Add the shared URL and copy button
+                const urlElement = document.createElement('div');
+                urlElement.className = 'd-flex align-items-center mt-3';
+                urlElement.innerHTML = `
+                    <span id="sharedUrl" class="me-2">${qrCodeUrl}</span>                   
+                `;
+                qrModalBody.appendChild(urlElement);
+
+                const copyUrlButton = document.createElement('button');
+                copyUrlButton.className = 'btn btn-outline-secondary btn-sm mt-3';
+                copyUrlButton.id = 'copyUrlButton';
+                copyUrlButton.innerText = 'Kopíruj URL';
+                qrModalBody.appendChild(copyUrlButton);
+
+
+                // Add the share button
+                const shareButton = document.createElement('button');
+                shareButton.className = 'btn btn-primary ms-3 mt-3';
+                shareButton.innerText = 'Sdílej jinak';
+                shareButton.onclick = function() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'VNOTE sdílené poznámky',
+                            text: 'Omrkni poznámky:',
+                            url: qrCodeUrl
+                        }).catch((error) => console.error('Chyba sdílení:', error));
+                    } else {
+                        alert('Sdílení není podporováná.');
+                    }
+                };
+                qrModalBody.appendChild(shareButton);
+
+                // Copy URL functionality
+                document.getElementById('copyUrlButton').addEventListener('click', function() {
+                    navigator.clipboard.writeText(qrCodeUrl).then(function() {
+                        alert('URL zkopírováno do schránky!');
+                    }).catch(function(error) {
+                        console.error('Nemohu zkopírovat:', error);
+                    });
+                });
+
+                // Show the modal
+                const modalElement = document.getElementById('qrmodal');
+                modalElement.querySelector('.modal-title').innerText = token;
+                new bootstrap.Modal(modalElement).show();
+            }
+        });
     } else {
-        headerElement.innerHTML = 'Notebook token <br> not found.';
+        headerElement.innerHTML = 'Notebook token <br> nenalezen.';
     }
 }
+
 async function getNotebookIdByToken(token) {
     const notebooksRef = firebase.database().ref('notebooks');
     try {
@@ -248,15 +309,15 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
 
     const dropdownMenu = document.createElement('div');
     dropdownMenu.className = 'dropdown-menu';
-    dropdownMenu.appendChild(createDropdownItem('Rename', () => promptRenameNotebook(notebookId, nameLabel)));
+    dropdownMenu.appendChild(createDropdownItem('Přejmenuj', () => promptRenameNotebook(notebookId, nameLabel)));
 
     // Initially, don't pass the token here
-    const shareNotebookItem = createDropdownItem('Share Notebook', () => shareNotebook(notebookId, null));
+    const shareNotebookItem = createDropdownItem('Sdílej', () => shareNotebook(notebookId, null));
     dropdownMenu.appendChild(shareNotebookItem); // Added share functionality
 
-    dropdownMenu.appendChild(createDropdownItem('Duplicate', () => copyNotebook(notebookId)));
-    dropdownMenu.appendChild(createDropdownItem('Download as TXT', () => downloadNotebookAsText(notebookId)));
-    dropdownMenu.appendChild(createDropdownItem('Delete', () => deleteNotebook(notebookId)));
+    dropdownMenu.appendChild(createDropdownItem('Duplikuj', () => copyNotebook(notebookId)));
+    dropdownMenu.appendChild(createDropdownItem('Stáhni jako TXT', () => downloadNotebookAsText(notebookId)));
+    dropdownMenu.appendChild(createDropdownItem('Smaž', () => deleteNotebook(notebookId)));
 
     link.appendChild(img);
     link.appendChild(nameLabel);
@@ -327,8 +388,8 @@ function deleteNotebook(notebookId) {
             removeTab(notebookId);
         })
         .catch(error => {
-            console.error('Error deleting notebook:', error);
-            alert('Failed to delete notebook: ' + error);
+            console.error('Chyba mazání poznámek:', error);
+            alert('Nepodařilo se smazat poznámky: ' + error);
         });
 }
 function removeTab(notebookId) {
@@ -415,7 +476,6 @@ function shareNoteToken(notebookId, noteId) {
 function generateCustomNotebookId() {
     return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
 }
-
 function setUpUserTooltip() {
 
     const userIcon = document.getElementById('userIcon');
@@ -426,11 +486,12 @@ function setUpUserTooltip() {
         return;  // Ensures elements are present before adding event listeners
     }
 
-    userIcon.addEventListener('mouseover', function () {
+    userIcon.addEventListener('click', function () {
         var deviceInfo = getDeviceInfo();
         var infoText = "";  // Initialize an empty string to hold the information.
         infoText = '<div class="ones">UserId</div>' + '<div class="twos">' + localStorage.getItem('userId') + '</div>';
         infoText = infoText + '<div class="ones">ActiveTabUID</div>' + '<div class="twos">' + localStorage.getItem('activeTabUID') + '</div>';
+
         // Iterate over each property in the deviceInfo object
         for (var key in deviceInfo) {
             if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
@@ -438,14 +499,15 @@ function setUpUserTooltip() {
             }
         }
 
-        tooltip.innerHTML = infoText;  // Set the inner HTML of the tooltip to the compiled string
-        tooltip.style.display = 'block';  // Make sure to show the tooltip when hovering
-    });
+        // Set the modal content to the compiled information
+        const userModalBody = document.getElementById('userModalBody');
+        userModalBody.innerHTML = infoText;
 
-    userIcon.addEventListener('mouseout', function () {
-        tooltip.style.display = 'none';  // Hide the tooltip
+        // Show the modal with user information
+        new bootstrap.Modal(document.getElementById('usermodal')).show();
     });
 }
+
 function setUpNoteInput() {
     const noteInput = document.getElementById('noteInput');
     noteInput.addEventListener('keydown', function (event) {
