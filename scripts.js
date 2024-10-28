@@ -472,10 +472,7 @@ function setUpUserTooltip() {
 
     const userIcon = document.getElementById('userIcon');
  
-    if (!userIcon || !tooltip) {
-        console.error("Tooltip or User Icon not found in the document.");
-        return;  // Ensures elements are present before adding event listeners
-    }
+  
 
     userIcon.addEventListener('click', function () {
         var deviceInfo = getDeviceInfo();
