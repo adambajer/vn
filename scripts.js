@@ -104,12 +104,7 @@ function updateHeaderWithNotebookInfo(token) {
         headerElement.innerHTML = `<div>${token}</div>`;
 
         let qrCodeContainer = document.getElementById('qrCodeContainer');
-        if (!qrCodeContainer) {
-            qrCodeContainer = document.createElement('div');
-            qrCodeContainer.id = 'qrCodeContainer';
-            headerElement.appendChild(qrCodeContainer);
-        }
-
+        
         const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
         qrCodeContainer.innerHTML = '<span class="material-symbols-outlined">qr_code</span>';
 
@@ -620,7 +615,7 @@ function loadNotes(notebookId, source = '') {
 
 
             var deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'D';
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined">delete</span>';
             deleteBtn.className = 'delete-note';
             deleteBtn.onclick = function () {
                 deleteNote(notebookId, noteId);

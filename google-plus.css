@@ -71,8 +71,7 @@ padding: 2px;
     left: 1rem;
     top: 100%;
     white-space: wrap;
-    z-index: 20;
-    background-color: #fff;
+    z-index: 20; 
     padding: 8px 10px;
     max-width: 188px;
     text-align: left; 
@@ -220,9 +219,10 @@ padding: 2px;
 .delete-note {
 
     position: absolute;
-    right: -1.2rem;
+    right: 0;
     /* width: 1rem; */
-    font-size: inherit;
+    display: flex;
+    /* font-size: inherit; */
     /* margin-left: 10px; */
     color: red;
     border: 1px solid red;
@@ -399,4 +399,11 @@ padding: 2px;
     width: 2rem;
     height: 2rem;
     cursor: pointer;
-} 
+} @media (max-width: 1200px) and (orientation: portrait) {
+    #skitt-toggle-button {
+        width: 50px !important;
+        height: 50px !important;
+        
+    background-position: 7px 6px !important;
+    }
+}
