@@ -395,15 +395,34 @@ padding: 2px;
 }
 
 #qrCodeContainer  { 
-    display: block;
-    width: 2rem;
-    height: 2rem;
+    display: block; 
     cursor: pointer;
-} @media (max-width: 1200px) and (orientation: portrait) {
+} 
+@media (max-width: 1200px) and (orientation: portrait) {
     #skitt-toggle-button {
         width: 50px !important;
         height: 50px !important;
         
     background-position: 7px 6px !important;
     }
+}
+@media (max-width: 1200px) and (orientation: portrait) {
+    #skitt-ui {
+        border-radius: 62.5px;
+        font-size: 35px;
+        height: 50px !important;
+    }
+}
+button {
+    display: inline-flex;          /* Flexbox for alignment */
+    align-items: center;           /* Aligns icon and text vertically */
+    gap: 5px;                      /* Adds space between icon and text */
+    padding: 8px 12px;             /* Adjust padding for consistency */
+    font-size: 16px;               /* Sets button font size */
+}
+
+.material-symbols-outlined {
+    font-size: 1em;                /* Matches icon size with text size */
+    vertical-align: middle;        /* Ensures the icon is aligned with text */
+    margin: 0;                     /* Resets margin to prevent extra spacing */
 }

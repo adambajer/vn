@@ -38,20 +38,21 @@
                             <li class="nav-item dropdown">
                                 <button class="btn menu-icon" data-bs-toggle="dropdown" aria-expanded="false">☰</button>
                                 <ul class="dropdown-menu dropdown-menu-light"> 
+                                    <li><a class="dropdown-item"  href="https://adambajer.github.io/vn/" >Všechny vaše bloky</a></li>
                                      <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Exportuj vše</a></li>
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutAppModal">O aplikaci</a></li>
                                  </ul>
                             </li>
                         </ul> 
-                        <a class="logo ps-2" href="https://adambajer.github.io/vn/" title="Return to main page"><img src="favicon.svg" width="30px" height="30px" class="pe-2 "></a>
+                        <a class="logo ps-2" href="https://adambajer.github.io/vn/" title="Zpět na vaše bloky"><img src="favicon.svg" width="30px" height="30px" class="pe-2 "></a>
                     </div>
                     <div id="header"></div>
                     <div id="qrCodeContainer"></div>
                      
                     <div>
-                        <img id="userIcon" src="user-icon.svg" alt="User Icon" class="user-icon" style="width: 43px; height: 43px;">
+                        <span id="userIcon" class="material-symbols-outlined">account_circle</span>
                     </div>
-                    <div id="userTooltip" class="custom-tooltip"></div>
+                
                 </nav>
         </div>
         <div id="bartabs" class="cus align-items-center ">
@@ -64,7 +65,7 @@
         </div>
         <div id="notesContainer2">
             <div class="d-inline-flex w-100 justify-content-end">
-                <input type="text" id="noteInput" class="form-control" placeholder="Piš...">
+                <input type="text" id="noteInput" class="form-control" placeholder="Zapiš...">
             </div>
             <div id="notesContainer" class=""></div>
         </div>

@@ -134,16 +134,16 @@ function updateHeaderWithNotebookInfo(token) {
                 qrModalBody.appendChild(urlElement);
 
                 const copyUrlButton = document.createElement('button');
-                copyUrlButton.className = 'btn btn-outline-secondary btn-sm mt-3';
+                copyUrlButton.className = 'btn btn-outline-secondary mt-3';
                 copyUrlButton.id = 'copyUrlButton';
-                copyUrlButton.innerText = 'Kopíruj URL';
+                copyUrlButton.innerHTML = 'Kopíruj URL <span class="material-symbols-outlined">link</span>';
                 qrModalBody.appendChild(copyUrlButton);
 
 
                 // Add the share button
                 const shareButton = document.createElement('button');
                 shareButton.className = 'btn btn-primary ms-3 mt-3';
-                shareButton.innerText = 'Sdílej jinak';
+                shareButton.innerHTML = 'Sdílej <span class="material-symbols-outlined">share</span>';
                 shareButton.onclick = function() {
                     if (navigator.share) {
                         navigator.share({
@@ -471,8 +471,7 @@ function generateCustomNotebookId() {
 function setUpUserTooltip() {
 
     const userIcon = document.getElementById('userIcon');
-    const tooltip = document.getElementById('userTooltip');
-
+ 
     if (!userIcon || !tooltip) {
         console.error("Tooltip or User Icon not found in the document.");
         return;  // Ensures elements are present before adding event listeners
