@@ -17,17 +17,21 @@ document.addEventListener('DOMContentLoaded', async function () {
     let userIdParam = urlParams.get('userid');  
     const createNotebookButton = document.getElementById('createNotebookButton');
     if (userIdParam) { 
-        const baseUrl = window.location.origin;
-        const shareableLink = `${baseUrl}/vn/?userid=${userId}`;
-        redirectToSharePage(shareableLink);
-         //window.location.replace(`${window.location.pathname}?${searchParams.toString()}`);
-        return; // Stop further execution until redirect happens
+        if (notebookToken) {
+            console.log("User ID found in URL:", notebookToken);
+           await loadSingleNotebookByToken(userIdParam);
+     
+        }
+        else {
+            const baseUrl = window.location.origin;
+            const shareableLink = `${baseUrl}/vn/?userid=${userId}`;
+            redirectToSharePage(shareableLink);
+             //window.location.replace(`${window.location.pathname}?${searchParams.toString()}`);
+            return; // Stop further execution until redirect happens
+        }
+       
     }
-    if (notebookToken) {
-         console.log("User ID found in URL:", notebookToken);
-        await loadSingleNotebookByToken(userIdParam);
-  
-     }
+    
     setUpNoteInput(); 
     try {
         toggleSpeechKITT();
