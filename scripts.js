@@ -1,39 +1,34 @@
-const firebaseConfig = {
-    databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
-};
-firebase.initializeApp(firebaseConfig);
+
 let activeNotebookId;
 let userId;
+
+function getUrlParameters() {
+    const params = new URLSearchParams(window.location.search);
+    const entries = params.entries();
+    const result = {};
+    for (const [key, value] of entries) {
+        result[key] = value;
+    }
+    return result;
+}
 document.addEventListener('DOMContentLoaded', async function () {
+    const firebaseConfig = {
+        databaseURL: "https://voice-noter-default-rtdb.europe-west1.firebasedatabase.app",
+    };
+    firebase.initializeApp(firebaseConfig);
+    // Retrieve or generate userId
     userId = localStorage.getItem('userId');
     if (!userId) {
         userId = generateUserId();
         console.log("Generated new User ID:", userId);
-    } 
+    }
+
+    // Set up UI components
     setUpUserTooltip();
     observeNoteContainerChanges();
-    const urlParams = new URLSearchParams(window.location.search);
-    const notebookToken = urlParams.get('notebookToken');
-    let userIdParam = urlParams.get('userid');  
-    const createNotebookButton = document.getElementById('createNotebookButton');
-    
-    setUpNoteInput(); 
- 
-    if (userIdParam & !notebookToken) { 
-        
-          
-            const baseUrl = window.location.origin;
-            const shareableLink = `${baseUrl}/vn/?userid=${userId}`;
-            redirectToSharePage(shareableLink);
-             //window.location.replace(`${window.location.pathname}?${searchParams.toString()}`);
-            //return; // Stop further execution until redirect happens
-      
-       
-    }
-    else {
-        await loadSingleNotebookByToken(userIdParam);
+    setUpNoteInput();
 
-    }
+    // Initialize Speech Recognition
     try {
         toggleSpeechKITT();
     } catch (error) {
@@ -41,8 +36,29 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
         document.querySelector(".status").classList.toggle("active");
     }
-    });
- 
+
+   // Parse URL parameters
+   const urlParams = getUrlParameters();
+   const notebookToken = urlParams.notebookToken;
+   const sharedUserId = urlParams.userid; // Assuming 'userid' parameter is used for shared notebooks
+
+   if (notebookToken) {
+       // Load a single notebook by token in read-only mode
+       await loadSingleNotebookByToken(notebookToken);
+   } else if (sharedUserId) {
+       // Load all shared notebooks for the specified user ID
+       await loadSharedUserNotebooks(sharedUserId);
+   } else {
+       // Default behavior: Load user's own notebooks
+       await loadUserNotebooks(userId);
+       // **Add this line to update the header with the user's QR code**
+       updateHeaderWithUserIDInfo(userId);
+   }
+});
+
+// ======================================
+// Loading Functions
+// ======================================
 
    
  
@@ -102,10 +118,19 @@ async function loadSharedUserNotebooks(sharedUserId) {
     const notebooksRef = firebase.database().ref(`notebooks`);
     const notebooksSnapshot = await notebooksRef.once('value');
     const notebooks = notebooksSnapshot.val() || {};
+
+    if (!userNotebooks || Object.keys(userNotebooks).length === 0) {
+        console.error("No shared notebooks found for this user.");
+        alert("No shared notebooks found for the specified user.");
+        return;
+    }
+
     // Clear existing tabs and notes
     document.getElementById('notebookTabs').innerHTML = '';
     document.getElementById('notesContainer').innerHTML = '';
+
     updateHeaderWithUserIDInfo(sharedUserId); // Update the header
+
     Object.keys(userNotebooks).forEach((notebookId, index) => {
         if (notebooks[notebookId]) {
             let notebookData = notebooks[notebookId];
@@ -114,9 +139,11 @@ async function loadSharedUserNotebooks(sharedUserId) {
                 notebookId,
                 shouldSetActive,
                 notebookData.notes ? Object.keys(notebookData.notes).length : 0,
-                notebookData.name,
-                false // 'true' indicates shared mode (read-only)
+                notebookData.name || "Shared Notebook",
+                true // 'true' indicates shared mode (read-only)
             );
+        } else {
+            console.warn(`Notebook ID ${notebookId} not found in notebooks.`);
         }
     });
 }
@@ -418,13 +445,13 @@ function assignNotebookToUser(userId, notebookId) {
 function shareNotebook(notebookId, token) {
     if (token) {
         const baseUrl = window.location.origin;
-        const shareableLink = `${baseUrl}/vn/?notebookToken=${token}`;
+        const shareableLink = `${baseUrl}?notebookToken=${token}`;
         redirectToSharePage(shareableLink);
     } else {
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
-                const shareableLink = `${baseUrl}/vn/?notebookToken=${token}`;
+                const shareableLink = `${baseUrl}/?notebookToken=${token}`;
                 redirectToSharePage(shareableLink);
             } else {
                 console.error('No token found for this notebook');
@@ -673,40 +700,29 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
 } function loadNotes(notebookId, source = '', readOnly = false) {
     activeNotebookId = notebookId; // Set the active notebook ID globally
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
+    
     notebookNotesRef.on('value', function (snapshot) {
         const notes = snapshot.val() || {};
-        document.getElementById('notesContainer').innerHTML = '';
+        const notesContainer = document.getElementById('notesContainer');
+        notesContainer.innerHTML = ''; // Clear existing notes
+
         Object.keys(notes).forEach(noteId => {
-            var noteElement = document.createElement('div');
+            const note = notes[noteId];
+            
+            // Create Note Element
+            const noteElement = document.createElement('div');
             noteElement.className = 'note';
             noteElement.setAttribute('data-note-id', noteId);
-            var noteText = document.createElement('span');
-            noteText.textContent = notes[noteId].content;
-            noteText.className = 'note-text';
-            noteText.contentEditable = !notes[noteId].finished && !readOnly; // Disable editing if readOnly is true
-            noteText.setAttribute('data-note-id', noteId);
-            if (notes[noteId].finished) {
-                noteElement.classList.add('finished');
-            }
-            // Only add the blur event listener if not read-only
-            if (!readOnly) {
-                noteText.addEventListener('blur', function () {
-                    updateNote(notebookId, noteId, noteText.textContent);
-                });
-            }
-            let createdAt = formatDate(new Date(notes[noteId].createdAt));
-            let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
-            let tooltipContent = `Created: ${createdAt}`;
-            if (createdAt !== updatedAt) {
-                tooltipContent += `\nEdited: ${updatedAt}`;
-            }
-            noteElement.setAttribute('data-title', tooltipContent);
-            var checkboxContainer = document.createElement('label');
+
+            // Create Checkbox Container
+            const checkboxContainer = document.createElement('label');
             checkboxContainer.className = 'checkbox-container';
-            var checkbox = document.createElement('input');
+            
+            const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'note-checkbox';
-            checkbox.checked = notes[noteId].finished;
+            checkbox.checked = note.finished;
+
             if (!readOnly) {
                 checkbox.onchange = function () {
                     toggleNoteFinished(notebookId, noteId, checkbox.checked);
@@ -716,13 +732,49 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
                 // Disable the checkbox if in read-only mode
                 checkbox.disabled = true;
             }
-            var checkmark = document.createElement('span');
+
+            const checkmark = document.createElement('span');
             checkmark.className = 'checkmark';
             checkboxContainer.appendChild(checkbox);
             checkboxContainer.appendChild(checkmark);
-            var deleteBtn = document.createElement('button');
+
+            // Create Note Text
+            const noteText = document.createElement('span');
+            noteText.textContent = note.content;
+            noteText.className = 'note-text';
+            noteText.contentEditable = !note.finished && !readOnly; // Disable editing if readOnly is true
+            noteText.setAttribute('data-note-id', noteId);
+
+            if (note.finished) {
+                noteElement.classList.add('finished');
+            }
+
+            // Add blur event listener if not read-only
+            if (!readOnly) {
+                noteText.addEventListener('blur', function () {
+                    updateNote(notebookId, noteId, noteText.textContent);
+                });
+            }
+
+            // Prepare Tooltip Content
+            let createdAt = formatDate(new Date(note.createdAt));
+            let updatedAt = formatDate(new Date(note.updatedAt));
+            let tooltipContent = `Created: ${createdAt}`;
+            if (createdAt !== updatedAt) {
+                tooltipContent += `\nEdited: ${updatedAt}`;
+            }
+
+            // Create Time Icon with Tooltip
+            const timeIcon = document.createElement('span');
+            timeIcon.className = 'time-icon material-symbols-outlined';
+            timeIcon.textContent = 'access_time'; // Google Material Icon for time
+            timeIcon.setAttribute('title', tooltipContent); // Set tooltip content
+
+            // Create Delete Button
+            const deleteBtn = document.createElement('button');
             deleteBtn.innerHTML = '<span class="material-symbols-outlined">delete</span>';
             deleteBtn.className = 'delete-note';
+            
             if (!readOnly) {
                 deleteBtn.onclick = function () {
                     deleteNote(notebookId, noteId);
@@ -731,10 +783,15 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
                 // Hide the delete button in read-only mode
                 deleteBtn.style.display = 'none';
             }
+
+            // Append Elements to Note Element
             noteElement.appendChild(checkboxContainer);
             noteElement.appendChild(noteText);
+            noteElement.appendChild(timeIcon); // Append Time Icon
             noteElement.appendChild(deleteBtn);
-            document.getElementById('notesContainer').prepend(noteElement);
+
+            // Prepend to Notes Container
+            notesContainer.prepend(noteElement);
         });
     });
 }
@@ -848,7 +905,7 @@ function toggleSpeechKITT() {
     // Initialize SpeechKITT settings once
     SpeechKITT.annyang();
     annyang.setLanguage('cs'); // Set the desired language
-    SpeechKITT.setInstructionsText('Mluv...');
+    SpeechKITT.setInstructionsText('Diktuj...');
     SpeechKITT.displayRecognizedSentence(true);
     // Toggle SpeechKITT and annyang
     if (!SpeechKITT.isListening()) {

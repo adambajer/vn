@@ -216,22 +216,7 @@ padding: 2px;
     margin-right: 10px;
 }
 
-.delete-note {
 
-    position: absolute;
-    right: 0;
-    /* width: 1rem; */
-    display: flex;
-    /* font-size: inherit; */
-    /* margin-left: 10px; */
-    color: red;
-    border: 1px solid red;
-    border: none;
-    background: transparent;
-    /* border-radius: 4px; */
-    cursor: pointer;
-    visibility: hidden;
-}
 
 .note:hover .delete-note {
     visibility: visible;
@@ -367,8 +352,49 @@ padding: 2px;
     left: 0; 
     border: 1px solid #ccc;
     pointer-events: none;
+}.time-icon {
+    opacity: 0;
 }
+.note:hover .time-icon {
+    opacity: 1;
+}
+.time-icon {
+    /* content: attr(data-title) !important; */
+    position: absolute;
+    right: 0px;
+    top: 4px;
+    /* transform: translateX(-50%); */
+    background-color: white;
+    width: 20px;
+    /* color: #333; */
+    /* padding: 0.5rem; */
+    /* border: 1px solid #ddd; */
+    /* border-radius: 4px; */
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    /* white-space: pre-line; */
+    /* max-width: 200px; */
+    /* font-size: 0.9rem; */
+    /* pointer-events: none; */
+    /* opacity: 0; */
+    /* transition: opacity 0.3s ease; */
+    /* z-index: 99999; */
+    height: 20px;
+}
+.delete-note {
 
+    position: absolute;    width: 20px;
+    right: 30px;  height: 20px;
+    /* width: 1rem; */ 
+    /* font-size: inherit; */
+    /* margin-left: 10px; */
+    color: red;
+    border: 1px solid red;
+    border: none;
+    background: transparent;
+    /* border-radius: 4px; */
+    cursor: pointer;
+    visibility: hidden;
+}
 /* Change background color when checkbox is checked */
 .checkbox-container input[type="checkbox"]:checked + .checkmark {
     background-color: #2196F3;
@@ -411,6 +437,11 @@ padding: 2px;
         border-radius: 62.5px;
         font-size: 35px;
         height: 50px !important;
+    }
+}
+@media (max-width: 1200px) and (orientation: portrait) {
+    #skitt-listening-box {
+     line-height:50px !important; 
     }
 }
 button {
