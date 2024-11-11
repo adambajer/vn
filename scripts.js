@@ -620,12 +620,7 @@ function setUpNoteInput() {
             event.preventDefault();
         }
     });
-    noteInput.addEventListener('blur', addNoteFromInput);
-<<<<<<< HEAD
-   // document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
-=======
- //   document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
->>>>>>> b63c0913d216600ee9393acf2f9748c091699c7f
+    noteInput.addEventListener('blur', addNoteFromInput); 
 }
 
 function setFirstTabActive() {
