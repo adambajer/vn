@@ -16,23 +16,24 @@ document.addEventListener('DOMContentLoaded', async function () {
     const notebookToken = urlParams.get('notebookToken');
     let userIdParam = urlParams.get('userid');  
     const createNotebookButton = document.getElementById('createNotebookButton');
-    if (userIdParam) { 
-        if (notebookToken) {
-            console.log("User ID found in URL:", notebookToken);
-           await loadSingleNotebookByToken(userIdParam);
-     
-        }
-        else {
+    
+    setUpNoteInput(); 
+ 
+    if (userIdParam & !notebookToken) { 
+        
+          
             const baseUrl = window.location.origin;
             const shareableLink = `${baseUrl}/vn/?userid=${userId}`;
             redirectToSharePage(shareableLink);
              //window.location.replace(`${window.location.pathname}?${searchParams.toString()}`);
-            return; // Stop further execution until redirect happens
-        }
+            //return; // Stop further execution until redirect happens
+      
        
     }
-    
-    setUpNoteInput(); 
+    else {
+        await loadSingleNotebookByToken(userIdParam);
+
+    }
     try {
         toggleSpeechKITT();
     } catch (error) {
