@@ -33,9 +33,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("User ID found in URL:", userIdParam);
         await loadSharedUserNotebooks(userIdParam);
         // Hide create notebook button since we are viewing shared notebooks
-        if (createNotebookButton) {
+      /*  if (createNotebookButton) {
             createNotebookButton.style.display = 'none';
-        }
+        }*/
         // Disable note input
     }
 
