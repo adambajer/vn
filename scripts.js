@@ -16,20 +16,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     const notebookToken = urlParams.get('notebookToken');
     let userIdParam = urlParams.get('userid');  
     const createNotebookButton = document.getElementById('createNotebookButton');
-    if (!userIdParam) { 
+    if (userIdParam) { 
         const baseUrl = window.location.origin;
         const shareableLink = `${baseUrl}/vn/?userid=${userId}`;
         redirectToSharePage(shareableLink);
-        redirectToSharePage(shareableLink);
-        //window.location.replace(`${window.location.pathname}?${searchParams.toString()}`);
+         //window.location.replace(`${window.location.pathname}?${searchParams.toString()}`);
         return; // Stop further execution until redirect happens
-    } else {
-         console.log("User ID found in URL:", userIdParam);
-        await loadSharedUserNotebooks(userIdParam);
- 
-         if (createNotebookButton) {
-            //createNotebookButton.style.display = 'none';
-        }
+    }
+    if (notebookToken) {
+         console.log("User ID found in URL:", notebookToken);
+        await loadSingleNotebookByToken(userIdParam);
+  
      }
     setUpNoteInput(); 
     try {
