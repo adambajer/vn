@@ -139,7 +139,7 @@ async function loadSharedUserNotebooks(sharedUserId) {
                 notebookId,
                 shouldSetActive,
                 notebookData.notes ? Object.keys(notebookData.notes).length : 0,
-                notebookData.name || "Shared Notebook",
+                notebookData.name || "",
                 true // 'true' indicates shared mode (read-only)
             );
         } else {
@@ -401,7 +401,7 @@ function assignNotebookToUser(userId, notebookId) {
         // For shared notebooks, you might want to indicate they are shared
         const sharedLabel = document.createElement('span');
         sharedLabel.className = 'shared-label';
-        sharedLabel.textContent = ' (Sdíleno)';
+        sharedLabel.textContent = '';
         nameLabel.appendChild(sharedLabel);
     }
     link.appendChild(img);
