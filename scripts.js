@@ -26,23 +26,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     } else {
          console.log("User ID found in URL:", userIdParam);
         await loadSharedUserNotebooks(userIdParam);
-<<<<<<< HEAD
+ 
          if (createNotebookButton) {
             //createNotebookButton.style.display = 'none';
         }
      }
-    setUpNoteInput();
-=======
-        // Hide create notebook button since we are viewing shared notebooks
-      /*  if (createNotebookButton) {
-            createNotebookButton.style.display = 'none';
-        }*/
-        // Disable note input
-    }
-
-    setUpNoteInput();
-
->>>>>>> b63c0913d216600ee9393acf2f9748c091699c7f
+    setUpNoteInput(); 
     try {
         toggleSpeechKITT();
     } catch (error) {
@@ -50,8 +39,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
         document.querySelector(".status").classList.toggle("active");
     }
+    });
+ 
 
-});
+   
+ 
 function generateUserId() {
     function hashString(str) {
         var hash = 0, i, chr;
