@@ -26,11 +26,23 @@ document.addEventListener('DOMContentLoaded', async function () {
     } else {
          console.log("User ID found in URL:", userIdParam);
         await loadSharedUserNotebooks(userIdParam);
+<<<<<<< HEAD
          if (createNotebookButton) {
             //createNotebookButton.style.display = 'none';
         }
      }
     setUpNoteInput();
+=======
+        // Hide create notebook button since we are viewing shared notebooks
+      /*  if (createNotebookButton) {
+            createNotebookButton.style.display = 'none';
+        }*/
+        // Disable note input
+    }
+
+    setUpNoteInput();
+
+>>>>>>> b63c0913d216600ee9393acf2f9748c091699c7f
     try {
         toggleSpeechKITT();
     } catch (error) {
@@ -617,7 +629,11 @@ function setUpNoteInput() {
         }
     });
     noteInput.addEventListener('blur', addNoteFromInput);
+<<<<<<< HEAD
    // document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
+=======
+ //   document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
+>>>>>>> b63c0913d216600ee9393acf2f9748c091699c7f
 }
 
 function setFirstTabActive() {
