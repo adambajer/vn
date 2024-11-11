@@ -27,15 +27,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     setUpUserTooltip();
     observeNoteContainerChanges();
     setUpNoteInput();
+    await toggleSpeechKITT();
 
-    // Initialize Speech Recognition
-    try {
-        toggleSpeechKITT();
-    } catch (error) {
-        console.error("Speech recognition initialization failed:", error);
-        document.querySelector(".status").innerHTML = "Annyang is not supported in your browser! Use Edge or Chrome on Android or PC";
-        document.querySelector(".status").classList.toggle("active");
-    }
+    
 
    // Parse URL parameters
    const urlParams = getUrlParameters();
@@ -697,7 +691,9 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
             console.log(`Note added from: ${source}`);
         }
     });
-} function loadNotes(notebookId, source = '', readOnly = false) {
+} 
+
+function loadNotes(notebookId, source = '', readOnly = false) {
     activeNotebookId = notebookId; // Set the active notebook ID globally
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     
@@ -711,12 +707,16 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
             
             // Create Note Element
             const noteElement = document.createElement('div');
-            noteElement.className = 'note';
+            noteElement.className = 'note p-2 border-bottom';
             noteElement.setAttribute('data-note-id', noteId);
+            noteElement.style.display = 'flex';
+            noteElement.style.alignItems = 'center';
+            noteElement.style.justifyContent = 'space-between';
+            noteElement.style.touchAction = 'pan-y'; // Allow vertical scrolling
 
             // Create Checkbox Container
             const checkboxContainer = document.createElement('label');
-            checkboxContainer.className = 'checkbox-container';
+            checkboxContainer.className = 'checkbox-container me-3';
             
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -741,12 +741,14 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
             // Create Note Text
             const noteText = document.createElement('span');
             noteText.textContent = note.content;
-            noteText.className = 'note-text';
+            noteText.className = 'note-text flex-grow-1';
             noteText.contentEditable = !note.finished && !readOnly; // Disable editing if readOnly is true
             noteText.setAttribute('data-note-id', noteId);
+            noteText.style.marginRight = '10px';
 
             if (note.finished) {
                 noteElement.classList.add('finished');
+                noteText.style.textDecoration = 'line-through';
             }
 
             // Add blur event listener if not read-only
@@ -768,12 +770,13 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
             const timeIcon = document.createElement('span');
             timeIcon.className = 'time-icon material-symbols-outlined';
             timeIcon.textContent = 'access_time'; // Google Material Icon for time
-            timeIcon.setAttribute('title', tooltipContent); // Set tooltip content
+            timeIcon.setAttribute('title', tooltipContent);
+            timeIcon.style.cursor = 'pointer';
 
             // Create Delete Button
             const deleteBtn = document.createElement('button');
             deleteBtn.innerHTML = '<span class="material-symbols-outlined">delete</span>';
-            deleteBtn.className = 'delete-note';
+            deleteBtn.className = 'delete-note btn btn-sm btn-outline-danger ms-2';
             
             if (!readOnly) {
                 deleteBtn.onclick = function () {
@@ -790,10 +793,44 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
             noteElement.appendChild(timeIcon); // Append Time Icon
             noteElement.appendChild(deleteBtn);
 
+            // Add Touch Event Listeners for Swipe
+            addSwipeListeners(noteElement, notebookId, noteId, readOnly);
+
             // Prepend to Notes Container
             notesContainer.prepend(noteElement);
         });
-    });
+    })
+};
+function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const swipeThreshold = 100; // Minimum distance for a swipe
+
+    noteElement.addEventListener('touchstart', function(event) {
+        touchStartX = event.changedTouches[0].screenX;
+    }, false);
+
+    noteElement.addEventListener('touchend', function(event) {
+        touchEndX = event.changedTouches[0].screenX;
+        handleGesture();
+    }, false);
+
+    function handleGesture() {
+        const deltaX = touchEndX - touchStartX;
+        if (Math.abs(deltaX) > swipeThreshold) {
+            if (deltaX < 0) {
+                // Swipe Left: Mark as Finished
+                if (!readOnly) {
+                    toggleNoteFinished(notebookId, noteId, true);
+                }
+            } else {
+                // Swipe Right: Delete Note
+                if (!readOnly) {
+                    deleteNote(notebookId, noteId);
+                }
+            }
+        }
+    }
 }
 
 function updateNoteCount(notebookId, increment) {
@@ -896,8 +933,7 @@ function createDropdownItem(text, action) {
     };
     return item;
 }
-
-function toggleSpeechKITT() {
+async function toggleSpeechKITT() {
     if (typeof annyang === 'undefined' || typeof SpeechKITT === 'undefined') {
         console.error("Annyang or SpeechKITT is not loaded!");
         return;
@@ -907,20 +943,23 @@ function toggleSpeechKITT() {
     annyang.setLanguage('cs'); // Set the desired language
     SpeechKITT.setInstructionsText('Diktuj...');
     SpeechKITT.displayRecognizedSentence(true);
-    // Toggle SpeechKITT and annyang
-    if (!SpeechKITT.isListening()) {
-        SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
-        SpeechKITT.setAbortCommand(() => annyang.abort());
-        SpeechKITT.vroom();
-    } else {
-        if (annyang.isListening()) {
-            SpeechKITT.abortRecognition();
-            document.getElementById('voiceButton').textContent = "Start Voice Recognition";
+ 
+        if (!SpeechKITT.isListening()) {
+            SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
+            SpeechKITT.setAbortCommand(() => annyang.abort());
+            SpeechKITT.vroom();
+            voiceButton.innerHTML = '<span class="material-symbols-outlined">mic_off</span> Stop';
         } else {
-            SpeechKITT.startRecognition();
-            document.getElementById('voiceButton').textContent = "Stop Voice Recognition";
+            if (annyang.isListening()) {
+                SpeechKITT.abortRecognition();
+                voiceButton.innerHTML = '<span class="material-symbols-outlined">mic</span> Start';
+            } else {
+                SpeechKITT.startRecognition();
+                voiceButton.innerHTML = '<span class="material-symbols-outlined">mic_off</span> Stop';
+            }
         }
-    }
+ 
+
     // Handle voice recognition result
     annyang.addCallback('result', function (phrases) {
         // Assume the first phrase is the most accurate
@@ -929,9 +968,11 @@ function toggleSpeechKITT() {
             addNote(text, activeNotebookId);
             console.log("Added note: ", text);
             SpeechKITT.abortRecognition();
+            voiceButton.innerHTML = '<span class="material-symbols-outlined">mic</span> Start';
         }
     });
 }
+
 
 
 function observeNoteContainerChanges() {
