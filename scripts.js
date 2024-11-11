@@ -6,35 +6,40 @@ let activeNotebookId;
 let userId;
 document.addEventListener('DOMContentLoaded', async function () {
     userId = localStorage.getItem('userId');
+
     if (!userId) {
         // Generate a new userId if not present
         userId = generateUserId();
         console.log("Generated new User ID:", userId);
     }
 
+
     setUpUserTooltip();
- 
     observeNoteContainerChanges();
 
     const urlParams = new URLSearchParams(window.location.search);
     const notebookToken = urlParams.get('notebookToken');
+    let userIdParam = urlParams.get('userid'); // Get the userid from URL
     const createNotebookButton = document.getElementById('createNotebookButton');
 
-    if (notebookToken) {
-        console.log("notebookToken " + notebookToken);
-        await loadSingleNotebookByToken(notebookToken);
-        if (createNotebookButton) {
-            createNotebookButton.style.display = 'none'; // Hide the button
-        }
+    if (!userIdParam) {
+        // If userid is not present in the URL, redirect to URL with userid
+        const searchParams = new URLSearchParams(window.location.search);
+        searchParams.set('userid', userId);
+        window.location.replace(`${window.location.pathname}?${searchParams.toString()}`);
+        return; // Stop further execution until redirect happens
     } else {
-        console.log("No specific token found, loading default notebooks...");
-        loadUserNotebooks();
+        // If userid is present in the URL, proceed to load notebooks
+        console.log("User ID found in URL:", userIdParam);
+        await loadSharedUserNotebooks(userIdParam);
+        // Hide create notebook button since we are viewing shared notebooks
         if (createNotebookButton) {
-            createNotebookButton.style.display = 'block'; // Show the button
+            createNotebookButton.style.display = 'none';
         }
+        // Disable note input
+        setUpNoteInput(true);
     }
 
-    setUpNoteInput();
 
     try {
         toggleSpeechKITT();
@@ -46,25 +51,8 @@ document.addEventListener('DOMContentLoaded', async function () {
  
  
 });
-
 function generateUserId() {
-    function getDeviceFingerprint() {
-        var navigatorData = window.navigator;
-        var screenData = window.screen;
-        var userId = [
-            navigatorData.platform,
-            navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
-            navigatorData.language,
-            screenData.height,
-            screenData.width,
-            screenData.colorDepth,
-            new Date().getTimezoneOffset()
-        ].join('|');
-        return userId;
-    }
-
     function hashString(str) {
-        // Simple hash function for illustration
         var hash = 0, i, chr;
         for (i = 0; i < str.length; i++) {
             chr = str.charCodeAt(i);
@@ -81,6 +69,8 @@ function generateUserId() {
     localStorage.setItem('userId', shortId);
     return shortId;
 }
+
+
  
 
  
@@ -98,6 +88,58 @@ async function loadSingleNotebookByToken(token) {
         console.error("Invalid notebookToken. No notebook found.");
     }
 }
+async function loadUserNotebooksByToken(token) {
+    const usersRef = firebase.database().ref('users');
+    let userId = null;
+
+    // Find the userId associated with the token
+    await usersRef.once('value', snapshot => {
+        snapshot.forEach(childSnapshot => {
+            const userData = childSnapshot.val();
+            if (userData.token === token) {
+                userId = childSnapshot.key;
+            }
+        });
+    });
+
+    if (userId) {
+        console.log("User ID found:", userId);
+        loadSharedUserNotebooks(userId);
+    } else {
+        console.error("Invalid userToken. No user found.");
+    }
+}
+async function loadSharedUserNotebooks(sharedUserId) {
+    const userNotebooksRef = firebase.database().ref(`users/${sharedUserId}/notebooks`);
+    const snapshot = await userNotebooksRef.once('value');
+    const userNotebooks = snapshot.val() || {};
+
+    const notebooksRef = firebase.database().ref(`notebooks`);
+    const notebooksSnapshot = await notebooksRef.once('value');
+    const notebooks = notebooksSnapshot.val() || {};
+
+    // Clear existing tabs and notes
+    document.getElementById('notebookTabs').innerHTML = '';
+    document.getElementById('notesContainer').innerHTML = '';
+    updateHeaderWithUserIDInfo(sharedUserId); // Update the header
+
+    Object.keys(userNotebooks).forEach((notebookId, index) => {
+        if (notebooks[notebookId]) {
+            let notebookData = notebooks[notebookId];
+            let shouldSetActive = index === 0;
+            createTab(
+                notebookId,
+                shouldSetActive,
+                notebookData.notes ? Object.keys(notebookData.notes).length : 0,
+                notebookData.name,
+                false // 'true' indicates shared mode (read-only)
+            );
+        }
+    });
+}
+
+
+
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
@@ -174,6 +216,88 @@ function updateHeaderWithNotebookInfo(token) {
         });
     } else {
         headerElement.innerHTML = 'Notebook token <br> nenalezen.';
+    }
+}
+
+
+// New function to handle userid
+function updateHeaderWithUserIDInfo(userId) {
+    const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
+    if (userId) {
+        headerElement.innerHTML = `<div>User ID: ${userId}</div>`;
+
+        let qrCodeContainer = document.getElementById('qrCodeContainer');
+        
+        const qrCodeUrl = `https://adambajer.github.io/vn/?userid=${userId}`;
+        qrCodeContainer.innerHTML = '<span class="material-symbols-outlined">qr_code</span>';
+
+        // Remove existing event listeners
+        const newQrCodeContainer = qrCodeContainer.cloneNode(true);
+        qrCodeContainer.parentNode.replaceChild(newQrCodeContainer, qrCodeContainer);
+        qrCodeContainer = newQrCodeContainer;
+
+        // Add click event to show QR code in a modal when generated
+        qrCodeContainer.addEventListener('click', function() {
+         
+            const qrModalBody = document.getElementById('qrModalBody');
+            qrModalBody.innerHTML = '';
+
+            new QRCode(qrModalBody, {
+                text: qrCodeUrl,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Add the shared URL and copy button
+            const urlElement = document.createElement('div');
+            urlElement.className = 'd-flex align-items-center mt-3';
+            urlElement.innerHTML = `
+                <span id="sharedUrl" class="me-2">${qrCodeUrl}</span>                   
+            `;
+            qrModalBody.appendChild(urlElement);
+
+            const copyUrlButton = document.createElement('button');
+            copyUrlButton.className = 'btn btn-outline-secondary mt-3';
+            copyUrlButton.id = 'copyUrlButton';
+            copyUrlButton.innerHTML = 'Kopíruj URL <span class="material-symbols-outlined">link</span>';
+            qrModalBody.appendChild(copyUrlButton);
+
+            // Add the share button
+            const shareButton = document.createElement('button');
+            shareButton.className = 'btn btn-primary ms-3 mt-3';
+            shareButton.innerHTML = 'Sdílej <span class="material-symbols-outlined">share</span>';
+            shareButton.onclick = function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'VNOTE sdílené poznámky',
+                        text: 'Omrkni poznámky:',
+                        url: qrCodeUrl
+                    }).catch((error) => console.error('Chyba sdílení:', error));
+                } else {
+                    alert('Sdílení není podporováno.');
+                }
+            };
+            qrModalBody.appendChild(shareButton);
+
+            // Copy URL functionality
+            document.getElementById('copyUrlButton').addEventListener('click', function() {
+                navigator.clipboard.writeText(qrCodeUrl).then(function() {
+                    alert('URL zkopírováno do schránky!');
+                }).catch(function(error) {
+                    console.error('Nemohu zkopírovat:', error);
+                });
+            });
+
+            // Show the modal
+            const modalElement = document.getElementById('qrmodal');
+            modalElement.querySelector('.modal-title').innerText = 'User ID: ' + userId;
+            new bootstrap.Modal(modalElement).show();
+        });
+    } else {
+        headerElement.innerHTML = 'User ID <br> nenalezen.';
     }
 }
 
@@ -267,8 +391,7 @@ function assignNotebookToUser(userId, notebookId) {
             console.log('Notebook assigned to user successfully');
         }
     });
-}
-function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "") {
+}function createTab(notebookId, setActive = false, noteCount = 0, notebookName = "", isShared = false) {
     const tab = document.createElement('li');
     tab.className = 'nav-item d-inline-flex justify-content-between';
 
@@ -293,49 +416,72 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
     badge.className = 'badge bg-primary m-2';
     badge.textContent = noteCount;
 
-    const dropdownBtn = document.createElement('button');
-    dropdownBtn.className = 'btn';
-    dropdownBtn.setAttribute('data-bs-toggle', 'dropdown');
-    dropdownBtn.ariaExpanded = false;
-    dropdownBtn.innerHTML = '⋮';
+    // Create dropdown button and menu only if not in shared mode
+    let dropdownBtn, dropdownMenu, shareNotebookItem;
+    if (!isShared) {
+        dropdownBtn = document.createElement('button');
+        dropdownBtn.className = 'btn';
+        dropdownBtn.setAttribute('data-bs-toggle', 'dropdown');
+        dropdownBtn.ariaExpanded = false;
+        dropdownBtn.innerHTML = '⋮';
 
-    const dropdownMenu = document.createElement('div');
-    dropdownMenu.className = 'dropdown-menu';
-    dropdownMenu.appendChild(createDropdownItem('Přejmenuj', () => promptRenameNotebook(notebookId, nameLabel)));
+        dropdownMenu = document.createElement('div');
+        dropdownMenu.className = 'dropdown-menu';
+        dropdownMenu.appendChild(createDropdownItem('Přejmenuj', () => promptRenameNotebook(notebookId, nameLabel)));
 
-    // Initially, don't pass the token here
-    const shareNotebookItem = createDropdownItem('Sdílej', () => shareNotebook(notebookId, null));
-    dropdownMenu.appendChild(shareNotebookItem); // Added share functionality
+        // Initially, don't pass the token here
+        shareNotebookItem = createDropdownItem('Sdílej', () => shareNotebook(notebookId, null));
+        dropdownMenu.appendChild(shareNotebookItem); // Added share functionality
 
-    dropdownMenu.appendChild(createDropdownItem('Duplikuj', () => copyNotebook(notebookId)));
-    dropdownMenu.appendChild(createDropdownItem('Stáhni jako TXT', () => downloadNotebookAsText(notebookId)));
-    dropdownMenu.appendChild(createDropdownItem('Smaž', () => deleteNotebook(notebookId)));
+        dropdownMenu.appendChild(createDropdownItem('Duplikuj', () => copyNotebook(notebookId)));
+        dropdownMenu.appendChild(createDropdownItem('Stáhni jako TXT', () => downloadNotebookAsText(notebookId)));
+        dropdownMenu.appendChild(createDropdownItem('Smaž', () => deleteNotebook(notebookId)));
+    } else {
+        // For shared notebooks, you might want to indicate they are shared
+        const sharedLabel = document.createElement('span');
+        sharedLabel.className = 'shared-label';
+        sharedLabel.textContent = ' (Sdíleno)';
+        nameLabel.appendChild(sharedLabel);
+    }
 
     link.appendChild(img);
     link.appendChild(nameLabel);
     link.appendChild(badge);
-    link.appendChild(dropdownBtn);
-    link.appendChild(dropdownMenu);
+
+    if (!isShared) {
+        link.appendChild(dropdownBtn);
+        link.appendChild(dropdownMenu);
+    }
+
     tab.appendChild(link);
 
+    // Handle click event differently based on whether it's shared
     link.onclick = function (event) {
         event.preventDefault();
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
         this.classList.add('active');
-        loadNotes(notebookId);
+
+        if (isShared) {
+            loadNotes(notebookId, 'tokenLoad', true); // Pass true to indicate read-only
+        } else {
+            loadNotes(notebookId);
+        }
+
         saveActiveTabUID(notebookId);
     };
 
     // Fetch and display the token in the title attribute and update the shareNotebook function
-    getNotebookToken(notebookId).then(token => {
-        link.setAttribute('title', `ID: ${notebookId}\nToken: ${token}`);
-        shareNotebookItem.onclick = function (event) {
-            event.preventDefault();
-            shareNotebook(notebookId, token);
-        };
-    }).catch(error => {
-        console.error('Error retrieving token:', error);
-    });
+    if (!isShared) {
+        getNotebookToken(notebookId).then(token => {
+            link.setAttribute('title', `ID: ${notebookId}\nToken: ${token}`);
+            shareNotebookItem.onclick = function (event) {
+                event.preventDefault();
+                shareNotebook(notebookId, token);
+            };
+        }).catch(error => {
+            console.error('Error retrieving token:', error);
+        });
+    }
 
     document.getElementById('notebookTabs').appendChild(tab);
 
@@ -344,17 +490,18 @@ function createTab(notebookId, setActive = false, noteCount = 0, notebookName = 
     }
 
     return { badge: badge, nameLabel: nameLabel };
-} 
+}
+
 function shareNotebook(notebookId, token) {
     if (token) {
         const baseUrl = window.location.origin;
-           const shareableLink = `?notebookToken=${token}`;
+           const shareableLink = `${baseUrl}/?notebookToken=${token}`;
         redirectToSharePage(shareableLink);
     } else {
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
-                const shareableLink = `?notebookToken=${token}`;
+                const shareableLink = `${baseUrl}/?notebookToken=${token}`;
                 redirectToSharePage(shareableLink);
             } else {
                 console.error('No token found for this notebook');
@@ -451,7 +598,76 @@ function shareNotePrompt(notebookId) {
         shareNoteToken(notebookId, noteId);
     }
 }
+function shareAllNotebooks(userId) {
+    if (userId) {
+        const shareableLink = `?userid=${userId}`;
+        redirectToSharePage(shareableLink);
+    } else {
+        console.error('User ID not found.');
+    }
+}
 
+
+
+
+
+function showShareModal(link, title) {
+    const qrModalBody = document.getElementById('qrModalBody');
+    qrModalBody.innerHTML = '';
+
+    new QRCode(qrModalBody, {
+        text: link,
+        width: 256,
+        height: 256,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    // Add the shared URL and copy button
+    const urlElement = document.createElement('div');
+    urlElement.className = 'd-flex align-items-center mt-3';
+    urlElement.innerHTML = `
+        <span id="sharedUrl" class="me-2">${link}</span>                   
+    `;
+    qrModalBody.appendChild(urlElement);
+
+    const copyUrlButton = document.createElement('button');
+    copyUrlButton.className = 'btn btn-outline-secondary mt-3';
+    copyUrlButton.id = 'copyUrlButton';
+    copyUrlButton.innerHTML = 'Kopíruj URL <span class="material-symbols-outlined">link</span>';
+    qrModalBody.appendChild(copyUrlButton);
+
+    const shareButton = document.createElement('button');
+    shareButton.className = 'btn btn-primary ms-3 mt-3';
+    shareButton.innerHTML = 'Sdílej <span class="material-symbols-outlined">share</span>';
+    shareButton.onclick = function() {
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: 'Omrkni poznámky:',
+                url: link
+            }).catch((error) => console.error('Chyba sdílení:', error));
+        } else {
+            alert('Sdílení není podporováná.');
+        }
+    };
+    qrModalBody.appendChild(shareButton);
+
+    // Copy URL functionality
+    document.getElementById('copyUrlButton').addEventListener('click', function() {
+        navigator.clipboard.writeText(link).then(function() {
+            alert('URL zkopírováno do schránky!');
+        }).catch(function(error) {
+            console.error('Nemohu zkopírovat:', error);
+        });
+    });
+
+    // Show the modal
+    const modalElement = document.getElementById('qrmodal');
+    modalElement.querySelector('.modal-title').innerText = title;
+    new bootstrap.Modal(modalElement).show();
+}
 function shareNoteToken(notebookId, noteId) {
     const noteRef = firebase.database().ref(`notebooks/${notebookId}/notes/${noteId}`);
     noteRef.once('value', snapshot => {
@@ -468,21 +684,23 @@ function shareNoteToken(notebookId, noteId) {
 function generateCustomNotebookId() {
     return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
 }
-function setUpUserTooltip() {
 
+// Set up user tooltip function
+function setUpUserTooltip() {
     const userIcon = document.getElementById('userIcon');
- 
-  
 
     userIcon.addEventListener('click', function () {
+        var deviceFingerprint = getDeviceFingerprint();
         var deviceInfo = getDeviceInfo();
-        var infoText = "";  // Initialize an empty string to hold the information.
-        infoText = '<div class="ones">UserId</div>' + '<div class="twos">' + localStorage.getItem('userId') + '</div>';
-        infoText = infoText + '<div class="ones">ActiveTabUID</div>' + '<div class="twos">' + localStorage.getItem('activeTabUID') + '</div>';
+        var infoText = "";
+
+        infoText += '<div class="ones">UserId</div>' + '<div class="twos">' + localStorage.getItem('userId') + '</div>';
+        infoText += '<div class="ones">ActiveTabUID</div>' + '<div class="twos">' + localStorage.getItem('activeTabUID') + '</div>';
+        infoText += '<div class="ones">Device Fingerprint</div>' + '<div class="twos">' + deviceFingerprint + '</div>';
 
         // Iterate over each property in the deviceInfo object
         for (var key in deviceInfo) {
-            if (deviceInfo.hasOwnProperty(key)) {  // Make sure the property isn't from the prototype chain
+            if (deviceInfo.hasOwnProperty(key)) {
                 infoText += '<div class="ones">' + key + '</div><div class="twos">' + deviceInfo[key] + '</div>';
             }
         }
@@ -558,8 +776,7 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
             console.log(`Note added from: ${source}`);
         }
     });
-}
-function loadNotes(notebookId, source = '') {
+}function loadNotes(notebookId, source = '', readOnly = false) {
     activeNotebookId = notebookId; // Set the active notebook ID globally
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
     notebookNotesRef.on('value', function (snapshot) {
@@ -573,15 +790,18 @@ function loadNotes(notebookId, source = '') {
             var noteText = document.createElement('span');
             noteText.textContent = notes[noteId].content;
             noteText.className = 'note-text';
-            noteText.contentEditable = !notes[noteId].finished;
+            noteText.contentEditable = !notes[noteId].finished && !readOnly; // Disable editing if readOnly is true
             noteText.setAttribute('data-note-id', noteId);
             if (notes[noteId].finished) {
                 noteElement.classList.add('finished');
             }
 
-            noteText.addEventListener('blur', function () {
-                updateNote(notebookId, noteId, noteText.textContent);
-            });
+            // Only add the blur event listener if not read-only
+            if (!readOnly) {
+                noteText.addEventListener('blur', function () {
+                    updateNote(notebookId, noteId, noteText.textContent);
+                });
+            }
 
             let createdAt = formatDate(new Date(notes[noteId].createdAt));
             let updatedAt = formatDate(new Date(notes[noteId].updatedAt));
@@ -590,17 +810,24 @@ function loadNotes(notebookId, source = '') {
                 tooltipContent += `\nEdited: ${updatedAt}`;
             }
             noteElement.setAttribute('data-title', tooltipContent);
- var checkboxContainer = document.createElement('label');
+
+            var checkboxContainer = document.createElement('label');
             checkboxContainer.className = 'checkbox-container';
 
             var checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'note-checkbox';
             checkbox.checked = notes[noteId].finished;
-            checkbox.onchange = function () {
-                toggleNoteFinished(notebookId, noteId, checkbox.checked);
-                noteText.contentEditable = !checkbox.checked;
-            };
+
+            if (!readOnly) {
+                checkbox.onchange = function () {
+                    toggleNoteFinished(notebookId, noteId, checkbox.checked);
+                    noteText.contentEditable = !checkbox.checked;
+                };
+            } else {
+                // Disable the checkbox if in read-only mode
+                checkbox.disabled = true;
+            }
 
             var checkmark = document.createElement('span');
             checkmark.className = 'checkmark';
@@ -608,14 +835,18 @@ function loadNotes(notebookId, source = '') {
             checkboxContainer.appendChild(checkbox);
             checkboxContainer.appendChild(checkmark);
 
-
-
             var deleteBtn = document.createElement('button');
             deleteBtn.innerHTML = '<span class="material-symbols-outlined">delete</span>';
             deleteBtn.className = 'delete-note';
-            deleteBtn.onclick = function () {
-                deleteNote(notebookId, noteId);
-            };
+
+            if (!readOnly) {
+                deleteBtn.onclick = function () {
+                    deleteNote(notebookId, noteId);
+                };
+            } else {
+                // Hide the delete button in read-only mode
+                deleteBtn.style.display = 'none';
+            }
 
             noteElement.appendChild(checkboxContainer);
             noteElement.appendChild(noteText);
@@ -844,6 +1075,21 @@ function triggerDownload(content, filename) {
 
 // Utility functions
 
+function getDeviceFingerprint() {
+    var navigatorData = window.navigator;
+    var screenData = window.screen;
+    var userId = [
+        navigatorData.platform,
+        navigatorData.userAgent.replace(/\d+/g, ""), // Remove digits to minimize version changes
+        navigatorData.language,
+        screenData.height,
+        screenData.width,
+        screenData.colorDepth,
+        new Date().getTimezoneOffset()
+    ].join('|');
+    return userId;
+}
+
 function getDeviceInfo() {
     var navigatorData = window.navigator;
     var screenData = window.screen;
@@ -857,7 +1103,6 @@ function getDeviceInfo() {
     };
     return deviceInfo;
 }
-
 
 async function getActiveTabUID() {
     return localStorage.getItem('activeTabUID');
