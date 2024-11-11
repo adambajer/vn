@@ -37,9 +37,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             createNotebookButton.style.display = 'none';
         }
         // Disable note input
-        setUpNoteInput(true);
     }
 
+    setUpNoteInput(false);
 
     try {
         toggleSpeechKITT();
@@ -495,13 +495,13 @@ function assignNotebookToUser(userId, notebookId) {
 function shareNotebook(notebookId, token) {
     if (token) {
         const baseUrl = window.location.origin;
-           const shareableLink = `${baseUrl}/?notebookToken=${token}`;
+           const shareableLink = `${baseUrl}/vn/?notebookToken=${token}`;
         redirectToSharePage(shareableLink);
     } else {
         getNotebookToken(notebookId).then(token => {
             if (token) {
                 const baseUrl = window.location.origin;
-                const shareableLink = `${baseUrl}/?notebookToken=${token}`;
+                const shareableLink = `${baseUrl}/vn/?notebookToken=${token}`;
                 redirectToSharePage(shareableLink);
             } else {
                 console.error('No token found for this notebook');
