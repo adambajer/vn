@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Disable note input
     }
 
-    setUpNoteInput(false);
+    setUpNoteInput();
 
     try {
         toggleSpeechKITT();
@@ -723,7 +723,7 @@ function setUpNoteInput() {
         }
     });
     noteInput.addEventListener('blur', addNoteFromInput);
-    document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
+ //   document.getElementById('createNotebookButton').addEventListener('click', () => createNotebook(localStorage.getItem('userId')));
 }
 
 
