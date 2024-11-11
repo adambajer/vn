@@ -948,15 +948,12 @@ async function toggleSpeechKITT() {
             SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
             SpeechKITT.setAbortCommand(() => annyang.abort());
             SpeechKITT.vroom();
-            voiceButton.innerHTML = '<span class="material-symbols-outlined">mic_off</span> Stop';
-        } else {
+         } else {
             if (annyang.isListening()) {
                 SpeechKITT.abortRecognition();
-                voiceButton.innerHTML = '<span class="material-symbols-outlined">mic</span> Start';
-            } else {
+             } else {
                 SpeechKITT.startRecognition();
-                voiceButton.innerHTML = '<span class="material-symbols-outlined">mic_off</span> Stop';
-            }
+             }
         }
  
 
@@ -968,8 +965,7 @@ async function toggleSpeechKITT() {
             addNote(text, activeNotebookId);
             console.log("Added note: ", text);
             SpeechKITT.abortRecognition();
-            voiceButton.innerHTML = '<span class="material-symbols-outlined">mic</span> Start';
-        }
+         }
     });
 }
 
