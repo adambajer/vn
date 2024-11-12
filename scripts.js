@@ -882,7 +882,49 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
     }, false);
 }
 
+noteElement.addEventListener('touchend', function(event) {
+    if (!isSwiping) return;
+    isSwiping = false;
+    let deltaX = touchCurrentX - touchStartX;
 
+    // Determine action based on swipe distance
+    if (deltaX <= -swipeThreshold) {
+        // Swipe Left: Mark as Finished
+        noteElement.style.transform = `translateX(-100%)`;
+        noteElement.classList.remove('swiping-left');
+        noteElement.classList.add('swipe-left');
+
+        // Update the note's finished status
+        toggleNoteFinished(notebookId, noteId, true);
+
+        // Optionally, remove the note after the animation completes
+        setTimeout(() => {
+            noteElement.remove();
+            updateNoteCount(notebookId, -1); // Decrement the note count
+        }, 500); // Duration should match the CSS transition duration
+    } else if (deltaX >= swipeThreshold) {
+        // Swipe Right: Delete Note
+        // Optionally, confirm deletion
+        if (confirm("Are you sure you want to delete this note?")) {
+            noteElement.style.transform = `translateX(100%)`;
+            noteElement.classList.remove('swiping-right');
+            noteElement.classList.add('swipe-right');
+
+            // Delete the note after the animation completes
+            setTimeout(() => {
+                deleteNote(notebookId, noteId);
+            }, 500); // Duration should match the CSS transition duration
+        } else {
+            // If deletion is canceled, revert to original position
+            noteElement.style.transform = `translateX(0px)`;
+            noteElement.classList.remove('swiping-right');
+        }
+    } else {
+        // Not enough swipe distance: Revert to original position
+        noteElement.style.transform = `translateX(0px)`;
+        noteElement.classList.remove('swiping-left', 'swiping-right');
+    }
+}, false);
 function updateNoteCount(notebookId, increment) {
     try {
         const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
