@@ -803,35 +803,85 @@ function loadNotes(notebookId, source = '', readOnly = false) {
 };
 function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
     let touchStartX = 0;
-    let touchEndX = 0;
-    const swipeThreshold = 100; // Minimum distance for a swipe
+    let touchCurrentX = 0;
+    let isSwiping = false;
+    const swipeThreshold = 100; // Minimum distance in pixels to trigger action
+    const maxSwipeDistance = 300; // Maximum swipe distance to prevent excessive translation
+
+    // Reference to the note text for editing purposes
+    const noteText = noteElement.querySelector('.note-text');
 
     noteElement.addEventListener('touchstart', function(event) {
+        if (readOnly) return; // Do not allow swiping in read-only mode
         touchStartX = event.changedTouches[0].screenX;
+        isSwiping = true;
+
+        // Remove any existing swipe classes
+        noteElement.classList.remove('swipe-left', 'swipe-right', 'swiping-left', 'swiping-right');
+    }, false);
+
+    noteElement.addEventListener('touchmove', function(event) {
+        if (!isSwiping) return;
+        touchCurrentX = event.changedTouches[0].screenX;
+        let deltaX = touchCurrentX - touchStartX;
+
+        // Limit the swipe distance
+        if (deltaX > maxSwipeDistance) deltaX = maxSwipeDistance;
+        if (deltaX < -maxSwipeDistance) deltaX = -maxSwipeDistance;
+
+        // Translate the note
+        noteElement.style.transform = `translateX(${deltaX}px)`;
+
+        // Add visual feedback based on swipe direction
+        if (deltaX < 0) {
+            // Swiping left
+            noteElement.classList.add('swiping-left');
+            noteElement.classList.remove('swiping-right');
+        } else if (deltaX > 0) {
+            // Swiping right
+            noteElement.classList.add('swiping-right');
+            noteElement.classList.remove('swiping-left');
+        }
     }, false);
 
     noteElement.addEventListener('touchend', function(event) {
-        touchEndX = event.changedTouches[0].screenX;
-        handleGesture();
-    }, false);
+        if (!isSwiping) return;
+        isSwiping = false;
+        let deltaX = touchCurrentX - touchStartX;
 
-    function handleGesture() {
-        const deltaX = touchEndX - touchStartX;
-        if (Math.abs(deltaX) > swipeThreshold) {
-            if (deltaX < 0) {
-                // Swipe Left: Mark as Finished
-                if (!readOnly) {
-                    toggleNoteFinished(notebookId, noteId, true);
-                }
-            } else {
-                // Swipe Right: Delete Note
-                if (!readOnly) {
-                    deleteNote(notebookId, noteId);
-                }
-            }
+        // Determine action based on swipe distance
+        if (deltaX <= -swipeThreshold) {
+            // Swipe Left: Mark as Finished
+            noteElement.style.transform = `translateX(-100%)`;
+            noteElement.classList.remove('swiping-left');
+            noteElement.classList.add('swipe-left');
+
+            // Update the note's finished status
+            toggleNoteFinished(notebookId, noteId, true);
+
+            // Optionally, remove the note after the animation completes
+            setTimeout(() => {
+                noteElement.remove();
+                updateNoteCount(notebookId, -1); // Decrement the note count
+            }, 500); // Duration should match the CSS transition duration
+        } else if (deltaX >= swipeThreshold) {
+            // Swipe Right: Delete Note
+            noteElement.style.transform = `translateX(100%)`;
+            noteElement.classList.remove('swiping-right');
+            noteElement.classList.add('swipe-right');
+
+            // Confirm deletion
+            setTimeout(() => {
+                deleteNote(notebookId, noteId);
+            }, 500); // Wait for the animation to complete
+        } else {
+            // Not enough swipe distance: Revert to original position
+            noteElement.style.transform = `translateX(0px)`;
+            noteElement.classList.remove('swiping-left', 'swiping-right');
         }
-    }
+    }, false);
 }
+
 
 function updateNoteCount(notebookId, increment) {
     try {
