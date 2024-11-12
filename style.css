@@ -84,35 +84,38 @@ body {
     background-color: red !important;
     animation: pulsate 2s infinite;
 }
-
-  /* Note container */
-  .note {
+/* Transition for smooth movement */
+.note {
+    transition: transform 0.3s ease, opacity 0.3s ease;
     position: relative;
-    padding: 1rem; /* Adjust as needed */
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-    background-color: #fafafa;
+    touch-action: pan-y; /* Allow vertical scrolling */
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-.note {
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    position: relative;
-}
 
-/* Swiping left */
+/* Swiping left: mark as finished */
 .note.swipe-left {
     transform: translateX(-100%);
     opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
-/* Swiping right */
+/* Swiping right: delete */
 .note.swipe-right {
     transform: translateX(100%);
     opacity: 0;
-}/* Add this to your CSS file or within a <style> tag */
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+/* Optional: Background color change during swipe */
+.note.swiping-left {
+    background-color: #d4edda; /* Bootstrap's success background */
+}
+
+.note.swiping-right {
+    background-color: #f8d7da; /* Bootstrap's danger background */
+}
 
 /* Style for the checkbox container */
 .checkbox-container {
@@ -168,6 +171,30 @@ body {
     border: solid white;
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
+}
+
+/* Status Message Styles */
+.status {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(220, 53, 69, 0.9); /* Bootstrap's danger color with opacity */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: none; /* Hidden by default */
+    z-index: 1000;
+}
+
+.status.active {
+    display: block;
+}
+
+/* Finished Note Styles */
+.note.finished .note-text {
+    text-decoration: line-through;
+    color: gray;
 }
 
 
