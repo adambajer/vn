@@ -805,16 +805,29 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
     let touchStartX = 0;
     let touchCurrentX = 0;
     let isSwiping = false;
+    let didSwipe = false; // Flag to track if a swipe occurred
     const swipeThreshold = 100; // Minimum distance in pixels to trigger action
     const maxSwipeDistance = 300; // Maximum swipe distance to prevent excessive translation
 
     // Reference to the note text for editing purposes
     const noteText = noteElement.querySelector('.note-text');
 
+    // Remove or comment out the touchstart listener on noteText
+    // to allow event propagation
+    /*
+    noteText.addEventListener('touchstart', function(event) {
+        event.stopPropagation();
+        console.log('Touchstart on noteText');
+    }, { passive: true });
+    */
+
     noteElement.addEventListener('touchstart', function (event) {
         if (readOnly) return; // Do not allow swiping in read-only mode
         touchStartX = event.changedTouches[0].screenX;
+        touchCurrentX = touchStartX; // Initialize touchCurrentX
         isSwiping = true;
+        didSwipe = false; // Reset swipe flag
+        console.log('Touchstart on noteElement:', touchStartX);
 
         // Remove any existing swipe classes
         noteElement.classList.remove('swipe-left', 'swipe-right', 'swiping-left', 'swiping-right');
@@ -831,6 +844,7 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
 
         // Translate the note
         noteElement.style.transform = `translateX(${deltaX}px)`;
+        console.log('Touchmove on noteElement:', deltaX);
 
         // Add visual feedback based on swipe direction
         if (deltaX < 0) {
@@ -848,33 +862,42 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
         if (!isSwiping) return;
         isSwiping = false;
         let deltaX = touchCurrentX - touchStartX;
+        console.log('Touchend on noteElement:', deltaX);
 
-        // Determine action based on swipe distance
+        // Determine if a significant swipe occurred
         if (deltaX <= -swipeThreshold) {
             // Swipe Left: Mark as Finished
-            //noteElement.style.transform = `translateX(-100%)`;
-            // noteElement.classList.remove('swiping-left');
-            //noteElement.classList.add('swipe-left');
-
-            // Update the note's finished status
+            didSwipe = true;
+            console.log('Swipe Left detected');
             toggleNoteFinished(notebookId, noteId, true);
-
-
         } else if (deltaX >= swipeThreshold) {
             // Swipe Right: Delete Note
-            //noteElement.style.transform = `translateX(100%)`;
-            noteElement.classList.remove('swiping-right');
-            noteElement.classList.add('swipe-right');
-
-            // Confirm deletion
+            didSwipe = true;
+            console.log('Swipe Right detected');
+            // Confirm deletion with a slight delay for animation
             setTimeout(() => {
                 deleteNote(notebookId, noteId);
-            }, 500); // Wait for the animation to complete
+            }, 300); // Adjust delay as needed
         } else {
             // Not enough swipe distance: Revert to original position
             noteElement.style.transform = `translateX(0px)`;
             noteElement.classList.remove('swiping-left', 'swiping-right');
+            console.log('Swipe not significant, reverting position');
         }
+    }, false);
+
+    // Prevent click event if a swipe has occurred
+    noteElement.addEventListener('click', function(event) {
+        if (didSwipe) {
+            // Reset the flag and prevent default action
+            didSwipe = false;
+            event.preventDefault();
+            event.stopPropagation();
+            console.log('Click event prevented due to swipe');
+            return false;
+        }
+        // Else, proceed with the click (e.g., editing)
+        console.log('Click event on noteElement');
     }, false);
 }
 
