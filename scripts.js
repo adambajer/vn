@@ -29,33 +29,33 @@ document.addEventListener('DOMContentLoaded', async function () {
     setUpNoteInput();
     await toggleSpeechKITT();
 
-    
 
-   // Parse URL parameters
-   const urlParams = getUrlParameters();
-   const notebookToken = urlParams.notebookToken;
-   const sharedUserId = urlParams.userid; // Assuming 'userid' parameter is used for shared notebooks
 
-   if (notebookToken) {
-       // Load a single notebook by token in read-only mode
-       await loadSingleNotebookByToken(notebookToken);
-   } else if (sharedUserId) {
-       // Load all shared notebooks for the specified user ID
-       await loadSharedUserNotebooks(sharedUserId);
-   } else {
-       // Default behavior: Load user's own notebooks
-       await loadUserNotebooks(userId);
-       // **Add this line to update the header with the user's QR code**
-       updateHeaderWithUserIDInfo(userId);
-   }
+    // Parse URL parameters
+    const urlParams = getUrlParameters();
+    const notebookToken = urlParams.notebookToken;
+    const sharedUserId = urlParams.userid; // Assuming 'userid' parameter is used for shared notebooks
+
+    if (notebookToken) {
+        // Load a single notebook by token in read-only mode
+        await loadSingleNotebookByToken(notebookToken);
+    } else if (sharedUserId) {
+        // Load all shared notebooks for the specified user ID
+        await loadSharedUserNotebooks(sharedUserId);
+    } else {
+        // Default behavior: Load user's own notebooks
+        await loadUserNotebooks(userId);
+        // **Add this line to update the header with the user's QR code**
+        updateHeaderWithUserIDInfo(userId);
+    }
 });
 
 // ======================================
 // Loading Functions
 // ======================================
 
-   
- 
+
+
 function generateUserId() {
     function hashString(str) {
         var hash = 0, i, chr;
@@ -643,7 +643,7 @@ function setUpNoteInput() {
             event.preventDefault();
         }
     });
-    noteInput.addEventListener('blur', addNoteFromInput); 
+    noteInput.addEventListener('blur', addNoteFromInput);
 }
 
 function setFirstTabActive() {
@@ -691,12 +691,12 @@ function addNote(content, notebookId, shouldUpdateNoteCount = true, source = '')
             console.log(`Note added from: ${source}`);
         }
     });
-} 
+}
 
 function loadNotes(notebookId, source = '', readOnly = false) {
     activeNotebookId = notebookId; // Set the active notebook ID globally
     const notebookNotesRef = firebase.database().ref(`notebooks/${notebookId}/notes`);
-    
+
     notebookNotesRef.on('value', function (snapshot) {
         const notes = snapshot.val() || {};
         const notesContainer = document.getElementById('notesContainer');
@@ -704,10 +704,10 @@ function loadNotes(notebookId, source = '', readOnly = false) {
 
         Object.keys(notes).forEach(noteId => {
             const note = notes[noteId];
-            
+
             // Create Note Element
             const noteElement = document.createElement('div');
-            noteElement.className = 'note p-2 border-bottom';
+            noteElement.className = 'note border-bottom';
             noteElement.setAttribute('data-note-id', noteId);
             noteElement.style.display = 'flex';
             noteElement.style.alignItems = 'center';
@@ -717,7 +717,7 @@ function loadNotes(notebookId, source = '', readOnly = false) {
             // Create Checkbox Container
             const checkboxContainer = document.createElement('label');
             checkboxContainer.className = 'checkbox-container me-3';
-            
+
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'note-checkbox';
@@ -774,24 +774,24 @@ function loadNotes(notebookId, source = '', readOnly = false) {
             timeIcon.style.cursor = 'pointer';
 
             // Create Delete Button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.innerHTML = '<span class="material-symbols-outlined">delete</span>';
-            deleteBtn.className = 'delete-note btn btn-sm btn-outline-danger ms-2';
-            
-            if (!readOnly) {
-                deleteBtn.onclick = function () {
-                    deleteNote(notebookId, noteId);
-                };
-            } else {
-                // Hide the delete button in read-only mode
-                deleteBtn.style.display = 'none';
-            }
-
+            /* const deleteBtn = document.createElement('button');
+             deleteBtn.innerHTML = '<span class="material-symbols-outlined">delete</span>';
+             deleteBtn.className = 'delete-note btn btn-sm btn-outline-danger ms-2';
+             
+             if (!readOnly) {
+                 deleteBtn.onclick = function () {
+                     deleteNote(notebookId, noteId);
+                 };
+             } else {
+                 // Hide the delete button in read-only mode
+                 deleteBtn.style.display = 'none';
+             }
+ */
             // Append Elements to Note Element
             noteElement.appendChild(checkboxContainer);
             noteElement.appendChild(noteText);
             noteElement.appendChild(timeIcon); // Append Time Icon
-            noteElement.appendChild(deleteBtn);
+            //noteElement.appendChild(deleteBtn);
 
             // Add Touch Event Listeners for Swipe
             addSwipeListeners(noteElement, notebookId, noteId, readOnly);
@@ -811,7 +811,7 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
     // Reference to the note text for editing purposes
     const noteText = noteElement.querySelector('.note-text');
 
-    noteElement.addEventListener('touchstart', function(event) {
+    noteElement.addEventListener('touchstart', function (event) {
         if (readOnly) return; // Do not allow swiping in read-only mode
         touchStartX = event.changedTouches[0].screenX;
         isSwiping = true;
@@ -820,7 +820,7 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
         noteElement.classList.remove('swipe-left', 'swipe-right', 'swiping-left', 'swiping-right');
     }, false);
 
-    noteElement.addEventListener('touchmove', function(event) {
+    noteElement.addEventListener('touchmove', function (event) {
         if (!isSwiping) return;
         touchCurrentX = event.changedTouches[0].screenX;
         let deltaX = touchCurrentX - touchStartX;
@@ -844,7 +844,7 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
         }
     }, false);
 
-    noteElement.addEventListener('touchend', function(event) {
+    noteElement.addEventListener('touchend', function (event) {
         if (!isSwiping) return;
         isSwiping = false;
         let deltaX = touchCurrentX - touchStartX;
@@ -852,21 +852,17 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
         // Determine action based on swipe distance
         if (deltaX <= -swipeThreshold) {
             // Swipe Left: Mark as Finished
-            noteElement.style.transform = `translateX(-100%)`;
-            noteElement.classList.remove('swiping-left');
-            noteElement.classList.add('swipe-left');
+            //noteElement.style.transform = `translateX(-100%)`;
+            // noteElement.classList.remove('swiping-left');
+            //noteElement.classList.add('swipe-left');
 
             // Update the note's finished status
             toggleNoteFinished(notebookId, noteId, true);
 
-            // Optionally, remove the note after the animation completes
-            setTimeout(() => {
-                noteElement.remove();
-                updateNoteCount(notebookId, -1); // Decrement the note count
-            }, 500); // Duration should match the CSS transition duration
+
         } else if (deltaX >= swipeThreshold) {
             // Swipe Right: Delete Note
-            noteElement.style.transform = `translateX(100%)`;
+            //noteElement.style.transform = `translateX(100%)`;
             noteElement.classList.remove('swiping-right');
             noteElement.classList.add('swipe-right');
 
@@ -882,49 +878,6 @@ function addSwipeListeners(noteElement, notebookId, noteId, readOnly) {
     }, false);
 }
 
-noteElement.addEventListener('touchend', function(event) {
-    if (!isSwiping) return;
-    isSwiping = false;
-    let deltaX = touchCurrentX - touchStartX;
-
-    // Determine action based on swipe distance
-    if (deltaX <= -swipeThreshold) {
-        // Swipe Left: Mark as Finished
-        noteElement.style.transform = `translateX(-100%)`;
-        noteElement.classList.remove('swiping-left');
-        noteElement.classList.add('swipe-left');
-
-        // Update the note's finished status
-        toggleNoteFinished(notebookId, noteId, true);
-
-        // Optionally, remove the note after the animation completes
-        setTimeout(() => {
-            noteElement.remove();
-            updateNoteCount(notebookId, -1); // Decrement the note count
-        }, 500); // Duration should match the CSS transition duration
-    } else if (deltaX >= swipeThreshold) {
-        // Swipe Right: Delete Note
-        // Optionally, confirm deletion
-        if (confirm("Are you sure you want to delete this note?")) {
-            noteElement.style.transform = `translateX(100%)`;
-            noteElement.classList.remove('swiping-right');
-            noteElement.classList.add('swipe-right');
-
-            // Delete the note after the animation completes
-            setTimeout(() => {
-                deleteNote(notebookId, noteId);
-            }, 500); // Duration should match the CSS transition duration
-        } else {
-            // If deletion is canceled, revert to original position
-            noteElement.style.transform = `translateX(0px)`;
-            noteElement.classList.remove('swiping-right');
-        }
-    } else {
-        // Not enough swipe distance: Revert to original position
-        noteElement.style.transform = `translateX(0px)`;
-        noteElement.classList.remove('swiping-left', 'swiping-right');
-    }
-}, false);
 function updateNoteCount(notebookId, increment) {
     try {
         const badge = document.querySelector(`a[data-notebook-id="${notebookId}"] .badge`);
@@ -1035,19 +988,19 @@ async function toggleSpeechKITT() {
     annyang.setLanguage('cs-CZ'); // Set the desired language
     SpeechKITT.setInstructionsText('Diktuj...');
     SpeechKITT.displayRecognizedSentence(true);
- 
-        if (!SpeechKITT.isListening()) {
-            SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
-            SpeechKITT.setAbortCommand(() => annyang.abort());
-            SpeechKITT.vroom();
-         } else {
-            if (annyang.isListening()) {
-                SpeechKITT.abortRecognition();
-             } else {
-                SpeechKITT.startRecognition();
-             }
+
+    if (!SpeechKITT.isListening()) {
+        SpeechKITT.setStartCommand(() => annyang.start({ continuous: true }));
+        SpeechKITT.setAbortCommand(() => annyang.abort());
+        SpeechKITT.vroom();
+    } else {
+        if (annyang.isListening()) {
+            SpeechKITT.abortRecognition();
+        } else {
+            SpeechKITT.startRecognition();
         }
- 
+    }
+
 
     // Handle voice recognition result
     annyang.addCallback('result', function (phrases) {
@@ -1057,7 +1010,7 @@ async function toggleSpeechKITT() {
             addNote(text, activeNotebookId);
             console.log("Added note: ", text);
             SpeechKITT.abortRecognition();
-         }
+        }
     });
 }
 

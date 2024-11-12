@@ -55,7 +55,7 @@ padding: 2px;
     background: #fff; 
     min-width: 12rem;
     outline: none !important;
-    margin-right: 1rem;
+  
    
 }
 .note:active,.note:hover,.note:focus,.note:focus-visible     {
@@ -220,6 +220,27 @@ padding: 2px;
 
 .note:hover .delete-note {
     visibility: visible;
+}/* Swiping left: mark as finished */
+.note.swipe-left {
+    transform: translateX(-30%);
+    opacity: 1;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+/* Swiping right: delete */
+.note.swipe-right {
+    transform: translateX(100%);
+    opacity: 1;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+/* Optional: Background color change during swipe */
+.note.swiping-left {
+    background-color: #d4edda; /* Bootstrap's success background */
+}
+
+.note.swiping-right {
+    background-color: #f8d7da; /* Bootstrap's danger background */
 }
 
 .logo {
