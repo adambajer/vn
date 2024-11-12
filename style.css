@@ -97,14 +97,14 @@ body {
 /* Swiping left: mark as finished */
 .note.swipe-left {
     transform: translateX(-100%);
-    opacity: 0;
+    opacity: 1;
     transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
 /* Swiping right: delete */
 .note.swipe-right {
     transform: translateX(100%);
-    opacity: 0;
+    opacity: 1;
     transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
