@@ -940,7 +940,7 @@ async function toggleSpeechKITT() {
     }
     // Initialize SpeechKITT settings once
     SpeechKITT.annyang();
-    annyang.setLanguage('cs'); // Set the desired language
+    annyang.setLanguage('cs-CZ'); // Set the desired language
     SpeechKITT.setInstructionsText('Diktuj...');
     SpeechKITT.displayRecognizedSentence(true);
  
