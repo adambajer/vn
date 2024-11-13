@@ -1,7 +1,7 @@
 body {
     background:white;
     font-family: 'Roboto', sans-serif;
-    color: #333;  background: #eaeaea;
+    color: #333;  
 }
 * {
     
@@ -15,7 +15,7 @@ body {
   'opsz' 24
 } 
 #notesContainer2 {
-    padding: 1rem;
+
 }
 
 #notebookTabs {}
@@ -118,7 +118,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1rem;
-    background-color: #fff;
+    background-color: #eaeaea;
     border-bottom: 1px solid #e1e4e8;
 }
 
@@ -152,14 +152,14 @@ body {
 }
 
 .nav-link {
-    background-color: #fff;
+   background-color: #eaeaea;
     border-bottom: 1px solid #ccc;
     color: #333;
 }
 
 .nav-pills .nav-link.active,
 .nav-pills .show>.nav-link {
-    background-color: #eaeaea;
+    background-color: #fff; 
     border-bottom: 1px solid transparent;
 }
 
@@ -171,18 +171,16 @@ body {
 .menu-icon:hover,
 .menu-icon:active,
 .menu-icon:target,
-.menu-icon:focus {
-    background-color: white;
+.menu-icon:focus { 
 }
 
 #userIcon {
     border-left: 1px solid #ccc;
     cursor: pointer; 
-    padding: 5px;    background-color:white;
+    padding: 5px;   
 }
 
-#userIcon:hover {
-    background-color: white;
+#userIcon:hover { 
 }
 
 .dropdown-item-delete {
@@ -479,7 +477,7 @@ button {
 }
 
 .material-symbols-outlined {
-    font-size: 1em;                /* Matches icon size with text size */
+    font-size: 1.5em;                /* Matches icon size with text size */
     vertical-align: middle;        /* Ensures the icon is aligned with text */
     margin: 0;                     /* Resets margin to prevent extra spacing */
 }

@@ -158,7 +158,7 @@ async function loadSharedUserNotebooks(sharedUserId) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        headerElement.innerHTML = `<div>${token}</div>`;
+        headerElement.innerHTML = `<div>NotebookToken: ${token}</div>`; 
         let qrCodeContainer = document.getElementById('qrCodeContainer');
         const qrCodeUrl = `${baseUrl}/?notebookToken=${token}`;
  
@@ -226,7 +226,7 @@ function updateHeaderWithNotebookInfo(token) {
 function updateHeaderWithUserIDInfo(userId) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (userId) {
-        headerElement.innerHTML = `<div>User ID: ${userId}</div>`;
+        headerElement.innerHTML = `<div>UserID: ${userId}</div>`;
         let qrCodeContainer = document.getElementById('qrCodeContainer');
         const qrCodeUrl = `${baseUrl}/?userid=${userId}`;
 
@@ -377,17 +377,17 @@ function assignNotebookToUser(userId, notebookId) {
     link.href = '#';
     link.dataset.notebookId = notebookId;
     link.setAttribute('title', `ID: ${notebookId}`);
-    const img = document.createElement('img');
+    /*const img = document.createElement('img');
     img.src = "note.svg";
     img.alt = "Note Icon";
     img.className = 'ms-2';
     img.style.width = "24px";
-    img.style.height = "24px";
+    img.style.height = "24px";*/
     const nameLabel = document.createElement('span');
-    nameLabel.className = 'notebook-name m-2';
+    nameLabel.className = 'notebook-name m-1';
     nameLabel.textContent = notebookName;
     const badge = document.createElement('span');
-    badge.className = 'badge bg-primary m-2';
+    badge.className = 'badge bg-primary m-1';
     badge.textContent = noteCount;
     // Create dropdown button and menu only if not in shared mode
     let dropdownBtn, dropdownMenu, shareNotebookItem;
@@ -413,7 +413,7 @@ function assignNotebookToUser(userId, notebookId) {
         sharedLabel.textContent = '';
         nameLabel.appendChild(sharedLabel);
     }
-    link.appendChild(img);
+    //link.appendChild(img);
     link.appendChild(nameLabel);
     link.appendChild(badge);
     if (!isShared) {
