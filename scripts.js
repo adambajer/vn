@@ -95,10 +95,31 @@ async function loadSingleNotebookByToken(token) {
         activeNotebookId = notebookId; // Set the active notebook ID globally
         loadNotes(notebookId, 'tokenLoad'); // Pass the source to loadNotes
         updateHeaderWithNotebookInfo(token); // Update the header
+        hideElements(['notebookTabs', 'createNotebookButton']);
+
     } else {
         console.error("Invalid notebookToken. No notebook found.");
     }
 }
+// Helper Functions to Show/Hide Elements
+function hideElements(elements) {
+    elements.forEach(elementId => {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.style.display = 'none';
+        }
+    });
+}
+
+function showElements(elements) {
+    elements.forEach(elementId => {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.style.display = 'block';
+        }
+    });
+}
+
 async function loadUserNotebooksByToken(token) {
     const usersRef = firebase.database().ref('users');
     let userId = null;
@@ -158,7 +179,7 @@ async function loadSharedUserNotebooks(sharedUserId) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        headerElement.innerHTML = `<div>NotebookToken: ${token}</div>`; 
+        headerElement.innerHTML = `<div>notebookToken: ${token}</div>`; 
         let qrCodeContainer = document.getElementById('qrCodeContainer');
         const qrCodeUrl = `${baseUrl}/?notebookToken=${token}`;
  
@@ -180,7 +201,7 @@ function updateHeaderWithNotebookInfo(token) {
             // Add the shared URL and copy button
             const urlElement = document.createElement('div');
             urlElement.className = 'd-flex align-items-center mt-3';
-            urlElement.innerHTML = `<span id="sharedUrl" class="me-2">${qrCodeUrl}</span>`;
+            urlElement.innerHTML = `<span id="sharedUrl" class="me-1">${qrCodeUrl}</span>`;
             qrModalBody.appendChild(urlElement);
             const copyUrlButton = document.createElement('button');
             copyUrlButton.className = 'btn btn-outline-secondary mt-3';
@@ -214,7 +235,7 @@ function updateHeaderWithNotebookInfo(token) {
             });
             // Show the modal
             const modalElement = document.getElementById('qrmodal');
-            modalElement.querySelector('.modal-title').innerText = token;
+            modalElement.querySelector('.modal-title').innerText = 'notebook Token: ' +token;
             new bootstrap.Modal(modalElement).show();
         });
     } else {
@@ -251,7 +272,7 @@ function updateHeaderWithUserIDInfo(userId) {
             const urlElement = document.createElement('div');
             urlElement.className = 'd-flex align-items-center mt-3';
             urlElement.innerHTML = `
-                <span id="sharedUrl" class="me-2">${qrCodeUrl}</span>                   
+                <span id="sharedUrl" class="me-1">${qrCodeUrl}</span>                   
             `;
             qrModalBody.appendChild(urlElement);
             const copyUrlButton = document.createElement('button');
@@ -266,7 +287,7 @@ function updateHeaderWithUserIDInfo(userId) {
             shareButton.onclick = function () {
                 if (navigator.share) {
                     navigator.share({
-                        title: 'VNOTE sdílené poznámky',
+                        title: 'VNOTE sdílené poznámkové bloky',
                         text: 'Omrkni poznámky:',
                         url: qrCodeUrl
                     }).catch((error) => console.error('Chyba sdílení:', error));
@@ -285,7 +306,7 @@ function updateHeaderWithUserIDInfo(userId) {
             });
             // Show the modal
             const modalElement = document.getElementById('qrmodal');
-            modalElement.querySelector('.modal-title').innerText = 'User ID: ' + userId;
+            modalElement.querySelector('.modal-title').innerText = 'UserID: ' + userId;
             new bootstrap.Modal(modalElement).show();
         });
     } else {
@@ -731,7 +752,7 @@ function loadNotes(notebookId, source = '', readOnly = false) {
 
             // Create Checkbox Container
             const checkboxContainer = document.createElement('label');
-            checkboxContainer.className = 'checkbox-container me-3';
+            checkboxContainer.className = 'checkbox-container me-1';
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
