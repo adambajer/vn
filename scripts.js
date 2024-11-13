@@ -179,7 +179,7 @@ async function loadSharedUserNotebooks(sharedUserId) {
 function updateHeaderWithNotebookInfo(token) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (token) {
-        headerElement.innerHTML = `<div>notebookToken: ${token}</div>`; 
+        headerElement.innerHTML = `<div>nT: ${token}</div>`; 
         let qrCodeContainer = document.getElementById('qrCodeContainer');
         const qrCodeUrl = `${baseUrl}/?notebookToken=${token}`;
  
@@ -251,7 +251,7 @@ function updateHeaderWithNotebookInfo(token) {
 function updateHeaderWithUserIDInfo(userId) {
     const headerElement = document.getElementById('header'); // Assuming you have a header element with this ID
     if (userId) {
-        headerElement.innerHTML = `<div>UserID: ${userId}</div>`;
+        headerElement.innerHTML = `<div>UID: ${userId}</div>`;
         let qrCodeContainer = document.getElementById('qrCodeContainer');
         const qrCodeUrl = `${baseUrl}/?userid=${userId}`;
 
