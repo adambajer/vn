@@ -23,7 +23,7 @@ body {
 #noteInput {
     background: white; 
     border: 0px;
-    border-bottom: 1Px solid #ddd;
+    border-bottom: 1Px solid #eaeaea;
     /* position: relative; */
     /* flex-wrap: wrap; */
     /* display: flex; */
@@ -106,12 +106,11 @@ body {
 }
 
 #bartabs {
-    background: white;
+    background: #eaeaea;
 }
 
 .nav-item {
-    border-right: 1px solid #eaeaea;
-}
+ }
 
 .navbar {
     display: flex;
@@ -119,7 +118,7 @@ body {
     justify-content: space-between;
     padding: 0.5rem 1rem;
     background-color: #eaeaea;
-    border-bottom: 1px solid #e1e4e8;
+    border-bottom: 1px solid #eaeaea;
 }
 
 .navbar-brand {
@@ -137,7 +136,7 @@ body {
 .dropdownBtn {
     display: inline-block;
     background-color: transparent;
-    border-right: 1px solid #ccc;
+    border-right: 1px solid #eaeaea;
     padding: 0.5rem;
     border-radius: 0;
     margin-left: 0.5rem;
@@ -152,8 +151,8 @@ body {
 }
 
 .nav-link {
-   background-color: #eaeaea;
-    border-bottom: 1px solid #ccc;
+   background-color: #dff8ff;
+    border-bottom: 1px solid #eaeaea;
     color: #333;
 }
 
@@ -175,7 +174,7 @@ body {
 }
 
 #userIcon {
-    border-left: 1px solid #ccc;
+    border-left: 1px solid #eaeaea;
     cursor: pointer; 
     padding: 5px;   
 }
@@ -304,7 +303,7 @@ body {
 
  
 #spaceName {
-    border: 1px solid #ccc;
+    border: 1px solid #eaeaea;
     font-size: 1.5rem;
     padding-left: 2rem;
     padding-right: 2rem;
@@ -362,7 +361,7 @@ body {
     height: 1.25em;
     cursor: pointer;
     appearance: none; /* Remove default checkbox styling */
-    border: 2px solid #ccc; /* Add border to indicate the checkbox area */ 
+    border: 1px solid #eaeaea; /* Add border to indicate the checkbox area */ 
     background-color: #fff;
     position: relative;
 }
@@ -383,26 +382,7 @@ body {
     opacity: 1;
 }
 .time-icon {
-    /* content: attr(data-title) !important; */
-    position: absolute;
-    right: 0px;
-    top: 4px;
-    /* transform: translateX(-50%); */
-    background-color: white;
-    width: 20px;
-    /* color: #333; */
-    /* padding: 0.5rem; */
-    /* border: 1px solid #ddd; */
-    /* border-radius: 4px; */
-    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-    /* white-space: pre-line; */
-    /* max-width: 200px; */
-    /* font-size: 0.9rem; */
-    /* pointer-events: none; */
-    /* opacity: 0; */
-    /* transition: opacity 0.3s ease; */
-    /* z-index: 99999; */
-    height: 20px;
+ 
 }
 .delete-note {
 
@@ -421,8 +401,8 @@ body {
 }
 /* Change background color when checkbox is checked */
 .checkbox-container input[type="checkbox"]:checked + .checkmark {
-    background-color: #2196F3;
-    border-color: #2196F3;
+    background-color: #0d6efd;
+    border-color:#0d6efd;
 }
 
 /* Add checkmark symbol when checked */
