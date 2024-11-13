@@ -191,13 +191,17 @@ function updateHeaderWithNotebookInfo(token) {
             qrModalBody.innerHTML = '';
             new QRCode(qrModalBody, {
                 text: qrCodeUrl,
-                width: 256,
-                height: 256,
+                width: 512,
+                height: 512,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-
+                // Přidat třídu 'img-fluid' k vytvořenému obrázku
+            const qrImage = qrModalBody.querySelector('img');
+            if (qrImage) {
+                qrImage.classList.add('img-fluid');
+            }
             // Add the shared URL and copy button
             const urlElement = document.createElement('div');
             urlElement.className = 'd-flex align-items-center mt-3';
@@ -262,12 +266,17 @@ function updateHeaderWithUserIDInfo(userId) {
             qrModalBody.innerHTML = '';
             new QRCode(qrModalBody, {
                 text: qrCodeUrl,
-                width: 256,
-                height: 256,
+                width: 512,
+                height: 512,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
+                        // Přidat třídu 'img-fluid' k vytvořenému obrázku
+            const qrImage = qrModalBody.querySelector('img');
+            if (qrImage) {
+                qrImage.classList.add('img-fluid');
+            }
             // Add the shared URL and copy button
             const urlElement = document.createElement('div');
             urlElement.className = 'd-flex align-items-center mt-3';
@@ -649,28 +658,72 @@ function generateCustomNotebookId() {
     return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
 }
 // Set up user tooltip function
+// Nastavení funkce pro tooltip uživatele
 function setUpUserTooltip() {
     const userIcon = document.getElementById('userIcon');
     userIcon.addEventListener('click', function () {
         var deviceFingerprint = getDeviceFingerprint();
         var deviceInfo = getDeviceInfo();
-        var infoText = "";
-        infoText += '<div class="ones">UserId</div>' + '<div class="twos">' + localStorage.getItem('userId') + '</div>';
-        infoText += '<div class="ones">ActiveTabUID</div>' + '<div class="twos">' + localStorage.getItem('activeTabUID') + '</div>';
-        infoText += '<div class="ones">Device Fingerprint</div>' + '<div class="twos">' + deviceFingerprint + '</div>';
-        // Iterate over each property in the deviceInfo object
+        var infoText = `
+            <ol class="list-group list-group-numbered">
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Uživatelské ID</div>
+                        ${localStorage.getItem('userId')}
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Aktivní Tab UID</div>
+                        ${localStorage.getItem('activeTabUID')}
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">Otisk zařízení</div>
+                        ${deviceFingerprint}
+                    </div>
+                </li>
+        `;
+
+        // Přeložit a přidat další informace z deviceInfo objektu
         for (var key in deviceInfo) {
             if (deviceInfo.hasOwnProperty(key)) {
-                infoText += '<div class="ones">' + key + '</div><div class="twos">' + deviceInfo[key] + '</div>';
+                var translatedKey = translateDeviceInfoKey(key);
+                infoText += `
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">${translatedKey}</div>
+                        ${deviceInfo[key]}
+                    </div>
+                </li>`;
             }
         }
-        // Set the modal content to the compiled information
+        infoText += '</ol>';
+
+        // Nastavit obsah modalu na sestavené informace
         const userModalBody = document.getElementById('userModalBody');
         userModalBody.innerHTML = infoText;
-        // Show the modal with user information
+
+        // Zobrazit modal s informacemi o uživateli
         new bootstrap.Modal(document.getElementById('usermodal')).show();
     });
 }
+
+// Pomocná funkce pro překládání klíčů deviceInfo
+function translateDeviceInfoKey(key) {
+    const translations = {
+        platform: 'Platforma',
+        userAgent: 'User Agent',
+        language: 'Jazyk',
+        resolution: 'Rozlišení',
+        colorDepth: 'Hloubka barev',
+        timezoneOffset: 'Posun časového pásma'
+        // Přidejte další překlady podle potřeby
+    };
+    return translations[key] || key;
+}
+
 function setUpNoteInput() {
     const noteInput = document.getElementById('noteInput');
     noteInput.addEventListener('keydown', function (event) {

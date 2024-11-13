@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,8 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/speechkitt.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.2/tinycolor.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
  
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SpeechKITT/1.0.0/themes/flat.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -40,8 +40,8 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-light">  
 
-                                    <li><a class="dropdown-item"  href="https://adambajer.github.io/vn/" >Všechny vaše bloky</a></li>
-                                     <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Exportuj vše</a></li>
+                                    <li><a class="dropdown-item" href="https://adambajer.github.io/vn/">Všechny vaše bloky</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="exportAllNotebooks()">Exportuj vše</a></li>
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#aboutAppModal">O aplikaci</a></li>
                                  </ul>
                             </li>
@@ -58,10 +58,10 @@
                 </nav>
         </div>
         <div id="bartabs" class="cus align-items-center ">
-            <!-- Title of the app added here -->
+            <!-- Název aplikace zde -->
             <div class="scrollable-nav">
-                <ul id="notebookTabs" class="nav nav-pills"</ul>
-                <button id="createNotebookButton" class="btn btn-primary rounded-0" title="New notebook"><span class="material-symbols-outlined">add</span></button>
+                <ul id="notebookTabs" class="nav nav-pills"></ul> <!-- Opravená uzavírací značka -->
+                <button id="createNotebookButton" class="btn btn-primary rounded-0" title="Nový notebook"><span class="material-symbols-outlined">add</span></button>
             </div>
         </div>
         <div id="notesContainer2">
@@ -78,18 +78,18 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="aboutAppModalLabel"><img src="favicon.svg" width="30px" height="30px"
                             class="pe-2 ">VNOTE</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavřít"></button>
                 </div>
                 <div class="modal-body">
                     <p>
-                        VNOTE is a dynamic note-taking tool that allows users to capture and organize their
-                        thoughts
-                        efficiently. Developed to enhance productivity, it features voice recognition, various font
-                        customizations, and a user-friendly interface.</p>
-                    0.1</br>
-                    Adam Bajer</br>
-                    <a href="https://github.com/adambajer/vn">https://github.com/adambajer/vn</a></br>
-                    <a href="mailto:adam.bajer@gmail.com">adam.bajer@gmail.com</a></br>
+                        VNOTE je dynamický nástroj pro poznámky, který uživatelům umožňuje efektivně zachytávat a organizovat jejich myšlenky. Vyvinutý ke zvýšení produktivity, obsahuje rozpoznávání hlasu, různé možnosti úprav fontů a uživatelsky přívětivé rozhraní.
+                    </p>
+                    <p>Verze 0.1</p>
+                    <p>Adam Bajer</p>
+                    <p>
+                        <a href="https://github.com/adambajer/vn">https://github.com/adambajer/vn</a><br>
+                        <a href="mailto:adam.bajer@gmail.com">adam.bajer@gmail.com</a><br>
+                    </p>
                 </div>
             </div>
         </div>
@@ -98,29 +98,29 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">QR Code</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">QR kód</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavřít"></button>
                 </div>
                 <div class="modal-body" id="qrModalBody">
-                    <!-- QR code will be dynamically inserted here -->
+                    <!-- QR kód bude dynamicky vložen zde -->
                 </div>
             </div>
         </div>
     </div>
-    <!-- User Information Modal -->
-<div id="usermodal" class="modal fade" tabindex="-1" aria-labelledby="usermodalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">User Information</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="userModalBody">
-                <!-- User information will be dynamically inserted here -->
+    <!-- Modal s Informacemi o Uživateli -->
+    <div id="usermodal" class="modal fade" tabindex="-1" aria-labelledby="usermodalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Informace o uživateli</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavřít"></button>
+                </div>
+                <div class="modal-body" id="userModalBody">
+                    <!-- Informace o uživateli budou dynamicky vloženy zde -->
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <div class="status"></div>
     <script src="scripts.js" defer></script>
