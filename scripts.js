@@ -1,7 +1,11 @@
 
 let activeNotebookId;
 let userId;
+// Define baseUrl based on environment
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const baseUrl = isLocalhost ? `${window.location.origin}` : `${window.location.origin}/vn`;
 
+console.log(`Base URL set to: ${baseUrl}`);
 function getUrlParameters() {
     const params = new URLSearchParams(window.location.search);
     const entries = params.entries();
@@ -48,6 +52,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         // **Add this line to update the header with the user's QR code**
         updateHeaderWithUserIDInfo(userId);
     }
+      // Attach event listener to "NOVÝ" button
+      const createNotebookButton = document.getElementById('createNotebookButton');
+      if (createNotebookButton) {
+          createNotebookButton.addEventListener('click', function () {
+              createNotebook(userId);
+          });
+      } else {
+          console.error('Create Notebook Button not found!');
+      }
 });
 
 // ======================================
@@ -147,7 +160,8 @@ function updateHeaderWithNotebookInfo(token) {
     if (token) {
         headerElement.innerHTML = `<div>${token}</div>`;
         let qrCodeContainer = document.getElementById('qrCodeContainer');
-        const qrCodeUrl = `https://adambajer.github.io/vn/?notebookToken=${token}`;
+        const qrCodeUrl = `${baseUrl}/?notebookToken=${token}`;
+ 
         qrCodeContainer.innerHTML = '<span class="material-symbols-outlined">qr_code</span>';
 
         // Add click event to show QR code in a modal when generated
@@ -214,7 +228,8 @@ function updateHeaderWithUserIDInfo(userId) {
     if (userId) {
         headerElement.innerHTML = `<div>User ID: ${userId}</div>`;
         let qrCodeContainer = document.getElementById('qrCodeContainer');
-        const qrCodeUrl = `https://adambajer.github.io/vn/?userid=${userId}`;
+        const qrCodeUrl = `${baseUrl}/?userid=${userId}`;
+
         qrCodeContainer.innerHTML = '<span class="material-symbols-outlined">qr_code</span>';
         // Remove existing event listeners
         const newQrCodeContainer = qrCodeContainer.cloneNode(true);
@@ -438,14 +453,12 @@ function assignNotebookToUser(userId, notebookId) {
 }
 function shareNotebook(notebookId, token) {
     if (token) {
-        const baseUrl = window.location.origin;
-        const shareableLink = `${baseUrl}/vn/?notebookToken=${token}`;
+        const shareableLink = `${baseUrl}/?notebookToken=${token}`;
         redirectToSharePage(shareableLink);
     } else {
         getNotebookToken(notebookId).then(token => {
             if (token) {
-                const baseUrl = window.location.origin;
-                const shareableLink = `${baseUrl}/vn/?notebookToken=${token}`;
+                const shareableLink = `${baseUrl}/?notebookToken=${token}`;
                 redirectToSharePage(shareableLink);
             } else {
                 console.error('No token found for this notebook');
@@ -455,6 +468,7 @@ function shareNotebook(notebookId, token) {
         });
     }
 }
+
 function redirectToSharePage(shareableLink) {
     const sharePageUrl = `${shareableLink}`;
     window.location.href = sharePageUrl;
@@ -538,7 +552,7 @@ function shareNotePrompt(notebookId) {
 }
 function shareAllNotebooks(userId) {
     if (userId) {
-        const shareableLink = `?userid=${userId}`;
+        const shareableLink = `${baseUrl}/?userid=${userId}`;
         redirectToSharePage(shareableLink);
     } else {
         console.error('User ID not found.');
@@ -602,13 +616,14 @@ function shareNoteToken(notebookId, noteId) {
     noteRef.once('value', snapshot => {
         const note = snapshot.val();
         if (note && note.token) {
-            const shareableLink = `${window.location.origin}?noteToken=${note.token}`;
+            const shareableLink = `${baseUrl}/?noteToken=${note.token}`;
             prompt("Copy this link to share the note:", shareableLink);
         } else {
             console.error('No token found for this note');
         }
     });
 }
+
 function generateCustomNotebookId() {
     return [...Array(16)].map(() => Math.floor(Math.random() * 36).toString(36)).join('');
 }
