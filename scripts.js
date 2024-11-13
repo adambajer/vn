@@ -191,8 +191,8 @@ function updateHeaderWithNotebookInfo(token) {
             qrModalBody.innerHTML = '';
             new QRCode(qrModalBody, {
                 text: qrCodeUrl,
-                width: 512,
-                height: 512,
+                width: 256,
+                height: 256,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
@@ -266,8 +266,8 @@ function updateHeaderWithUserIDInfo(userId) {
             qrModalBody.innerHTML = '';
             new QRCode(qrModalBody, {
                 text: qrCodeUrl,
-                width: 512,
-                height: 512,
+                width: 256,
+                height: 256,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
